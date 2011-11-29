@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
-from __future__ import unicode_literals # unicode by default
 
-
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__   = 'Nando Florestan'
 __copyright__ = "Copyright (C) 2010 Nando Florestan"
 __license__ = 'BSD'
@@ -33,7 +28,7 @@ Library contents
     * more_codecs -- Got text in some weird encoding that Python doesn't know? OK, use iconv to decode it.
     * percentage_done -- Don't leave your user wondering if your program is hanging; print the percentage of work done every few seconds.
     * sa -- Convenient SQLALchemy initialization, and some types for working with SQLite.
-    * text -- Functions for working with unicode strings. 
+    * text -- Functions for working with unicode strings.
 """.format(__url__)
 
 __doc__ = '''bag library, version {0} — {1}
