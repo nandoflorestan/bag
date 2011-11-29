@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
-from __future__ import unicode_literals # unicode by default
 
-
+from __future__ import unicode_literals  # unicode by default
 from datetime import datetime, timedelta
 
 
@@ -25,16 +21,16 @@ class PercentageDone(object):
         self.granularity = timedelta(0, granularity)
         self.current = 0
         self.start = self.printed = datetime.utcnow()
-    
+
     def calc(self, val):
         '''Takes *val* (the current position relative to *max* and
         calculates:
-        
+
         * self.current (int): the current percentage done
         * self.delta (timedelta): time elapsed since self.start
         * self.estimate (timedelta): how long this is going to take (total)
         * self.remaining (timedelta): how long you still have to wait
-        
+
         Returns self.remaining.
         '''
         percent = 100 * int(val) / self.max
@@ -47,11 +43,11 @@ class PercentageDone(object):
             if self.remaining < timedelta(0):
                 self.remaining = timedelta(0)
             return self.remaining
-    
+
     def display(self, val):
         '''Calls self.calc() and prints the percentage done and
         how long the user still has to wait.
-        
+
         But only does so every X seconds, where X is *granularity*.
         Does nothing if the granularity has not elapsed yet.
         '''
@@ -67,9 +63,9 @@ class PercentageDone(object):
 class ShowingPercentage(PercentageDone):
     '''A generator that encapsulates your iterable, printing the
     percentage done.
-    
+
     Usage:
-    
+
         p = ShowingPercentage(iterable, len(iterable), granularity=7)
         # Then use p instead of your iterable:
         for something in p:
@@ -78,7 +74,7 @@ class ShowingPercentage(PercentageDone):
     def __init__(self, iterable, max, **k):
         super(ShowingPercentage, self).__init__(max, **k)
         self.iterable = iterable
-    
+
     def __iter__(self):
         for i, o in enumerate(self.iterable):
             yield o
@@ -90,5 +86,5 @@ def test_percentage():
     total = 100
     d = PercentageDone(total)
     for i in range(total):
-        d(i)            
+        d(i)
         sleep(.5)

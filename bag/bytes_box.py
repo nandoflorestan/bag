@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals # unicode by default
-
+from __future__ import unicode_literals  # unicode by default
 import os
 import stat
 import urllib2
@@ -15,6 +14,7 @@ def isdir(s):
     except os.error:
         return False
     return stat.S_ISDIR(st.st_mode)
+
 
 def mkdir(s):
     '''Make directories (if they don't exist already).'''

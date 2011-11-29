@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
-from __future__ import unicode_literals # unicode by default
 
+from __future__ import unicode_literals  # unicode by default
 
 
 def encode_xml_char_refs(s):
     # http://mail.python.org/pipermail/python-list/2007-January/424262.html
     return s.encode('ascii', 'xmlcharrefreplace')
+
 
 from htmlentitydefs import name2codepoint
 import re

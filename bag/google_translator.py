@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-# http://docs.python.org/whatsnew/pep-328.html
-
-from __future__ import print_function   # deletes the print statement
-
 # http://code.google.com/apis/ajaxlanguage/terms.html
 # http://code.google.com/apis/ajaxlanguage/
-
 
 import sys
 from urllib import urlopen, urlencode, quote
@@ -25,20 +19,20 @@ class GoogleTranslator(object):
     """Typical usage:
     g = GoogleTranslator("en", "pt")
     g.translate("This parrot is deceased.")
-    
+
     Or from the command line:
     ./google_translator.py en es "It is a late parrot."
     """
-    
+
     URL = "http://ajax.googleapis.com/ajax/services/language/translate" \
           "?v=1.0&langpair="
-    
+
     def __init__(self, from_lang, to_lang):
         # TODO: Validate language pair: http://code.google.com/p/google-api-translate-java/source/browse/trunk/src/com/google/api/translate/Language.java
         self.from_lang = from_lang
         self.to_lang = to_lang
         self.url = self.URL + from_lang + "%7C" + to_lang + "&q="
-    
+
     def translate(self, text):
         url = self.url + quote(text)
         file = urlopen(url)
@@ -50,7 +44,7 @@ class GoogleTranslator(object):
                 + d.get("responseDetails", "") + ". Status: " \
                 + str(d.get("responseStatus", "")))
         return d["responseData"]["translatedText"]
-    
+
     def utranslate(self, text):
         """Returns the translation as a Unicode object."""
         return self.translate(text).decode("utf8")

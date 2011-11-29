@@ -86,7 +86,6 @@ class SAContext(object):
         return o
 
 
-
 # TYPES FOR SQLITE
 # ================
 import sqlalchemy.types as types

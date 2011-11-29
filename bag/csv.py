@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
 
 import csv
 
@@ -137,4 +134,3 @@ class UnicodeDictReader(object):
             for key in self.fieldnames[lr:]:
                 d[key] = self.restval
         return d
-

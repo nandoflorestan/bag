@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
-from __future__ import unicode_literals # unicode by default
 
+from __future__ import unicode_literals  # unicode by default
 from time import sleep
 import os
 import sys
@@ -19,12 +16,12 @@ class PausingLooper(object):
     '''
     stop = False
     pause_duration = None
-    
+
     def loop(self):
         while not self.stop:
             self.iterate()
             if self.pause_duration: sleep(self.pause_duration)
-    
+
 
 class FileWatcher(PausingLooper):
     '''When you call the loop() method, watches a sequence of *files*
@@ -37,14 +34,14 @@ class FileWatcher(PausingLooper):
         self.mtimes = {}
         self.files = set(self.filter(files))
         # print(self.files)
-    
+
     def filter(self, files):
         '''Massages the sequence of file paths received in the constructor.
         (Useful for subclassing.)
         This implementation just discards empty strings and returns a generator.
         '''
         return (f for f in files if f)
-    
+
     def iterate(self):
         '''Runs every so often to check if any files have changed.'''
         for path in self.files:
@@ -66,7 +63,7 @@ class FileWatcher(PausingLooper):
                 if mtime is None or mtime > oldtime:
                     self.mtimes[path] = mtime
                     self.callback(path)
-    
+
 
 class ModuleWatcher(FileWatcher):
     '''A file watcher that is good for watching Python programs.
@@ -77,7 +74,7 @@ class ModuleWatcher(FileWatcher):
         '''Filters .pyc files, but keeps them as .py. Returns a generator.'''
         files = super(ModuleWatcher, self).filter(files)
         return (f[:-1] if f.endswith('.pyc') else f for f in files)
-    
+
 
 class LoadedModulesWatcher(ModuleWatcher):
     '''A file watcher that finds all loaded python modules.
@@ -85,20 +82,20 @@ class LoadedModulesWatcher(ModuleWatcher):
     when this object was instantiated.
     You may use the static reload_module_by_path(path) method.
     '''
-    
+
     @staticmethod
     def get_loaded_modules_paths():
         '''Returns a generator of the paths of currently loaded modules.'''
         # The builtin modules don't have a __file__ attribute.
         return (m.__file__ for m in sys.modules.values() \
                    if m and hasattr(m, '__file__'))
-    
+
     @staticmethod
     def reload_module_by_path(path):
         '''Given a Python module path, tries to find the corresponding loaded
         Python module and reloads it. Returns True if successful, or
         False if not found.
-        
+
         Beware: reloading a module does NOT update instances if they are names
         external to the module -- the old objects remain running the old code.
         This is just how reload() works.
@@ -112,10 +109,10 @@ class LoadedModulesWatcher(ModuleWatcher):
                 reload(m)
                 return True
         return False
-    
+
     def filter(self, files):
         '''Adds currently loaded modules to the *files* list.'''
         from itertools import chain
         return super(LoadedModulesWatcher, self) \
             .filter(chain(files, self.get_loaded_modules_paths()))
-    
+

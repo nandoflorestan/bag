@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
-from __future__ import unicode_literals # unicode by default
 
 '''This module allows the Kajiki templating language --
 http://pypi.python.org/pypi/Kajiki/
@@ -29,6 +25,8 @@ The Kajiki FileLoader class supports searching only one directory for templates.
 As of 2011-01, if you want a search path, you must roll your own.
 If you do... let us know.
 '''
+
+from __future__ import unicode_literals  # unicode by default
 
 from paste.deploy.converters import asbool
 from zope.interface import implements

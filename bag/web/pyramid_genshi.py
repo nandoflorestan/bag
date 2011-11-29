@@ -46,7 +46,7 @@ application name. This adds a translation filter:
     genshi.translation_domain = SomeDomain
 '''
 
-from __future__ import unicode_literals # unicode by default
+from __future__ import unicode_literals  # unicode by default
 
 from paste.deploy.converters import asbool
 from zope.interface import implements
@@ -135,7 +135,6 @@ class GenshiTemplateRenderer(object):
         # encoding=None makes Genshi return a unicode object:
         return t.generate(**dic) \
             .render(method=self.method, encoding=None)
-
 
 
 def enable_genshi(config, extension='.genshi'):

@@ -204,10 +204,6 @@ the simplest thing that works.
 But "Fanstatic" is a much more creative name, I envy that :)
 '''
 
-
-# http://docs.python.org/whatsnew/pep-328.html
-from __future__ import absolute_import
-from __future__ import print_function   # deletes the print statement
 from __future__ import unicode_literals # unicode by default
 
 try:
