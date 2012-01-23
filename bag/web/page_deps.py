@@ -322,6 +322,8 @@ class DepsRegistry(object):
         self._libs = {}
         self._packages = {}
         self._css_priority = 0 # this autoincrements :)
+        from warnings import warn
+        warn('page_deps is deprecated; use web_deps instead.')
 
     def lib(self, name, urls, depends=[]):
         '''If provided, the *depends* argument must be either a list of strings,
