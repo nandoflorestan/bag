@@ -1,0 +1,620 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''web_deps.py
+
+Copyright © 2012 Nando Florestan
+
+License: BSD
+
+The problem: script and CSS linking in composite pages
+======================================================
+
+If you develop web applications in Python, and if sometimes you compose a page
+out of fragments defined in various templates or functions, you may have asked
+yourself how to best factor the importing of stylesheets and
+javascript libraries. It feels wrong to use a javascript library in a
+template that consubstantiates a page fragment while declaring the
+<script> imports in another template.
+
+There are 2 sides to this problem.
+Worst of all is not declaring a library that is needed, 'cause then your
+page does not work. But almost as bad is declaring everything you
+might ever need in your master template -- because then, pages that don't need
+heavy javascript libraries will be unnecessarily heavy and slow.
+
+A solution is needed that allows you to first register everything you use,
+then on each specific template or view declare what you need right there,
+and the solution would generate the HTML imports, without repeating them.
+
+We also must keep in mind that the order matters. For instance, jquery.ui
+depends on jquery; and CSS has inheritance, so we need to link stylesheets
+in the correct order.
+
+The solution should also work with
+any web framework and any templating language.
+
+My solution: WebDeps
+====================
+
+The following classes solve the described problem.
+First of all, while you configure the application, you declare the files
+that might be imported:
+
+    deps = WebDeps()
+    deps.lib('jquery', url="/static/lib/jquery-1.4.2.min.js")
+    deps.lib('deform', url="/static/lib/deform.js",
+        deps='jquery, jquery.ui')
+
+The first argument to lib() -- and in fact to the other methods, too --
+is a simple name for you to refer to the item later on.
+
+As you can see, we can declare that deform.js depends on jquery and jquery.ui.
+For more than one dependency, you just provide a comma-separated string:
+
+    deps='jquery, jquery.ui'
+
+What about CSS stylesheets? Just call css() instead of lib():
+
+    deps.css('jquery.ui', url='/static/css/jquery.ui.css')
+    deps.css('deform', url="/deform/css/form.css", deps='jquery.ui')
+
+They, too, can depend on other stylesheets, which are then output first.
+
+Often javascript libraries work together with certain CSS stylesheets.
+So we have a notion of a *package*:
+
+    deps.package('deform', libs='deform', css='deform',
+         script='alert("Spam!");', deps='another_package')
+
+A package is a special kind of dependency. It can refer to
+scripts, stylesheets, other packages, and even contain some javascript code.
+
+The above package declaration allows you to later say "I need the 'deform' package here', and the system will output the deform javascript library,
+the deform CSS stylesheet, all their dependencies, plus some javascript code.
+
+When everything needed by the web application has been declared, you need to
+call close() to obtain a class that you will use on your pages:
+
+    PageDeps = deps.close()
+
+This ends initialization time. We are done with the registry.
+
+But web servers are usually threaded and we cannot confuse the needs of
+one page being served with another's. So now, for each new request,
+make sure your web framework instantiates a PageDeps, and make it available to
+controllers and templates. For instance, in the Pyramid web framework:
+
+    def on_new_request(event):
+        event.request.deps = PageDeps()
+    from pyramid.events import NewRequest
+    # "config" below is assumed to be an instance of a
+    # pyramid.config.Configurator object
+    config.add_subscriber(on_new_request, NewRequest)
+
+After that, controller/view code -- as well as templates, in some more
+powerful templating languages -- can easily access a per-request
+PageDeps instance and do this kind of thing:
+
+    # Use just one library:
+    request.deps.lib('jquery')
+    # Use 2 or more libraries:
+    request.deps.lib(('jquery.ui, deform'))
+    # Use a couple of stylesheets:
+    request.deps.css('global, specific')
+    # Or maybe import several stylesheets and javascript libraries at once:
+    request.deps.package('deform')
+    # You can also add ad hoc script fragments:
+    request.deps.script('alert("Bruhaha!");')
+
+A file can be requested more than once, but it will appear in the HTML
+output only once and in the correct order.
+
+Finally, we must deliver the HTML output. We shall use the best practice of
+putting the CSS stylesheets at the top of the page and all the javascript
+at the bottom of the page, near </body>. So, in your master template,
+firstly include this inside the <head> element:
+
+    ${Markup(request.deps.top_output)}
+
+...where "Markup" is whatever function your templating language uses to
+mark a string as a literal, so it won't be escaped. ("Markup" is from Genshi.)
+
+OR you can use "deps.css.tags" to the same effect: outputting the stylesheets.
+
+Secondly include this just before the </body> tag:
+
+    ${Markup(request.deps.bottom_output)}
+
+Alternatively, use "deps.lib.tags" and "deps.script.tags".
+
+You can also simply get lists of URLs (already sorted):
+
+    request.deps.css.urls
+    request.deps.lib.urls
+
+In short
+========
+
+There are 4 moments that should never be confused:
+
+* Declaration of all available libs and stylesheets (and their proper order),
+done as the web server starts, with the WebDeps class;
+* In the scope of one request, instantiation of a PageDeps;
+* Declaration of what is needed by the current request;
+* Output.
+
+Deployment: Alternative URLs
+============================
+
+During development, for debugging, I like to use an uncompressed version
+of jquery (a javascript library). But in production I like to use a CDN
+(Content Delivery Network) for speed. And if the CDN stops working, I like to
+have a third compressed version ready on my server.
+
+These are 3 different URLs jquery.js might be served from. web_deps supports
+this choice by letting you declare any and all URLs,
+then letting you choose one in your configuration file.
+
+How do you declare more than one URL? Well, the system stores any
+keyword arguments you pass to lib() and css():
+
+    deps.lib('jquery', compressed="/static/lib/jquery-1.4.2.min.js",
+        uncompressed="/static/lib/jquery-1.4.2.js",
+        cdn='http://google.com/some/address/jquery-1.4.2.min.js')
+
+Now the system has 3 URLs to choose from. Which will be in effect? Well, you
+also provide a callable, that returns the desired URL, to the
+WebDeps constructor as a "url_provider" keyword argument.
+Its default implementation is this:
+
+    url_provider=lambda resource: resource.url
+
+Evidently the above implementation gets the URL from the "url" argument.
+But that could be "compressed", "uncompressed", "cdn" or whatever you like.
+It is trivial for you to put this decision in a configuration file.
+Suppose the configuration file says:
+
+    web_deps.url_choice = cdn
+
+All you have to do is:
+
+    # Read the string from the configuration file, providing a default
+    choice = settings.get('web_deps.url_choice', 'compressed')
+    # Pass a url_provider callable to the WebDeps constructor
+    deps = WebDeps(url_provider=lambda resource: getattr(resource, choice))
+
+This way you can declare the libraries once in your code, in a centralized
+place, but easily configure which one is actually used based on
+the deployment configuration.
+
+Advantages over page_deps
+=========================
+
+This module, "web_deps", is superior to my previous attempt, called
+"page_deps", in the following ways:
+
+* Dependency declarations may be done in any order.
+  You can declare that *b* depends on "a", then declare what "a" is later.
+* Some computation occurs when close() is called. From this moment on,
+  trying to add a dependency throws an exception.
+* The general dependency problem has been solved in the base classes
+  Dependency and DepsRegistry, which can be reused in other scenarios.
+  The specific web problem is solved by inheriting from these superclasses.
+* Therefore, more code is reused between javascript and CSS dependencies.
+* Now packages can depend on other packages, too.
+* In page_deps stylesheets didn't really have dependencies, just priority.
+  This was a mistake.
+* Results are cached so your web application runs faster.
+* Much better user API.
+* The code is better organized.
+* It has more comprehensive unit tests.
+'''
+
+
+from __future__ import unicode_literals  # unicode by default
+from ..memoize import memoize
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+
+
+SEP = ','
+def uncommafy(txt):
+    '''Gets a comma-delimited string (or a list of strings)
+    and returns a list of strings.
+    '''
+    if not txt:  return []
+    if isinstance(txt, basestring):
+        return [t.strip() for t in unicode(txt).split(SEP)]
+    else:
+        return txt
+
+
+def uniquefy(seq, id_fun=lambda x: x):
+    '''Returns a list of the items in `seq` while preserving the order.
+    Why? set(seq) might be more expensive and does not preserve the order.
+    '''
+    seen = {}
+    result = []
+    for item in seq:
+        marker = id_fun(item)
+        if marker in seen: continue
+        seen[marker] = 1
+        result.append(item)
+    return result
+
+
+class Dependency(object):
+    def __init__(self, handle, deps='', **kw):
+        '''You can store whatever attributes you like by providing keyword
+        arguments. The only required argument is a name for this dependency.
+        '''
+        assert isinstance(handle, basestring)
+        self.handle = \
+            handle if isinstance(handle, unicode) else unicode(handle)
+        self.dep_handles = uncommafy(deps)
+        self.deps = None  # This is only computed on close()
+        for k, v in kw.iteritems():
+            setattr(self, k, v)
+
+    def __repr__(self):
+        return '{}("{}")'.format(self.__class__.__name__, self.handle) \
+            .encode('ascii', 'replace')
+
+    def __unicode__(self):
+        return self.handle
+
+    def recursive_deps(self):
+        '''Returns a deep list of the dependencies, with self as 1st item.
+        May contain duplicates.
+        '''
+        flat = [self]
+        for dep in self.deps:
+            flat.extend(dep.recursive_deps())
+        return flat
+
+
+class DepsRegistry(object):
+    def __init__(self):
+        self.items = {}
+
+    def admit(self, *deps):
+        '''The arguments must be Dependency instances.'''
+        for dep in deps:
+            if self.items.has_key(dep.handle):
+                raise KeyError('{} already registered.'.format(dep.handle))
+            self.items[dep.handle] = dep
+
+    def close(self):
+        # Find every actual dependency object from declared handle strings
+        for item in self.items.itervalues():
+            item.deps = \
+                uniquefy([self.items[d] for d in item.dep_handles])
+                # , id_fun=lambda d: d.handle)
+        # Do not allow admit() to work anymore
+        def admit(dep):
+            raise RuntimeError \
+                ('Cannot admit() because registry is already closed.')
+        self.admit = admit
+
+    @memoize(100, keymaker=repr)
+    def summon(self, items):
+        '''The parameter `items` can be either a comma-delimited string of
+        dependency names, or a list of actual Dependency objects.
+
+        Returns a list of dependency objects,
+        plus their dependencies, in the correct order.
+
+        How is it done? A flat list of dependencies is created leaf-to-root,
+        then reversed and uniquefied.
+
+        This method can only be called after close().
+        '''
+        flat = []
+        if isinstance(items, basestring):
+            items = [self.items[h] for h in uncommafy(items)]
+        for item in items:
+            flat.extend(item.recursive_deps())
+        return uniquefy(reversed(flat))
+
+
+class CallableRegistry(DepsRegistry):
+    item_class = Dependency
+
+    def __call__(self, handle, deps='', **kw):
+        '''Convenience method to add a Dependency without explicitly
+        instantiating it.
+
+        If provided, the *deps* argument must be either a list of strings,
+        or one string separated by commas.
+
+        Each of these items must be the name of another resource,
+        required for this resource to work.
+        '''
+        self.admit(self.item_class(handle, deps, **kw))
+
+
+class WebDepsRegistry(CallableRegistry):
+    def __init__(self, url_provider, tag_format):
+        super(WebDepsRegistry, self).__init__()
+        self.url_provider = url_provider
+        self.tag_format = tag_format
+
+    @memoize(100, keymaker=repr)
+    def urls(self, items):
+        '''Recommended for use in your templating language. Returns a list of
+        the URLs for the dependencies required by this page.
+        '''
+        return [self.url_provider(o) for o in self.summon(items)]
+
+    @memoize(100, keymaker=repr)
+    def tags(self, items):
+        '''Returns a string containing the HTML script tags.'''
+        return '\n'.join([self.tag_format.format(url) \
+            for url in self.urls(items)])
+
+
+class WebDeps(object):
+    '''Should be used at web server initialization time to register every
+    javascript and CSS file used by the application. Example:
+
+        deps = WebDeps()
+        deps.lib('jquery', url="/static/lib/jquery-1.4.2.min.js")
+        deps.lib('deform', url="/static/lib/deform.js",
+            deps='jquery, jquery.ui')
+        deps.css('deform', url="/deform/css/form.css")
+        deps.package('deform', libs='deform', css='deform',
+             script='alert("Spam!")')
+        PageDeps = deps.close()
+
+    Then in each request you should instantiate the returned PageDeps.
+    '''
+
+    def __init__(self, url_provider=lambda resource: resource.url):
+        '''By default, the system will output URLs by looking into the "url"
+        instance variable of resources. If needed, you can change this
+        by providing a `url_provider` function here.
+        '''
+        self.lib = WebDepsRegistry(url_provider=url_provider,
+            tag_format='<script type="text/javascript" src="{}"></script>')
+        self.css = WebDepsRegistry(url_provider=url_provider,
+            tag_format='<link rel="stylesheet" type="text/css" href="{}" />')
+        self.package = CallableRegistry()
+        self._url_provider = url_provider
+
+    def close(self):
+        '''Finishes registration time and returns a factory that
+        should be called for each request.
+        '''
+        self.lib.close()
+        self.css.close()
+        self.package.close()
+        def factory():
+            return PageDeps(self.lib, self.css, self.package)
+        return factory
+
+
+class PageDepsComponent(object):
+    def __init__(self, registry):
+        self._items = []
+        self.registry = registry
+
+    def __call__(self, handles):
+        '''Adds one or more requirements to this page or request.'''
+        for handle in uncommafy(handles):
+            self._items.append(self.registry.items[handle])
+
+    @property
+    def sorted(self):
+        '''Returns a list of dependency objects required by this page.'''
+        return self.registry.summon(self._items)
+
+    @property
+    def urls(self):
+        '''Recommended for use in your templating language. Returns a list of
+        the URLs for the dependencies required by this page.
+        '''
+        return self.registry.urls(self._items)
+
+    @property
+    def tags(self):
+        '''Returns a string containing the HTML script tags.'''
+        return self.registry.tags(self._items)
+
+
+class ScriptComponent(list):
+    def __call__(self, script):  # Included just to keep a common API
+        if not script in self:
+            self.append(script)
+
+    def output(self, tag=True):
+        if not self:
+            return '\n'
+        s = StringIO()
+        if tag:
+            s.write('<script type="text/javascript">\n')
+        for o in self:
+            s.write(o)
+            s.write('\n')
+        if tag:
+            s.write('</script>\n')
+        return s.getvalue()
+
+    @property
+    def tags(self):  # Included just to keep a common API
+        return self.output()
+
+
+class PackageComponent(object):
+    '''A package is a special kind of dependency. It can refer to
+    scripts, stylesheets, other packages, and even contain some
+    javascript code.
+
+    During application initialization you can define a package like this:
+
+        deps.package('deform', libs='deform', css='deform',
+             script='alert("Spam!");', deps='another_package')
+
+    Later - in a request - you can require all the package elements at once:
+
+        deps.package('deform')
+
+    '''
+    def __init__(self, packages, deps):
+        self._packages = packages
+        self._deps = deps
+
+    def __call__(self, handles):
+        '''Adds one or more package requirements to this page or request.'''
+        for handle in uncommafy(handles):
+            package = self._packages.items[handle]
+            if hasattr(package, 'deps'):
+                self([d.handle for d in package.deps])
+            if hasattr(package, 'libs'):
+                self._deps.lib(package.libs)
+            if hasattr(package, 'css'):
+                self._deps.css(package.css)
+            if hasattr(package, 'script'):
+                self._deps.script(package.script)
+
+
+class PageDeps(object):
+    '''Represents the dependencies of a page;
+    an instance must be used on each request.
+    Makes it easy to declare dependencies and provides the HTML tag soup.
+    '''
+    def __init__(self, libs, styles, packages):
+        '''The constructor is called by
+        the factory returned by WebDeps.close(), not by you.
+        It just assembles a composite object.
+        '''
+        self.lib = PageDepsComponent(libs)
+        self.css = PageDepsComponent(styles)
+        self.script = ScriptComponent()
+        self.package = PackageComponent(packages, self)
+
+    @property
+    def top_output(self):
+        return self.css.tags
+
+    @property
+    def bottom_output(self):
+        return self.lib.tags + '\n' + self.script.tags
+
+    def __unicode__(self):
+        return '\n'.join([self.css.tags, self.lib.tags, self.script.tags])
+
+
+import unittest
+class TestDepsRegistry(unittest.TestCase):
+    def test_summon(self):
+        reg = DepsRegistry()
+        all = Dependency('montão', deps='n, m, b, a')
+        self.assertEqual(repr(all), b'Dependency("mont?o")')
+        self.assertEqual(unicode(all), u'montão')
+        n = Dependency('n', deps='b, m')
+        m = Dependency('m', deps='a')
+        a = Dependency('a')
+        b = Dependency('b')
+        reg.admit(all, n, m, a, b)
+        reg.close()
+        self.assertEqual(reg.summon('a'), [a])
+        self.assertEqual(reg.summon('b'), [b])
+        self.assertEqual(reg.summon('m'), [a, m])
+        self.assertEqual(reg.summon('n'), [a, m, b, n])
+        self.assertEqual(reg.summon('m, b'), [b, a, m])
+        self.assertEqual(reg.summon('montão'), [a, b, m, n, all])
+        self.assertEqual(reg.summon('montão,a,b,m,n'), [a, m, b, n, all])
+
+
+class TestPageDeps(unittest.TestCase):
+    def setUp(self):
+        deps = WebDeps()
+        deps.lib('jquery.ui', url='/static/lib/jquery-ui-1.8.16.min.js',
+            deps='jquery')
+        deps.lib('jquery', url="/static/lib/jquery-1.7.1.min.js")
+        deps.lib('deform', url="/static/lib/deform.js",
+            deps='jquery, jquery.ui')
+        deps.css('jquery', url='http://jquery.css')
+        deps.css('deform', url='http://deform.css', deps='jquery.ui')
+        deps.css('jquery.ui', url='http://jquery.ui.css', deps='jquery')
+        deps.package('jquery.ui', libs='jquery.ui',
+            css='jquery.ui', script='alert("JQuery UI spam!");')
+        deps.package('deform', deps='jquery.ui', libs='deform',
+            css='deform', script='alert("Deform spam!");')
+        self.PageDeps = deps.close()
+
+    def test_request1(self):
+        deps = self.PageDeps()
+        deps.lib('jquery')
+        self.assertEqual(deps.lib.urls, [u'/static/lib/jquery-1.7.1.min.js'])
+        deps.css('jquery')
+        self.assertEqual(deps.css.urls, [u'http://jquery.css'])
+        deps.script('alert("Bruhaha");')
+        self.assertEqual(deps.script.tags, '<script type="text/javascript">' \
+            '\nalert("Bruhaha");\n</script>\n')
+
+    def test_request2(self):
+        deps = self.PageDeps()
+        deps.lib('jquery.ui')
+        deps.lib('jquery.ui')  # requiring twice should have no effect
+        SCRIPTS_OUT = '<script type="text/javascript" ' \
+            'src="/static/lib/jquery-1.7.1.min.js"></script>\n' \
+            '<script type="text/javascript" ' \
+            'src="/static/lib/jquery-ui-1.8.16.min.js"></script>'
+        self.assertEqual(deps.lib.tags, SCRIPTS_OUT)
+        deps.css('deform')
+        CSS_OUT = '<link rel="stylesheet" ' \
+            'type="text/css" href="http://jquery.css" />\n' \
+            '<link rel="stylesheet" type="text/css" '\
+            'href="http://jquery.ui.css" />\n' \
+            '<link rel="stylesheet" type="text/css" ' \
+            'href="http://deform.css" />'
+        self.assertEqual(deps.css.tags, CSS_OUT)
+        ALERT = 'alert("Bruhaha");'
+        deps.script(ALERT)
+        deps.script(ALERT)  # Repeating should have no effect
+        ALERT_OUT = '<script type="text/javascript">' \
+            '\nalert("Bruhaha");\n</script>\n'
+        self.assertEqual(deps.script.tags, ALERT_OUT)
+        self.assertEqual(deps.top_output, CSS_OUT)
+        self.assertEqual(deps.bottom_output, SCRIPTS_OUT + '\n' + ALERT_OUT)
+        self.assertEqual(unicode(deps),
+            '\n'.join([CSS_OUT, SCRIPTS_OUT, ALERT_OUT]))
+
+    def test_request3(self):
+        deps = self.PageDeps()
+        deps.lib('deform, jquery')
+        deps.lib('jquery')
+        self.assertEqual(deps.lib.urls, [u'/static/lib/jquery-1.7.1.min.js',
+            u'/static/lib/jquery-ui-1.8.16.min.js', u"/static/lib/deform.js"])
+
+    def test_package1(self):
+        deps = self.PageDeps()
+        deps.package('jquery.ui')
+        deps.package('jquery.ui')  # Repeating should have no effect
+        self.assertEqual(unicode(deps), '''
+<link rel="stylesheet" type="text/css" href="http://jquery.css" />
+<link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
+<script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js"></script>
+<script type="text/javascript">
+alert("JQuery UI spam!");
+</script>\n'''.lstrip())
+
+    def test_package2(self):
+        deps = self.PageDeps()
+        deps.package('deform')
+        self.assertEqual(unicode(deps), '''
+<link rel="stylesheet" type="text/css" href="http://jquery.css" />
+<link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
+<link rel="stylesheet" type="text/css" href="http://deform.css" />
+<script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js"></script>
+<script type="text/javascript" src="/static/lib/deform.js"></script>
+<script type="text/javascript">
+alert("JQuery UI spam!");
+alert("Deform spam!");
+</script>\n'''.lstrip())
