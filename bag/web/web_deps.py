@@ -42,7 +42,7 @@ First of all, while you configure the application, you declare the files
 that might be imported:
 
     deps = WebDeps()
-    deps.lib('jquery', url="/static/lib/jquery-1.4.2.min.js")
+    deps.lib('jquery', url="/static/lib/jquery-1.7.1.min.js")
     deps.lib('deform', url="/static/lib/deform.js",
         deps='jquery, jquery.ui')
 
@@ -118,9 +118,12 @@ firstly include this inside the <head> element:
     ${Markup(request.deps.top_output)}
 
 ...where "Markup" is whatever function your templating language uses to
-mark a string as a literal, so it won't be escaped. ("Markup" is from Genshi.)
+mark a string as a literal, so it won't be escaped.
+"Markup" is from Genshi. In Chameleon you would say:
 
-OR you can use "deps.css.tags" to the same effect: outputting the stylesheets.
+    ${structure: request.deps.top_output}
+
+OR you can say "deps.css.tags" to the same effect: outputting the stylesheets.
 
 Secondly include this just before the </body> tag:
 
@@ -159,9 +162,9 @@ then letting you choose one in your configuration file.
 How do you declare more than one URL? Well, the system stores any
 keyword arguments you pass to lib() and css():
 
-    deps.lib('jquery', compressed="/static/lib/jquery-1.4.2.min.js",
-        uncompressed="/static/lib/jquery-1.4.2.js",
-        cdn='http://google.com/some/address/jquery-1.4.2.min.js')
+    deps.lib('jquery', prod="/static/lib/jquery-1.7.1.min.js",
+        dev="/static/lib/jquery-1.7.1.js",
+        cdn='http://google.com/some/address/jquery-1.7.1.min.js')
 
 Now the system has 3 URLs to choose from. Which will be in effect? Well, you
 also provide a callable, that returns the desired URL, to the
@@ -171,7 +174,7 @@ Its default implementation is this:
     url_provider=lambda resource: resource.url
 
 Evidently the above implementation gets the URL from the "url" argument.
-But that could be "compressed", "uncompressed", "cdn" or whatever you like.
+But that could be "dev", "prod", "cdn" or whatever you like.
 It is trivial for you to put this decision in a configuration file.
 Suppose the configuration file says:
 
@@ -180,13 +183,24 @@ Suppose the configuration file says:
 All you have to do is:
 
     # Read the string from the configuration file, providing a default
-    choice = settings.get('web_deps.url_choice', 'compressed')
+    choice = settings.get('web_deps.url_choice', 'prod')
     # Pass a url_provider callable to the WebDeps constructor
-    deps = WebDeps(url_provider=lambda resource: getattr(resource, choice))
+    def url_provider(resource):
+        return getattr(resource, choice, None) or resource.url
+    deps = WebDeps(url_provider=url_provider)
 
 This way you can declare the libraries once in your code, in a centralized
 place, but easily configure which one is actually used based on
 the deployment configuration.
+
+The above implementation will look for a 'prod' argument if the currently
+configured choice is 'prod'. If not found, it will look for a 'url' argument.
+This lets you provide either the 3 alternative URLs, or just one.
+
+Why would you provide only one URL? Not every file is provided by a CDN and
+not every javascript library is worth compressing. The reality we have
+experienced is we either want 3 alternative URLs, or just one. Anyway,
+suit yourself in your own url_provider implementation.
 
 Advantages over page_deps
 =========================
@@ -209,6 +223,12 @@ This module, "web_deps", is superior to my previous attempt, called
 * Much better user API.
 * The code is better organized.
 * It has more comprehensive unit tests.
+
+Questions?
+==========
+
+For feature requests and bug reports, please visit
+http://code.google.com/p/bag/issues/list
 '''
 
 
@@ -361,7 +381,7 @@ class WebDeps(object):
     javascript and CSS file used by the application. Example:
 
         deps = WebDeps()
-        deps.lib('jquery', url="/static/lib/jquery-1.4.2.min.js")
+        deps.lib('jquery', url="/static/lib/jquery-1.7.1.min.js")
         deps.lib('deform', url="/static/lib/deform.js",
             deps='jquery, jquery.ui')
         deps.css('deform', url="/deform/css/form.css")
