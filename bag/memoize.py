@@ -17,9 +17,11 @@ def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
         except ImportError:
             from pickle import dumps
         keymaker = lambda *a, **kw: dumps((a, kw))
+
     def decoratr(fn):
         cache = cache_type()
         popular = []
+
         @wraps(fn)
         def wrapper(*a, **kw):
             key = keymaker((a, kw))

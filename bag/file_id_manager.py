@@ -18,7 +18,7 @@ class FileIdManager(object):
     TODO: Separate the storage strategy; try to improve performance by
     storing IDs in something like gdbm.
     """
-    recordlength = 24 # bytes
+    recordlength = 24  # bytes
 
     def __init__(self, path):
         # Open the dictionary file for updates
@@ -31,20 +31,22 @@ class FileIdManager(object):
         if not isinstance(content, basestring):
             fc = content
             content = fc.read()
-            if closefile:  fc.close()
+            if closefile:
+                fc.close()
         if len(content) == 0:
             return b"\0" * self.recordlength
         else:
-            h = sha1(content).digest()         # 20 bytes for the hash
-            s = struct.pack("i", len(content)) #  4 bytes for the length
-            return s + h                       # 24 bytes total
+            h = sha1(content).digest()          # 20 bytes for the hash
+            s = struct.pack("i", len(content))  # 04 bytes for the length
+            return s + h                        # 24 bytes total
 
     def is_id_known(self, file_id):
         self.validate_id(file_id)
         self.f.seek(0)
         s = self.f.read(self.recordlength)
         while s != "":
-            if file_id == s:  return True
+            if file_id == s:
+                return True
             s = self.f.read(self.recordlength)
         return False
 
@@ -55,7 +57,7 @@ class FileIdManager(object):
 
     def add_file_id(self, file_id):
         self.validate_id(file_id)
-        self.f.seek(0, 2) # move to end of file
+        self.f.seek(0, 2)  # move to end of file
         self.f.write(file_id)
         self.f.flush()
 
@@ -63,5 +65,6 @@ class FileIdManager(object):
         """Example implementation (see source code of this method)."""
         id = self.get_id_for(content, closefile)
         b = self.is_id_known(id)
-        if not b:  self.add_file_id(id)
+        if not b:
+            self.add_file_id(id)
         return b

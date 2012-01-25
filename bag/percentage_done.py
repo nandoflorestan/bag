@@ -54,7 +54,8 @@ class PercentageDone(object):
         if self.granularity > datetime.utcnow() - self.printed:
             return
         remaining = self.calc(val)
-        if not remaining: return
+        if not remaining:
+            return
         print('{0}% done, {1} left...' \
             .format(self.current, str(remaining)[:7]))
         self.printed = datetime.utcnow()

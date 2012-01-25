@@ -88,8 +88,8 @@ class GenshiTemplateRenderer(object):
         else:
             callback = None
         self.loader = TemplateLoader(paths,
-                      auto_reload = asbool(settings.get('reload_templates')),
-                      callback = callback)
+                      auto_reload=asbool(settings.get('reload_templates')),
+                      callback=callback)
         self.strip_whitespace = settings.get('genshi.strip_whitespace', True)
         self.encoding = settings.get('genshi.encoding', 'utf-8')
         self.doctype = settings.get('genshi.doctype', 'html5')

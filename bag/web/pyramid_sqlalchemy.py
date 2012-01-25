@@ -11,8 +11,6 @@ import transaction
 from datetime import datetime
 from sqlalchemy import Column, Sequence
 from sqlalchemy.types import Integer, DateTime
-
-
 from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 sas = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))

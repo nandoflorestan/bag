@@ -21,8 +21,8 @@ application section of your Pyramid application’s .ini file:
     # ... other stuff ...
     kajiki.directory = myapp:templates
 
-The Kajiki FileLoader class supports searching only one directory for templates.
-As of 2011-01, if you want a search path, you must roll your own.
+The Kajiki FileLoader class supports searching only one directory for
+templates. As of 2011-01, if you want a search path, you must roll your own.
 If you do... let us know.
 '''
 
@@ -81,16 +81,17 @@ def renderer_factory(info):
     if not hasattr(registry, 'kajiki_loader'):
         from kajiki import FileLoader
         registry.kajiki_loader = FileLoader( \
-            base = abspath_from_resource_spec(settings['kajiki.directory']),
-            reload               = asbool(settings.get('reload_templates')),
-            force_mode           = asbool(settings.get('kajiki.force_mode')),
-            autoescape_text      = asbool(settings.get('kajiki.autoescape')),
+            base=abspath_from_resource_spec(settings['kajiki.directory']),
+            reload             = asbool(settings.get('reload_templates')),
+            force_mode         = asbool(settings.get('kajiki.force_mode')),
+            autoescape_text    = asbool(settings.get('kajiki.autoescape')),
         )
     return KajikiTemplateRenderer(info)
 
 
 def enable_kajiki(config, extensions=('.txt', '.xml', '.html', '.html5')):
-    '''Sets up the Kajiki templating language for the specified file extensions.
+    '''Sets up the Kajiki templating language for the specified
+    file extensions.
     '''
     for extension in extensions:
         config.add_renderer(extension, renderer_factory)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals # unicode by default
+from __future__ import unicode_literals  # unicode by default
 from datetime import datetime, timedelta
 from decimal import Decimal
 from sqlalchemy import Table, Column, Sequence, ForeignKey, desc, or_, \
@@ -49,6 +48,7 @@ class SAContext(object):
         sa2 = sa.clone_with_engine('sqlite://')
     '''
     __slots__ = ('metadata', 'base', 'dburi', 'engine', 'Session')
+
     def __init__(self, *args, **k):
         self.metadata = MetaData()
         self.base = declarative_base(metadata=self.metadata)
@@ -98,7 +98,8 @@ class AutoDate(types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if isinstance(value, basestring):
-            if value == '':  return None
+            if value == '':
+                return None
             parts = value.split('.')
             dt = datetime.strptime(parts[0], "%Y-%m-%d %H:%M:%S")
             if len(parts) > 1:
@@ -115,9 +116,8 @@ class Integer(types.TypeDecorator):
         '''Make sure an int is persisted. Otherwise, SQLite might persist
         things such as empty strings...
         '''
-        return None if value is None or value=='' else int(value)
-        #return None if not value else int(value)
-
+        # return None if not value else int(value)
+        return None if value is None or value == '' else int(value)
 
 
 class Numeric(types.TypeDecorator):
@@ -128,6 +128,6 @@ class Numeric(types.TypeDecorator):
         want empty strings to be automatically converted to None,
         for a Decimal column...
         '''
-        return None if value=='' else value
+        return None if value == '' else value
 
 del types

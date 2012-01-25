@@ -245,7 +245,8 @@ def uncommafy(txt):
     '''Gets a comma-delimited string (or a list of strings)
     and returns a list of strings.
     '''
-    if not txt:  return []
+    if not txt:
+        return []
     if isinstance(txt, basestring):
         return [t.strip() for t in unicode(txt).split(SEP)]
     else:

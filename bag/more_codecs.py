@@ -12,7 +12,7 @@ encoding/decoding for you. This module sets that up using the iconv program.
 
 Usage:
 
-    import oui.more_codecs
+    import bag.more_codecs
 
 That is it. Importing the module registers a codec. It will convert
 to and from anything in codecs_dict (if iconv supports it).
@@ -44,8 +44,10 @@ determine which codecs iconv has that Python 2.5 does not, and this has
 resulted in the default value of codecs_dict, with 894 codecs.
 """
 
-
-import codecs, subprocess, os, re
+import codecs
+import subprocess
+import os
+import re
 
 COMMAND = 'iconv'
 codecs_dict = [
@@ -188,21 +190,21 @@ codecs_dict = [
     'latingreek1', 'mac-centraleurope', 'mac-is', 'mac-sami', 'mac-uk', 'mac',
     'macintosh', 'macis', 'macuk', 'macukrainian', 'mik', 'ms-ansi',
     'ms-arab', 'ms-cyrl', 'ms-ee', 'ms-greek', 'ms-hebr', 'ms-mac-cyrillic',
-    'ms-turk', 'mscp949', 'mscp1361', 'msmaccyrillic', 'msz_7795.3','naplps',
+    'ms-turk', 'mscp949', 'mscp1361', 'msmaccyrillic', 'msz_7795.3', 'naplps',
     'nats-dano', 'nats-sefi', 'natsdano', 'natssefi', 'nc_nc0010',
     'nc_nc00-10', 'nc_nc00-10:81', 'nf_z_62-010', 'nf_z_62-010_(1973)',
     'nf_z_62-010_1973', 'nf_z_62010', 'nf_z_62010_1973', 'no', 'no2',
     'ns_4551-1', 'ns_4551-2', 'ns_45511', 'ns_45512', 'os2latin1',
     'osf00010001', 'osf00010002', 'osf00010003', 'osf00010004', 'osf00010005',
     'osf00010006', 'osf00010007', 'osf00010008', 'osf00010009', 'osf0001000a',
-    'osf00010020', 'osf00010100', 'osf00010101', 'osf00010102','osf00010104',
+    'osf00010020', 'osf00010100', 'osf00010101', 'osf00010102', 'osf00010104',
     'osf00010105', 'osf00010106', 'osf00030010', 'osf0004000a', 'osf0005000a',
     'osf05010001', 'osf100201a4', 'osf100201a8', 'osf100201b5', 'osf100201f4',
     'osf100203b5', 'osf1002011c', 'osf1002011d', 'osf1002035d', 'osf1002035e',
     'osf1002035f', 'osf1002036b', 'osf1002037b', 'osf10010001', 'osf10010004',
     'osf10010006', 'osf10020025', 'osf10020111', 'osf10020115', 'osf10020116',
     'osf10020118', 'osf10020122', 'osf10020129', 'osf10020352', 'osf10020354',
-    'osf10020357','osf10020359', 'osf10020360', 'osf10020364', 'osf10020365',
+    'osf10020357', 'osf10020359', 'osf10020360', 'osf10020364', 'osf10020365',
     'osf10020366', 'osf10020367', 'osf10020370', 'osf10020387', 'osf10020388',
     'osf10020396', 'osf10020402', 'osf10020417', 'pt', 'pt2', 'r9', 'rk1048',
     'roman9', 'ruscii', 'se', 'se2', 'sen_850200_b', 'sen_850200_c',
@@ -221,17 +223,18 @@ codecs_dict = dict(zip(codecs_dict, codecs_dict))
 def get_supported_codecs():
     """Returns a list of the codec names that iconv supports."""
     cmd = [COMMAND, '--list']
-    iconv = subprocess.Popen(cmd, env={'LANG': 'C'}, 
+    iconv = subprocess.Popen(cmd, env={'LANG': 'C'},
                              stdout=subprocess.PIPE,
                              stdin=open(os.devnull, 'w+'),
                              stderr=open(os.devnull, 'w+'))
     return [line.strip('/').lower() for line in \
             iconv.communicate()[0].splitlines()]
 
+
 def discover_interesting_codecs():
     global codecs_dict
     temp = codecs_dict
-    codecs_dict = {} # deactivate iconv for now
+    codecs_dict = {}  # deactivate iconv for now
     supported_codecs = get_supported_codecs()
     interesting_codecs = []
     for c in supported_codecs:
@@ -241,8 +244,9 @@ def discover_interesting_codecs():
             pass
         except LookupError:
             interesting_codecs.append(c)
-    codecs_dict = temp # reactivate iconv
+    codecs_dict = temp  # reactivate iconv
     return interesting_codecs
+
 
 ''' From Python documentation:
 #Codec  Aliases
@@ -342,14 +346,17 @@ additional_codecs = [c for c in supported_codecs \
                      if c != 'utf-8' and c not in python_codecs]
 '''
 
+
 def _run_iconv(from_codec, to_codec, extra_params=None):
-    cmd = [COMMAND, '-f', from_codec, '-t', to_codec, '-s'] # -s is silent
-    if extra_params: cmd.extend(extra_params)
+    cmd = [COMMAND, '-f', from_codec, '-t', to_codec, '-s']  # -s is silent
+    if extra_params:
+        cmd.extend(extra_params)
     iconv = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE,
                                   stderr=subprocess.PIPE,
                                   env={'LANG': 'C'})
-    return iconv    
+    return iconv
+
 
 def _iconv_factory(codec_name):
     codec_name = codec_name.lower()
@@ -374,7 +381,7 @@ def _iconv_factory(codec_name):
             if errors == 'ignore':
                 extra.append('-c')
             elif errors != 'strict':
-                raise NotImplementedError('%r error handling not implemented' 
+                raise NotImplementedError('%r error handling not implemented'
                                           ' for codec %r' % (errors, encoding))
             _input = str(input)
             iconv = _run_iconv(encoding, 'utf-8', extra)
@@ -409,7 +416,6 @@ def _iconv_factory(codec_name):
                 streamreader=StreamReader,
                 streamwriter=StreamWriter,
             )
-
 
 
 if __name__ == '__main__':

@@ -42,7 +42,6 @@ class CsvWriter(object):
         return '.{0}.csv'.format(encoding)
 
 
-
 def decoding_csv(csv_stream, encoding='utf8'):
     '''
     Generator that wraps a simple CSV reader in order to give you
@@ -63,7 +62,7 @@ def decoding_csv(csv_stream, encoding='utf8'):
         row[0] = row[0][3:]
         encoding = 'utf8'
     yield([v.decode(encoding) for v in row])
-    while True: # eventually, StopIteration is raised by csv_stream
+    while True:  # eventually, StopIteration is raised by csv_stream
         row = csv_stream.next()
         yield([v.decode(encoding) for v in row])
 
@@ -98,14 +97,14 @@ class UnicodeDictReader(object):
     def __init__(self, f, fieldnames=None, restkey=None, restval=None,
                  dialect="excel", encoding='utf8', *args, **kwds):
         self.fieldnames = fieldnames   # list of keys for the dict
-        self.restkey = restkey          # key to catch long rows
-        self.restval = restval          # default value for short rows
+        self.restkey = restkey         # key to catch long rows
+        self.restval = restval         # default value for short rows
         self.encoding = encoding
         self.f = f
         self.reader = csv.reader(f, dialect, *args, **kwds)
         self.dialect = dialect
         self.line_num = 0
-        if not fieldnames: # read fieldnames from the first line now
+        if not fieldnames:  # read fieldnames from the first line now
             try:
                 row = self.reader.next()
             except StopIteration:

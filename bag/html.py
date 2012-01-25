@@ -47,7 +47,7 @@ def _substitute_entity(match):
         elif match.group(2) == 'x':  # number is hex
             return unichr(int('0x' + ent, 16))
     else:
-        cp = name2codepoint.get(ent) # decode by name
+        cp = name2codepoint.get(ent)  # decode by name
         if cp:
             return unichr(cp)
         else:
@@ -57,12 +57,14 @@ entity_re = re.compile(r'&(#?)(x?)(\w+);', flags=re.IGNORECASE)
 def decode_entities(txt):
     return entity_re.subn(_substitute_entity, txt)[0]
 
+
 def test_entities():
+    # TODO Convert into a proper unit test
     s = "© áéíóú ãẽõ ôâ à ü"
     t = encode_xml_char_refs(s)
     u = decode_entities(t)
-    # print u
     assert s == u, "Conversion to XML char refs and back failed!"
+
 
 def html_to_unicode(html):
     html = decode_entities(html).replace('\r\n', ' ') \

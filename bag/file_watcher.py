@@ -20,7 +20,8 @@ class PausingLooper(object):
     def loop(self):
         while not self.stop:
             self.iterate()
-            if self.pause_duration: sleep(self.pause_duration)
+            if self.pause_duration:
+                sleep(self.pause_duration)
 
 
 class FileWatcher(PausingLooper):
@@ -33,7 +34,6 @@ class FileWatcher(PausingLooper):
         self.pause_duration = seconds
         self.mtimes = {}
         self.files = set(self.filter(files))
-        # print(self.files)
 
     def filter(self, files):
         '''Massages the sequence of file paths received in the constructor.
@@ -46,13 +46,13 @@ class FileWatcher(PausingLooper):
         '''Runs every so often to check if any files have changed.'''
         for path in self.files:
             # 1) Get and validate old modification time
-            oldtime = self.mtimes.get(path, 0) # First time it will be 0.
+            oldtime = self.mtimes.get(path, 0)  # First time it will be 0.
             if oldtime is None:
-                continue # File must have been deleted. Skip it.
+                continue  # File must have been deleted. Skip it.
             # 2) Obtain and validate current modification time
             try:
                 mtime = os.stat(path).st_mtime
-            except OSError: # File's not there.
+            except OSError:  # File's not there.
                 mtime = None
             # 3) Compare the times; update if necessary
             if path not in self.mtimes:
@@ -67,8 +67,8 @@ class FileWatcher(PausingLooper):
 
 class ModuleWatcher(FileWatcher):
     '''A file watcher that is good for watching Python programs.
-    If your purpose is to reload Python modules when they change, it is probably
-    better to use the FoundModuleWatcher class.
+    If your purpose is to reload Python modules when they change,
+    it is probably better to use the FoundModuleWatcher class.
     '''
     def filter(self, files):
         '''Filters .pyc files, but keeps them as .py. Returns a generator.'''
@@ -102,9 +102,11 @@ class LoadedModulesWatcher(ModuleWatcher):
         See http://docs.python.org/library/functions.html#reload
         '''
         for m in sys.modules.values():
-            if not hasattr(m, '__file__'): continue
+            if not hasattr(m, '__file__'):
+                continue
             p = m.__file__
-            if p.endswith('.pyc'):  p = p[:-1]
+            if p.endswith('.pyc'):
+                p = p[:-1]
             if path == p:
                 reload(m)
                 return True
@@ -115,4 +117,3 @@ class LoadedModulesWatcher(ModuleWatcher):
         from itertools import chain
         return super(LoadedModulesWatcher, self) \
             .filter(chain(files, self.get_loaded_modules_paths()))
-

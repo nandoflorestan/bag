@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals  # unicode by default
 import random
 import os
@@ -22,39 +21,40 @@ def random_letters(length):
     return ''.join(s)
 
 
-latin1_map = (  ('"', '“”'),
-                ('-', '\u2013\u2014\u2022'),
-                ("'", '\u2018\u2019'),
-                ('',  '\ufffd\u2122\u2020'),
-                ('...', '\u2026'),
-                ('i',   '\u012b'),
-                ('ã',   '\u0101'),
-                ('r',   '\u0159'),
-                ('Z',   '\u017d'),
-                ('z',   '\u017e'),
-                ('EUR', '\u20ac'),
-             ) # chars that ISO-8859-1 does not support
+latin1_map = (('"', '“”'),
+              ('-', '\u2013\u2014\u2022'),
+              ("'", '\u2018\u2019'),
+              ('',  '\ufffd\u2122\u2020'),
+              ('...', '\u2026'),
+              ('i',   '\u012b'),
+              ('ã',   '\u0101'),
+              ('r',   '\u0159'),
+              ('Z',   '\u017d'),
+              ('z',   '\u017e'),
+              ('EUR', '\u20ac'),
+             )  # chars that ISO-8859-1 does not support
 
-ascii_map  = [  ('a' , 'áàâãäå\u0101'),
-                ('e' , 'éèêẽë'),
-                ('i' , "íìîĩï"),
-                ('o' , 'óòôõöø'),
-                ('u' , "úùûũü"),
-                ('A' , 'ÁÀÂÃÄÅ'),
-                ('E' , 'ÉÈÊẼË'),
-                ('I' , "ÍÌÎĨÏ"),
-                ('O' , 'ÓÒÔÕÖØ'),
-                ('U' , "ÚÙÛŨÜ"),
-                ('n' , "ñ"),
-                ('c' , "ç"),
-                ('N' , "Ñ"),
-                ('C' , "Ç"),
-                ('d' , "Þ"),
-                ('ss', "ß"),
-                ('ae', "æ"),
-                ('oe', 'œ'),
-             ]
+ascii_map = [('a', 'áàâãäå\u0101'),
+             ('e', 'éèêẽë'),
+             ('i', "íìîĩï"),
+             ('o', 'óòôõöø'),
+             ('u', "úùûũü"),
+             ('A', 'ÁÀÂÃÄÅ'),
+             ('E', 'ÉÈÊẼË'),
+             ('I', "ÍÌÎĨÏ"),
+             ('O', 'ÓÒÔÕÖØ'),
+             ('U', "ÚÙÛŨÜ"),
+             ('n', "ñ"),
+             ('c', "ç"),
+             ('N', "Ñ"),
+             ('C', "Ç"),
+             ('d', "Þ"),
+             ('ss', "ß"),
+             ('ae', "æ"),
+             ('oe', 'œ'),
+            ]
 ascii_map.extend(latin1_map)
+
 
 def simplify_chars(txt, encoding='ascii', binary=True, amap=None):
     '''Removes from *txt* (a unicode object) all characters not
@@ -68,7 +68,8 @@ def simplify_chars(txt, encoding='ascii', binary=True, amap=None):
         elif encoding.replace('-', '') in ('latin1', 'iso88591'):
             amap = latin1_map
     for plain, funny in amap:
-        for f in funny:  txt = txt.replace(f, plain)
+        for f in funny:
+            txt = txt.replace(f, plain)
     return txt.encode(encoding, 'ignore') if binary else txt
 
 
@@ -76,11 +77,13 @@ def to_filename(txt, for_web=False, badchars=''):
     '''Massages *txt* until it is a good filename.'''
     illegal = '\\/\t:?"<>|#$%&*[]•' + badchars
     try:
-        for c in illegal:  txt = txt.replace(c, '')
+        for c in illegal:
+            txt = txt.replace(c, '')
     except UnicodeDecodeError, e:
         if type(txt) == str:
             txt = txt.decode('ascii', 'ignore')
-            for c in illegal:  txt = txt.replace(c, '')
+            for c in illegal:
+                txt = txt.replace(c, '')
         else:
             raise
     txt = simplify_chars(txt.strip())
@@ -88,6 +91,7 @@ def to_filename(txt, for_web=False, badchars=''):
         txt = txt.replace(' ', '-') \
                  .replace('--', '-').replace('--', '-').lower()
     return txt
+
 
 def find_new_title(dir, filename):
     """If file *filename* exists in directory *dir*, adds or changes the
@@ -107,10 +111,11 @@ def find_new_title(dir, filename):
         else:
             increment = int(m.group(1)) + 1
             replacement = "(%03d)" % increment
-            root = root[:m.start(1)-1]
+            root = root[:m.start(1) - 1]
         f = root + replacement + ext
         p = os.path.join(dir, f)
     return p
+
 
 """ Removing this function... Just use filter(predicate, txt) instead.
 def filter_chars_in(txt, predicate):
@@ -120,9 +125,11 @@ def filter_chars_in(txt, predicate):
     return ''.join([c for c in txt if predicate(c)])
 """
 
+
 def keep_digits(txt):
     return txt if txt.isdigit() else \
         filter_chars_in(txt, unicode.isdigit)
+
 
 def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
     """Use this to try to avoid errors from text whose encoding is unknown,
@@ -139,6 +146,7 @@ def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
             best = temp
     return best
 
+
 must_be_lowercase = [' ' + s + ' ' for s in \
     'De Do Da Dos Das Em No Na Nos Nas E Para Por Com Sem Sobre '
     'O A Os As Um Uma Uns Umas Num Numa Nuns Numas Dum Duma Duns Dumas '
@@ -146,6 +154,8 @@ must_be_lowercase = [' ' + s + ' ' for s in \
 must_be_uppercase = [' ' + s + ' ' for s in \
     'CD DVD MP3 I II III IV V VII VIII IX X SP RG CPF OAB CREA'
     'CRM SAP PHP LINQ VBA XML'.split()]
+
+
 def make_title(txt):
     txt = txt.title()
     for word in must_be_lowercase:

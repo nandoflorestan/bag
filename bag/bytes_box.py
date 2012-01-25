@@ -4,7 +4,10 @@ from __future__ import unicode_literals  # unicode by default
 import os
 import stat
 import urllib2
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 
 def isdir(s):
@@ -33,7 +36,7 @@ class BytesBox(object):
         '''Returns the memoized bytes, or reads from path, or reads URL.
         '''
         if self._byts:
-            return self._byts # memoized
+            return self._byts  # memoized
         if self.path:
             with open(self.path, 'rb') as f:
                 self._byts = f.read()
@@ -42,6 +45,7 @@ class BytesBox(object):
             stream = urllib2.urlopen(self.url)
             self._byts = stream.read()
             return self._byts
+
     @byts.setter
     def byts(self, val):
         self._byts = val
@@ -54,13 +58,14 @@ class BytesBox(object):
         with open(path or self.path, 'wb') as f:
             f.write(byts or self.byts)
         if path or byts:
-            return BytesBox(path = path or self.path,
-                            byts = byts or self._byts)
+            return BytesBox(path=path or self.path,
+                            byts=byts or self._byts)
         else:
             return self
 
 
-import Image, ImageFile
+import Image
+import ImageFile
 # To prevent this exception:
 # IOError: encoder error -2 when writing image file
 ImageFile.MAXBLOCK = 256 * 1024
@@ -80,6 +85,7 @@ class ImageBox(BytesBox):
     @property
     def image(self):
         return self._image
+
     @image.setter
     def image(self, val):
         self._image = val
@@ -99,7 +105,7 @@ class ImageBox(BytesBox):
         Returns a new ImageBox.
         '''
         if self.image.format == 'JPEG' and self.byts:
-            other = ImageBox(image=self.image, path = path or self.path)
+            other = ImageBox(image=self.image, path=path or self.path)
             other.byts = self.byts
             other.write_file()
             return other
@@ -107,7 +113,7 @@ class ImageBox(BytesBox):
             return self.write_jpeg(path=path, quality=quality)
 
     def write_jpeg(self, path=None, quality=90):
-        other = ImageBox(image=self.image, path = path or self.path)
+        other = ImageBox(image=self.image, path=path or self.path)
         if self.image.mode != 'RGB':
             other.image = self.image.convert('RGB')
         mkdir(os.path.dirname(path))
@@ -121,18 +127,18 @@ class ImageBox(BytesBox):
         Returns self if resizing is not necessary.
         """
         max_size = (int(max_size[0]), int(max_size[1]))
-        if  self.image.size[0] <= max_size[0] and \
+        if self.image.size[0] <= max_size[0] and \
             self.image.size[1] <= max_size[1]:
-           return self
+                return self
         ratioOriginal = float(self.image.size[0]) / self.image.size[1]
-        ratioMax      = float(max_size[0]) / max_size[1]
+        ratioMax = float(max_size[0]) / max_size[1]
         if ratioOriginal > ratioMax:  # if width is the determinant
             image = self.image.resize(
                 (max_size[0],
-                 self.image.size[1]*max_size[0]/self.image.size[0]),
+                 self.image.size[1] * max_size[0] / self.image.size[0]),
                 Image.ANTIALIAS)
         else:                        # if height is the determinant
             image = self.image.resize(
-                (self.image.size[0]*max_size[1]/self.image.size[1],
+                (self.image.size[0] * max_size[1] / self.image.size[1],
                  max_size[1]), Image.ANTIALIAS)
         return ImageBox(image=image)
