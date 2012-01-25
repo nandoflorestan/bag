@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# from distutils.core import setup
-
 # http://peak.telecommunity.com/DevCenter/setuptools#developer-s-guide
-
+# from distutils.core import setup
 from setuptools import setup, find_packages
 import bag
 
@@ -30,7 +28,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
         'Topic :: Database',
         'Topic :: Multimedia :: Graphics :: Graphics Conversion',
         "Topic :: Software Development :: Libraries :: Python Modules",

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__version__ = "0.1.4"
-__author__   = 'Nando Florestan'
-__copyright__ = "Copyright (C) 2010 Nando Florestan"
-__license__ = 'BSD'
 __url__ = "http://code.google.com/p/bag"
+__version__ = "0.1.5"
+__license__ = 'BSD'
+__author__ = 'Nando Florestan'
+__copyright__ = "Copyright (C) 2010 Nando Florestan"
 __long_description__ = """Functions and classes for many purposes,
 that I use all the time in multiple programs.
 
@@ -13,9 +13,7 @@ The fact that these are just bits and pieces does not prevent them from
 having bugs, so they are under version control at
 {0}
 
-Hopefully there's something for you here!
-
-Currently, the library requires Python 2.6.x.
+Currently, the library requires Python 2.7.x.
 
 Library contents
 ================
