@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 __url__ = "http://code.google.com/p/bag"
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 __license__ = 'BSD'
 __author__ = 'Nando Florestan'
-__copyright__ = "Copyright (C) 2010 Nando Florestan"
+__copyright__ = "Copyright (C) 2012 Nando Florestan"
 __long_description__ = """Functions and classes for many purposes,
 that I use all the time in multiple programs.
 
