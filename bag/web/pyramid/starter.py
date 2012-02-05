@@ -23,10 +23,10 @@ def makedirs(s):
         os.makedirs(s)
 
 
-view_handlers = []
-def register_view_handler(cls):
-    '''Class decorator that adds the class to a list of view handlers.'''
-    view_handlers.append(cls)
+view_classes = []
+def register_view_class(cls):
+    '''Class decorator that adds the class to a list.'''
+    view_classes.append(cls)
     return cls
 
 
@@ -269,16 +269,16 @@ class PyramidStarter(object):
 
     def declare_routes_from_views(self):
         self.scan()  # in order to find all the decorated view classes
-        for h in view_handlers:
-            if hasattr(h, 'declare_routes'):
-                h.declare_routes(self.config)
+        for k in view_classes:
+            if hasattr(k, 'declare_routes'):
+                k.declare_routes(self.config)
 
     def declare_deps_from_views(self, deps, rooted):
         self.scan()  # in order to find all the decorated view classes
         settings = self.settings
-        for h in view_handlers:
-            if hasattr(h, 'declare_deps'):
-                h.declare_deps(deps, rooted, settings)
+        for k in view_classes:
+            if hasattr(k, 'declare_deps'):
+                k.declare_deps(deps, rooted, settings)
 
     def scan(self):
         self.config.scan(self.name)
@@ -327,9 +327,9 @@ def all_views(registry):
         for o in registry.introspector.get_category('views')])
 
 
-def all_class_views(registry):
+def all_view_classes(registry):
     # I have left this code here, but it is better to just use the
-    # @register_view_handler decorator and then look up the view_handlers list.
+    # @register_view_class decorator and then look up the view_classes list.
     return [o for o in all_views(registry) if isinstance(o, type)]
 
 
