@@ -198,7 +198,7 @@ class PyramidStarter(object):
         enable_genshi(self.config)
 
     def enable_deform(self, template_dirs):
-        from .pyramid_deform import setup
+        from .deform import setup
         setup(template_dirs)
         self.config.add_static_view('deform', 'deform:static')
 
