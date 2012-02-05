@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals  # unicode by default
+from __future__ import absolute_import
 import os
 import stat
 from pyramid.config import Configurator
-from pyramid.decorator import reify
+from .plugins_manager import PluginsManager, BasePlugin
 
 
 def isdir(s):
@@ -20,6 +21,13 @@ def makedirs(s):
     '''Make directories (if they don't exist already).'''
     if not isdir(s):
         os.makedirs(s)
+
+
+view_handlers = []
+def register_view_handler(cls):
+    '''Class decorator that adds the class to a list of view handlers.'''
+    view_handlers.append(cls)
+    return cls
 
 
 class LocaleList(list):
@@ -64,7 +72,6 @@ class PyramidStarter(object):
         from pyramid.i18n import TranslationStringFactory
         self._ = TranslationStringFactory(name)
         self._enable_locales()
-        self.handlers = False  # which can be changed by enable_handlers()
 
     def _enable_locales(self):
         '''Gets a list of enabled locale names from settings, checks it
@@ -116,17 +123,18 @@ class PyramidStarter(object):
         '''TODO: Implement logging setup'''
         print(text)
 
-    def enable_handlers(self, scan=True):
+    def enable_handlers(self):
         '''Pyramid "handlers" emulate Pylons 1 "controllers".
         https://github.com/Pylons/pyramid_handlers
         '''
         from pyramid_handlers import includeme
         self.config.include(includeme)
-        self.handlers = True
+        self.scan()
 
     def enable_sqlalchemy(self, initialize_sql=None):
         from sqlalchemy import engine_from_config
-        self.engine = engine = engine_from_config(self.settings, 'sqlalchemy.')
+        settings = self.settings
+        self.engine = engine = engine_from_config(settings, 'sqlalchemy.')
         if initialize_sql is None:
             from importlib import import_module
             try:
@@ -140,15 +148,35 @@ class PyramidStarter(object):
                     self.log('initialize_sql() does not exist.')
         if initialize_sql:
             self.log('initialize_sql()')
-            initialize_sql(engine, settings=self.settings)
+            initialize_sql(engine, settings=settings)
+        registry = self.config.registry
+        if hasattr(registry, 'plugins'):
+            registry.plugins.call('initialize_sql', dict(
+                engine=engine, settings=settings))
 
     def enable_turbomail(self):
+        from warnings import warn
+        warn('enable_turbomail() is deprecated. Prefer enable_marrow_mailer()')
         from turbomail.control import interface
         import atexit
         options = {key: self.settings[key] for key in self.settings \
             if key.startswith('mail.')}
         interface.start(options)
         atexit.register(interface.stop, options)
+
+    def enable_marrow_mailer(self):
+        '''This method enables https://github.com/marrow/marrow.mailer
+        which is the new TurboMail.
+
+        After this you can access registry.mailer to send messages.
+        '''
+        from marrow.mailer import Mailer
+        import atexit
+        options = {key[5:]: self.settings[key] for key in self.settings \
+            if key.startswith('mail.')}
+        mailer = self.config.registry.mailer = Mailer(options)
+        mailer.start()
+        atexit.register(mailer.stop)
 
     def enable_kajiki(self):
         '''Allows you to use the Kajiki templating language.'''
@@ -161,13 +189,18 @@ class PyramidStarter(object):
         We intend to switch to Kajiki down the road, therefore it would be
         best to avoid py:match.
         '''
-        self.settings.setdefault('genshi.translation_domain', self.name)
+        sd = self.settings.setdefault
+        sd('genshi.translation_domain', self.name)
+        sd('genshi.encoding', 'utf-8')
+        sd('genshi.doctype', 'html5')
+        sd('genshi.method', 'xhtml')
         from mootiro_web.pyramid_genshi import enable_genshi
         enable_genshi(self.config)
 
     def enable_deform(self, template_dirs):
         from .pyramid_deform import setup
         setup(template_dirs)
+        self.config.add_static_view('deform', 'deform:static')
 
     def configure_favicon(self, path='static/icon/32.png'):
         from mimetypes import guess_type
@@ -175,6 +208,21 @@ class PyramidStarter(object):
         self.settings['favicon'] = path = abspath_from_resource_spec(
             self.settings.get('favicon', '{}:{}'.format(self.name, path)))
         self.settings['favicon_content_type'] = guess_type(path)[0]
+
+    def enable_robots(self, path='static/robots.txt'):
+        from mimetypes import guess_type
+        from pyramid.resource import abspath_from_resource_spec
+        path = abspath_from_resource_spec(
+            self.settings.get('robots', '{}:{}'.format(self.name, path)))
+        content_type = guess_type(path)[0]
+        import codecs
+        with codecs.open(path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        from pyramid.response import Response
+        def robots_view(request):
+            return Response(content_type=content_type, app_iter=content)
+        self.config.add_route('robots', '/robots.txt')
+        self.config.add_view(robots_view, route_name='robots')
 
     def enable_internationalization(self, extra_translation_dirs):
         self.makedirs(self.settings.get('dir_locale', '{here}/locale'))
@@ -204,6 +252,7 @@ class PyramidStarter(object):
             event['static_url'] = lambda s: static_url(s, request)
             event['locale_name'] = get_locale_name(request)  # to set xml:lang
             event['enabled_locales'] = settings['enabled_locales']
+            event['appname'] = settings.get('app.name', 'Application')
             # http://docs.pylonsproject.org/projects/pyramid_cookbook/dev/i18n.html
             localizer = get_localizer(request)
             translate = localizer.translate
@@ -218,14 +267,30 @@ class PyramidStarter(object):
                                    interfaces.IBeforeRender,
         )
 
+    def declare_routes_from_views(self):
+        self.scan()  # in order to find all the decorated view classes
+        for h in view_handlers:
+            if hasattr(h, 'declare_routes'):
+                h.declare_routes(self.config)
+
+    def declare_deps_from_views(self, deps, rooted):
+        self.scan()  # in order to find all the decorated view classes
+        settings = self.settings
+        for h in view_handlers:
+            if hasattr(h, 'declare_deps'):
+                h.declare_deps(deps, rooted, settings)
+
+    def scan(self):
+        self.config.scan(self.name)
+        for p in self.packages:
+            self.config.scan(p)
+        # Make this method a noop for the future (scan only once)
+        self.scan = lambda: None
+
     def result(self):
         '''Commits the configuration (this causes some tests) and returns the
         WSGI application.
         '''
-        if self.handlers:
-            self.config.scan(self.name)
-            for p in self.packages:
-                self.config.scan(p)
         return self.config.make_wsgi_app()
 
     @property
@@ -240,8 +305,41 @@ class PyramidStarter(object):
         if version_info < (2, 7) or version_info >= (3, 0):
             exit('\n' + self.name + ' requires Python 2.7.x.')
 
+    def load_plugins(self, entry_point_groups=None, directory=None,
+            base_class=BasePlugin):
+        self.config.registry.plugins = self.plugins = \
+            PluginsManager(self.settings)
+        if directory:
+            self.plugins.find_directory_plugins(directory,
+                                                plugin_class=base_class)
+        if entry_point_groups:
+            self.plugins.find_egg_plugins(entry_point_groups)
+
 
 def all_routes(config):
     '''Returns a list of the routes configured in this application.'''
     return [(x.name, x.pattern) for x in \
             config.get_routes_mapper().get_routes()]
+
+
+def all_views(registry):
+    return set([o['introspectable']['callable'] \
+        for o in registry.introspector.get_category('views')])
+
+
+def all_class_views(registry):
+    # I have left this code here, but it is better to just use the
+    # @register_view_handler decorator and then look up the view_handlers list.
+    return [o for o in all_views(registry) if isinstance(o, type)]
+
+
+def authentication_policy(settings, include_ip=True, timeout=60*60*32,
+                    reissue_time=60, find_groups=lambda userid, request: []):
+    '''Returns an authentication policy object for configuration.'''
+    try:
+        secret = settings['cookie_salt']
+    except KeyError as e:
+        raise KeyError('Your config file is missing a cookie_salt.')
+    from pyramid.authentication import AuthTktAuthenticationPolicy
+    return AuthTktAuthenticationPolicy(secret, callback=find_groups,
+        include_ip=include_ip, timeout=timeout, reissue_time=reissue_time)
