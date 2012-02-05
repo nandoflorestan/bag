@@ -180,7 +180,7 @@ class PyramidStarter(object):
 
     def enable_kajiki(self):
         '''Allows you to use the Kajiki templating language.'''
-        from mootiro_web.pyramid_kajiki import renderer_factory
+        from .kajiki import renderer_factory
         for extension in ('.txt', '.xml', '.html', '.html5'):
             self.config.add_renderer(extension, renderer_factory)
 
@@ -194,7 +194,7 @@ class PyramidStarter(object):
         sd('genshi.encoding', 'utf-8')
         sd('genshi.doctype', 'html5')
         sd('genshi.method', 'xhtml')
-        from mootiro_web.pyramid_genshi import enable_genshi
+        from .genshi import enable_genshi
         enable_genshi(self.config)
 
     def enable_deform(self, template_dirs):

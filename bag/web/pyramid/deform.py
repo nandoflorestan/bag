@@ -20,7 +20,7 @@ def setup(deform_template_dirs):
     '''Add our deform templates and set deform up for i18n.
     Example:
 
-        setup(['mootiro_form:fieldtypes/templates', 'deform:templates'])
+        setup(['app:fieldtypes/templates', 'deform:templates'])
     '''
     dirs = [resource_filename(*dir.split(':')) for dir in deform_template_dirs]
     d.Form.set_zpt_renderer(dirs, translator=translator)

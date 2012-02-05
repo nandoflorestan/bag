@@ -27,6 +27,7 @@ If you do... let us know.
 '''
 
 from __future__ import unicode_literals  # unicode by default
+from __future__ import absolute_import
 
 from paste.deploy.converters import asbool
 from zope.interface import implements
