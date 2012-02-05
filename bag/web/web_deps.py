@@ -245,8 +245,7 @@ def uncommafy(txt):
     '''Gets a comma-delimited string (or a list of strings)
     and returns a list of strings.
     '''
-    if not txt:
-        return []
+    if not txt:  return []
     if isinstance(txt, basestring):
         return [t.strip() for t in unicode(txt).split(SEP)]
     else:
@@ -527,115 +526,72 @@ class PageDeps(object):
     def __unicode__(self):
         return '\n'.join([self.css.tags, self.lib.tags, self.script.tags])
 
+    def light_accordion(self, selector='.accordion', h_tag='h3'):
+        '''Implements an accordion that depends on jquery only, not jquery.ui.
 
-import unittest
-class TestDepsRegistry(unittest.TestCase):
-    def test_summon(self):
-        reg = DepsRegistry()
-        all = Dependency('montão', deps='n, m, b, a')
-        self.assertEqual(repr(all), b'Dependency("mont?o")')
-        self.assertEqual(unicode(all), u'montão')
-        n = Dependency('n', deps='b, m')
-        m = Dependency('m', deps='a')
-        a = Dependency('a')
-        b = Dependency('b')
-        reg.admit(all, n, m, a, b)
-        reg.close()
-        self.assertEqual(reg.summon('a'), [a])
-        self.assertEqual(reg.summon('b'), [b])
-        self.assertEqual(reg.summon('m'), [a, m])
-        self.assertEqual(reg.summon('n'), [a, m, b, n])
-        self.assertEqual(reg.summon('m, b'), [b, a, m])
-        self.assertEqual(reg.summon('montão'), [a, b, m, n, all])
-        self.assertEqual(reg.summon('montão,a,b,m,n'), [a, m, b, n, all])
+        The CSS you need is:
 
+            .accordion > h3 { cursor: pointer; }
 
-class TestPageDeps(unittest.TestCase):
-    def setUp(self):
-        deps = WebDeps()
-        deps.lib('jquery.ui', url='/static/lib/jquery-ui-1.8.16.min.js',
-            deps='jquery')
-        deps.lib('jquery', url="/static/lib/jquery-1.7.1.min.js")
-        deps.lib('deform', url="/static/lib/deform.js",
-            deps='jquery, jquery.ui')
-        deps.css('jquery', url='http://jquery.css')
-        deps.css('deform', url='http://deform.css', deps='jquery.ui')
-        deps.css('jquery.ui', url='http://jquery.ui.css', deps='jquery')
-        deps.package('jquery.ui', libs='jquery.ui',
-            css='jquery.ui', script='alert("JQuery UI spam!");')
-        deps.package('deform', deps='jquery.ui', libs='deform',
-            css='deform', script='alert("Deform spam!");')
-        self.PageDeps = deps.close()
+        The HTML should have this structure:
 
-    def test_request1(self):
-        deps = self.PageDeps()
-        deps.lib('jquery')
-        self.assertEqual(deps.lib.urls, [u'/static/lib/jquery-1.7.1.min.js'])
-        deps.css('jquery')
-        self.assertEqual(deps.css.urls, [u'http://jquery.css'])
-        deps.script('alert("Bruhaha");')
-        self.assertEqual(deps.script.tags, '<script type="text/javascript">' \
-            '\nalert("Bruhaha");\n</script>\n')
+            <div class="accordion">
+              <h3>Question 1</h3>
+              <div class='show'>Answer 1</div>
+              <h3>Question 2</h3>
+              <div>Answer 2</div>
+            </div>
 
-    def test_request2(self):
-        deps = self.PageDeps()
-        deps.lib('jquery.ui')
-        deps.lib('jquery.ui')  # requiring twice should have no effect
-        SCRIPTS_OUT = '<script type="text/javascript" ' \
-            'src="/static/lib/jquery-1.7.1.min.js"></script>\n' \
-            '<script type="text/javascript" ' \
-            'src="/static/lib/jquery-ui-1.8.16.min.js"></script>'
-        self.assertEqual(deps.lib.tags, SCRIPTS_OUT)
-        deps.css('deform')
-        CSS_OUT = '<link rel="stylesheet" ' \
-            'type="text/css" href="http://jquery.css" />\n' \
-            '<link rel="stylesheet" type="text/css" '\
-            'href="http://jquery.ui.css" />\n' \
-            '<link rel="stylesheet" type="text/css" ' \
-            'href="http://deform.css" />'
-        self.assertEqual(deps.css.tags, CSS_OUT)
-        ALERT = 'alert("Bruhaha");'
-        deps.script(ALERT)
-        deps.script(ALERT)  # Repeating should have no effect
-        ALERT_OUT = '<script type="text/javascript">' \
-            '\nalert("Bruhaha");\n</script>\n'
-        self.assertEqual(deps.script.tags, ALERT_OUT)
-        self.assertEqual(deps.top_output, CSS_OUT)
-        self.assertEqual(deps.bottom_output, SCRIPTS_OUT + '\n' + ALERT_OUT)
-        self.assertEqual(unicode(deps),
-            '\n'.join([CSS_OUT, SCRIPTS_OUT, ALERT_OUT]))
+        Use "class='show'" to make some answers initially appear.
+        '''
+        self.lib('jquery')
+        s = '''
+function processAccordion(first) {
+  var toHide = $('selector > div').not('.show');
+  var toShow = $('selector > div.show');
+  if (first) {
+    toHide.hide();
+    toShow.show();
+  } else {
+    toHide.slideUp('slow');
+    toShow.slideDown('slow');
+  }
+}
+$(function() {
+  processAccordion(true);
+  $('selector > h_tag').click(function(e) {
+    $('selector > div').removeClass('show');
+    $(this).next().addClass('show');
+    processAccordion();
+  });
+});'''.replace('selector', selector).replace('h_tag', h_tag)
+        self.script(s)
 
-    def test_request3(self):
-        deps = self.PageDeps()
-        deps.lib('deform, jquery')
-        deps.lib('jquery')
-        self.assertEqual(deps.lib.urls, [u'/static/lib/jquery-1.7.1.min.js',
-            u'/static/lib/jquery-ui-1.8.16.min.js', u"/static/lib/deform.js"])
+    favicon_props = dict(
+        ie=dict(
+            rel='shortcut icon',
+            typ='type="image/x-icon"',
+            url='/static/favicon32.ico',
+            sizes="32x32"),
+        normal=dict(
+            rel='icon',
+            typ='',
+            url='/static/favicon32.gif',
+            sizes="32x32"),
+    )
 
-    def test_package1(self):
-        deps = self.PageDeps()
-        deps.package('jquery.ui')
-        deps.package('jquery.ui')  # Repeating should have no effect
-        self.assertEqual(unicode(deps), '''
-<link rel="stylesheet" type="text/css" href="http://jquery.css" />
-<link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
-<script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js"></script>
-<script type="text/javascript">
-alert("JQuery UI spam!");
-</script>\n'''.lstrip())
+    def is_ie(self, request):
+        '''Returns True if the browser is Internet Explorer.
+        Written for the Pyramid web framework. If you are using another
+        framework, you can override this method.
+        '''
+        return request.headers.get("User-Agent", '').find("MSIE") != -1
 
-    def test_package2(self):
-        deps = self.PageDeps()
-        deps.package('deform')
-        self.assertEqual(unicode(deps), '''
-<link rel="stylesheet" type="text/css" href="http://jquery.css" />
-<link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
-<link rel="stylesheet" type="text/css" href="http://deform.css" />
-<script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js"></script>
-<script type="text/javascript" src="/static/lib/deform.js"></script>
-<script type="text/javascript">
-alert("JQuery UI spam!");
-alert("Deform spam!");
-</script>\n'''.lstrip())
+    def favicon_tag(self, request):
+        '''Returns the HTML tag for the favicon. If the browser is IE,
+        a different tag is returned. You can configure either tag by
+        changing the PageDeps.favicon_props dictionary.
+        '''
+        return '<link rel="{rel}" {typ} href="{url}" sizes="{sizes}" />' \
+            .format(**self.favicon_props \
+                ['ie' if self.is_ie(request) else 'normal'])

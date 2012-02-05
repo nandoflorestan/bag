@@ -17,6 +17,7 @@ setup(
     download_url = "http://code.google.com/p/bag/downloads/list",
     description = "A library for many purposes",
     zip_safe = False,
+    test_suite='bag.tests',
     keywords = ["python", 'sqlalchemy', 'text', 'HTML', 'CSV',
                 'translation', 'file hash', 'encoding', 'codecs',
                 'console'],
