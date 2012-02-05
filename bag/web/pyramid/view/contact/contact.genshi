@@ -1,0 +1,21 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip=''>
+
+<?python
+    request.page_deps.package('deform')
+?>
+
+  <py:def function="in_body()">
+    <py:if test="defined('email_sent')">
+      <h1>Thank you, your message has been sent.</h1>
+    </py:if>
+    <py:if test="not defined('email_sent')">
+        <h1>Contact</h1>
+        ${Markup(contact_form)}
+    </py:if>
+  </py:def>
+
+  <xi:include href="${master_template}" />
+</html>
