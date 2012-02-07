@@ -101,14 +101,15 @@ Subject: {subject}
         class ContactSchema(c.MappingSchema):
             name = c.SchemaNode(c.Str(), title=_('Name'),
                 widget=d.widget.TextInputWidget(size=60, maxlength=5))
-            email = c.SchemaNode(c.Str(), title=_('Email'), validator=c.Email(),
+            email = c.SchemaNode(c.Str(), title=_('Email'),
+                validator=c.Email(),
                 widget=d.widget.TextInputWidget(size=50, maxlength=160))
             subject = c.SchemaNode(c.Str(), title=_('Subject'),
-                widget=d.widget.TextInputWidget(size=60))
+                widget=d.widget.TextInputWidget(size=60, maxlength=160))
             message = c.SchemaNode(c.Str(), title=_('Message'),
                     widget=d.widget.TextAreaWidget(cols=60, rows=12))
         if len_name:
-            ContactSchema.name.widget.maxlength = len_name
+            ContactSchema.name.widget.maxlength = len_name.get('max')
             ContactSchema.name.validator = c.Length(**len_name)
         if len_subject:
             ContactSchema.subject.validator=c.Length(**len_subject)
