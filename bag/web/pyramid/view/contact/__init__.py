@@ -100,7 +100,7 @@ Subject: {subject}
 
         class ContactSchema(c.MappingSchema):
             name = c.SchemaNode(c.Str(), title=_('Name'),
-                widget=d.widget.TextInputWidget(size=60, maxlength=5))
+                widget=d.widget.TextInputWidget(size=60, maxlength=160))
             email = c.SchemaNode(c.Str(), title=_('Email'),
                 validator=c.Email(),
                 widget=d.widget.TextInputWidget(size=50, maxlength=160))
