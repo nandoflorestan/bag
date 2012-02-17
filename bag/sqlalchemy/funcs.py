@@ -1,29 +1,17 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''SQLALchemy initialization for Pyramid applications.
-
-Also crucial is enable_sqlalchemy() in pyramid_starter.py.
+'''Functions that help define SQLALchemy models.
+These have been separated from SQLAlchemy initialization modules because
+there are many different ways to initialize SQLALchemy.
 '''
 
+from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
-
-import transaction
 from datetime import datetime
 from sqlalchemy import Column, Sequence
 from sqlalchemy.types import Integer, DateTime
 
-from sqlalchemy.orm import scoped_session, sessionmaker
-from zope.sqlalchemy import ZopeTransactionExtension
-sas = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-del scoped_session, sessionmaker, ZopeTransactionExtension
-
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-del declarative_base
-
-
-# Functions that help defining our models
-# =======================================
 
 def id_column(tablename, typ=Integer):
     return Column(typ, Sequence(tablename + '_id_seq'), primary_key=True)

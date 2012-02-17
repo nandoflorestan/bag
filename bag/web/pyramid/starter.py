@@ -154,6 +154,18 @@ class PyramidStarter(object):
             registry.plugins.call('initialize_sql', dict(
                 engine=engine, settings=settings))
 
+    @classmethod
+    def init_basic_sqlalchemy(cls):
+        '''Returns a declarative base class and a SQLAlchemy scoped session
+        that uses the ZopeTransactionExtension.
+        '''
+        from sqlalchemy.orm import scoped_session, sessionmaker
+        from zope.sqlalchemy import ZopeTransactionExtension
+        sas = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+        from sqlalchemy.ext.declarative import declarative_base
+        Base = declarative_base()
+        return Base, sas
+
     def enable_turbomail(self):
         from warnings import warn
         warn('enable_turbomail() is deprecated. Prefer enable_marrow_mailer()')
