@@ -11,14 +11,11 @@ def parse_iso_date(txt):
     return datetime.strptime(txt[:19], '%Y-%m-%d %H:%M:%S')
 
 
-def random_letters(length):
-    """Returns a string of random letters.
-    The parameter *length* determines the size of the returned string.
-    """
-    s = []
-    for i in xrange(0, length):
-        s.append(chr(random.randint(97, 122)))
-    return ''.join(s)
+def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
+                              'abcdefghijklmnopqrstuvwxyz' \
+                              '0123456789'):
+    '''Returns a random string of some `length`.'''
+    return ''.join((random.choice(chars) for i in xrange(length)))
 
 
 latin1_map = (('"', '“”'),
