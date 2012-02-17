@@ -3,7 +3,7 @@
 from __future__ import unicode_literals  # unicode by default
 from __future__ import absolute_import
 from pyramid.view import view_config, view_defaults
-from .. import BaseView
+from ..views import BaseView
 from ...starter import register_view_class
 import colander as c
 import deform as d
