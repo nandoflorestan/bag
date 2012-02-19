@@ -11,14 +11,15 @@ from __future__ import unicode_literals  # unicode by default
 from datetime import datetime
 from sqlalchemy import Column, Sequence
 from sqlalchemy.types import Integer, DateTime
+CASC = 'all, delete-orphan'
 
 
 def id_column(tablename, typ=Integer):
     return Column(typ, Sequence(tablename + '_id_seq'), primary_key=True)
 
 
-def now_column(nullable=False):
-    return Column(DateTime, default=datetime.utcnow, nullable=nullable)
+def now_column(nullable=False, **k):
+    return Column(DateTime, default=datetime.utcnow, nullable=nullable, **k)
 
 
 def get_col(model, name):
