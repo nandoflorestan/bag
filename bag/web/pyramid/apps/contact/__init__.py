@@ -24,7 +24,10 @@ def create_contact_view(BaseView=BaseView, route_name='contact', _=unicode,
         pyramid_starter.enable_marrow_mailer()
         pyramid_starter.enable_genshi()
 
-    The returned view can be reused in multiple web applications.
+    The returned view can be reused in multiple web applications. Example:
+
+        from bag.web.pyramid.apps.contact import create_contact_view
+        ContactView = create_contact_view()
 
     "action" defines where the form POSTs to.
     '''
