@@ -38,39 +38,27 @@ class LocaleList(list):
 class PyramidStarter(object):
     '''Reusable configurator for nice Pyramid applications.'''
 
-    def __init__ (self, name, appfile, settings, config, packages=[],
-                  require_python27=False):
+    def __init__ (self, config, packages=[]):
         '''Arguments:
-
-        `name` is the name of your package;
-        `appfile` should be, simply, __file__ (in other
-        words, a string containing the path to the file that represents the
-        Pyramid app).
-        `settings` is the dictionary, provided by Pyramid, containing the
-        configuration for the application as read from config files.
         `config` is the Pyramid configurator instance, or a dictionary that
         can be used to create such an instance.
         `packages` is a sequence of additional packages that should be
         scanned/enabled.
         '''
-        if require_python27:
-            self.require_python27()
-        if not settings.has_key('app.name'):
+        self.require_python27()
+        self.config = config
+        if not self.settings.has_key('app.name'):
             raise KeyError \
                 ('Your configuration files are missing an "app.name" setting.')
-        self.name = name
+        # Add self to config so other applications can find it
+        config.bag = self
         self.packages = packages
-        if isinstance(config, Configurator):
-            self.config = config
-        else:
-            self.make_config(config, settings)
-        self.directory = os.path.abspath(os.path.dirname(appfile))
+        self.package_name = config.package.__name__
+        self.directory = os.path.abspath(os.path.dirname(config.package.__file__))
         self.parent_directory = os.path.dirname(self.directory)
-        from importlib import import_module
-        self.module = import_module(self.name)
         # Create the _() function for internationalization
         from pyramid.i18n import TranslationStringFactory
-        self._ = TranslationStringFactory(name)
+        self._ = TranslationStringFactory(self.package_name)
         self._enable_locales()
 
     def _enable_locales(self):
@@ -98,15 +86,6 @@ class PyramidStarter(object):
                     enabled_locales.append(adict)
         # Replace the setting
         settings['enabled_locales'] = enabled_locales
-
-    def make_config(self, adict, settings):
-        """Creates *config*, a temporary wrapper of the registry.
-        This method is intended to be overridden in subclasses.
-        `adict` should contain request_factory, session_factory,
-        authentication_policy, authorization_policy etc.
-        """
-        adict.setdefault('settings', settings)
-        self.config = Configurator(**adict)
 
     @property
     def settings(self):
@@ -138,7 +117,7 @@ class PyramidStarter(object):
         if initialize_sql is None:
             from importlib import import_module
             try:
-                module = import_module(self.name + '.models')
+                module = import_module(self.package_name + '.models')
             except ImportError as e:
                 self.log('Could not find the models module.')
             else:
@@ -202,7 +181,7 @@ class PyramidStarter(object):
         best to avoid py:match.
         '''
         sd = self.settings.setdefault
-        sd('genshi.translation_domain', self.name)
+        sd('genshi.translation_domain', self.package_name)
         sd('genshi.encoding', 'utf-8')
         sd('genshi.doctype', 'html5')
         sd('genshi.method', 'xhtml')
@@ -218,14 +197,14 @@ class PyramidStarter(object):
         from mimetypes import guess_type
         from pyramid.resource import abspath_from_resource_spec
         self.settings['favicon'] = path = abspath_from_resource_spec(
-            self.settings.get('favicon', '{}:{}'.format(self.name, path)))
+            self.settings.get('favicon', '{}:{}'.format(self.package_name, path)))
         self.settings['favicon_content_type'] = guess_type(path)[0]
 
     def enable_robots(self, path='static/robots.txt'):
         from mimetypes import guess_type
         from pyramid.resource import abspath_from_resource_spec
         path = abspath_from_resource_spec(
-            self.settings.get('robots', '{}:{}'.format(self.name, path)))
+            self.settings.get('robots', '{}:{}'.format(self.package_name, path)))
         content_type = guess_type(path)[0]
         import codecs
         with codecs.open(path, 'r', encoding='utf-8') as f:
@@ -238,7 +217,7 @@ class PyramidStarter(object):
 
     def enable_internationalization(self, extra_translation_dirs):
         self.makedirs(self.settings.get('dir_locale', '{here}/locale'))
-        self.config.add_translation_dirs(self.name + ':locale',
+        self.config.add_translation_dirs(self.package_name + ':locale',
             *extra_translation_dirs)
         # from pyramid.i18n import default_locale_negotiator
         # self.config.set_locale_negotiator(default_locale_negotiator)
@@ -249,7 +228,7 @@ class PyramidStarter(object):
         from pyramid.events import subscriber
         from pyramid.i18n import get_localizer, get_locale_name
         from pyramid.url import route_url, static_url
-        package_name = self.name
+        package_name = self.package_name
 
         def template_globals(event):
             '''Adds stuff we use all the time to template context.
@@ -293,7 +272,7 @@ class PyramidStarter(object):
                 k.declare_deps(deps, rooted, settings)
 
     def scan(self):
-        self.config.scan(self.name)
+        self.config.scan(self.package_name)
         for p in self.packages:
             self.config.scan(p)
         # Make this method a noop for the future (scan only once)
@@ -315,7 +294,7 @@ class PyramidStarter(object):
         from sys import version_info, exit
         version_info = version_info[:2]
         if version_info < (2, 7) or version_info >= (3, 0):
-            exit('\n' + self.name + ' requires Python 2.7.x.')
+            exit('\n' + self.package_name + ' requires Python 2.7.x.')
 
     def load_plugins(self, entry_point_groups=None, directory=None,
             base_class=BasePlugin):
