@@ -111,7 +111,8 @@ class GenshiTemplateRenderer(object):
         view), and ``request`` (the request object passed to the
         view).
         """
-        template = self.loader.load(system['renderer_name'])
+        rn = system.get('renderer_name') or system['renderer_info'].name
+        template = self.loader.load(rn)
         # Mix the *system* and *value* dictionaries
         try:
             system.update(value)
@@ -121,7 +122,7 @@ class GenshiTemplateRenderer(object):
         # Render the template and return a string
         return template.generate(**system) \
             .render(method=self.method,
-                    encoding=self.encoding,
+                    encoding=None,  # self.encoding,
                     doctype=self.doctype,
                     strip_whitespace=self.strip_whitespace)
 

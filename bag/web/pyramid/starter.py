@@ -161,13 +161,23 @@ class PyramidStarter(object):
 
         After this you can access registry.mailer to send messages.
         '''
-        from marrow.mailer import Mailer
+        from marrow.mailer import Mailer, Message
         import atexit
         options = {key[5:]: self.settings[key] for key in self.settings \
             if key.startswith('mail.')}
         mailer = self.config.registry.mailer = Mailer(options)
         mailer.start()
         atexit.register(mailer.stop)
+        if hasattr(self.config, 'ptah_init_mailer'):
+            # If using Ptah, instead of installing another mailer for it,
+            # we can still send simple messages with the following hack.
+            class Sender(object):                  # Provide Ptah with an object
+                def send(self, author, to, msg):   # that has a send() method.
+                    from quopri import decodestring
+                    m = mailer.new(to=to, plain=decodestring(msg.get_payload()),
+                        subject=unicode(msg['subject']))
+                    mailer.send(m)
+            self.config.ptah_init_mailer(Sender())
 
     def enable_kajiki(self):
         '''Allows you to use the Kajiki templating language.'''
@@ -182,7 +192,7 @@ class PyramidStarter(object):
         '''
         sd = self.settings.setdefault
         sd('genshi.translation_domain', self.package_name)
-        sd('genshi.encoding', 'utf-8')
+        # Setting removed:  sd('genshi.encoding', 'utf-8')
         sd('genshi.doctype', 'html5')
         sd('genshi.method', 'xhtml')
         from .genshi import enable_genshi
