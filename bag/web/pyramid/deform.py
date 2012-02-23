@@ -3,8 +3,8 @@
 
 '''Functions to set up and more easily use Deform with Pyramid.'''
 
-from __future__ import unicode_literals  # unicode by default
 from __future__ import absolute_import
+from __future__ import unicode_literals  # unicode by default
 from pkg_resources import resource_filename
 import deform as d
 from pyramid.i18n import get_localizer
@@ -47,6 +47,7 @@ def make_form(form_schema, f_template='form', i_template='mapping_item',
     form.set_widgets({'':F()})
     return form
 
+
 # Decorator to verify the csrf_token
 def verify_csrf_token(func):
     def wrapper(*a, **kw):
@@ -60,23 +61,13 @@ def verify_csrf_token(func):
     return wrapper
 
 
-def warn_if_package_version_not(name, version):
-    from pkg_resources import require
-    package = require(name)[0]
-    if package.version != version:
-        from warnings import warn
-        warn('{} version should be {}, but you have {}.'.format \
-            (name, version, package.version))
-
-
 def monkeypatch_colander():
-    '''Alter Colander to fix an issue of versions 0.9.2-0.9.4 where
+    '''Alter Colander to fix an issue of versions 0.9.2-0.9.6 where
     All() raises "TypeError: sequence item 0: expected string, list found"
     when child exceptions are used.
 
     Further, we introduce the more useful asdict2() method.
     '''
-    warn_if_package_version_not('colander', '0.9.4')
     import colander as c
     from colander import interpolate, Invalid
 
@@ -155,7 +146,14 @@ def monkeypatch_colander():
         else:  # maybe self.msg is None
             return []
 
-    c.All.__call__ = __call__
-    c.Invalid.asdict = asdict
+    # Colander 0.9.7 corrects the bug, but it still does not contain asdict2().
+    from pkg_resources import require, parse_version
+    package = require('colander')[0]
+    if parse_version(package.version) <= parse_version('0.9.6'):
+        print('Monkeypatching Colander to fix its bug.')
+        c.All.__call__ = __call__
+        c.Invalid.asdict = asdict
+        c.Invalid.messages = messages
+    # In any case, add asdict2() whose output is more appropriate.
+    print('Adding asdict2() to Colander.')
     c.Invalid.asdict2 = asdict2
-    c.Invalid.messages = messages
