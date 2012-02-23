@@ -30,11 +30,6 @@ def register_view_class(cls):
     return cls
 
 
-class LocaleList(list):
-    def add(self, id, name, title):
-        self.append(dict(name=id, descr=name, title=title))
-
-
 class PyramidStarter(object):
     '''Reusable configurator for nice Pyramid applications.'''
 
@@ -59,33 +54,8 @@ class PyramidStarter(object):
         # Create the _() function for internationalization
         from pyramid.i18n import TranslationStringFactory
         self._ = TranslationStringFactory(self.package_name)
-        self._enable_locales()
-
-    def _enable_locales(self):
-        '''Gets a list of enabled locale names from settings, checks it
-        against our known locales and stores in settings a list containing
-        not only the locale names but also texts for links for changing the
-        locale.
-        '''
-        # Get a list of enabled locale names from settings
-        settings = self.settings
-        locales_filter = settings.get('enabled_locales', 'en').split(' ')
-        _ = self._
-        # Check the settings against a list of supported locales
-        locales = LocaleList()
-        locales.add('en', _('English'), 'Change to English')
-        locales.add('en_DEV', _('English-DEV'), 'Change to dev slang')
-        locales.add('pt_BR', _('Brazilian Portuguese'), 'Mudar para português')
-        locales.add('es', _('Spanish'), 'Cambiar a español')
-        locales.add('de', _('German'), 'Auf Deutsch benutzen')
-        # The above list must be updated when new languages are added
-        enabled_locales = []
-        for locale in locales_filter:
-            for adict in locales:
-                if locale == adict['name']:
-                    enabled_locales.append(adict)
-        # Replace the setting
-        settings['enabled_locales'] = enabled_locales
+        self.makedirs('{here}/locale')
+        config.add_translation_dirs(self.package_name + ':locale', 'bag:locale')
 
     @property
     def settings(self):
@@ -105,6 +75,8 @@ class PyramidStarter(object):
     def enable_handlers(self):
         '''Pyramid "handlers" emulate Pylons 1 "controllers".
         https://github.com/Pylons/pyramid_handlers
+
+        This is deprecated because Pyramid is now more powerful.
         '''
         from warnings import warn
         warn('enable_handlers() is deprecated. Pyramid 1.3 does not need them.')
@@ -207,6 +179,7 @@ class PyramidStarter(object):
         from .deform import setup
         setup(template_dirs)
         self.config.add_static_view('deform', 'deform:static')
+        self.config.add_translation_dirs('colander:locale', 'deform:locale')
 
     def enable_favicon(self, path='static/favicon.ico'):
         '''Registers a view that serves /favicon.ico.
@@ -241,13 +214,6 @@ class PyramidStarter(object):
         self.config.add_route('robots', '/robots.txt')
         self.config.add_view(robots_view, route_name='robots')
 
-    def enable_internationalization(self, extra_translation_dirs):
-        self.makedirs(self.settings.get('dir_locale', '{here}/locale'))
-        self.config.add_translation_dirs(self.package_name + ':locale',
-            *extra_translation_dirs)
-        # from pyramid.i18n import default_locale_negotiator
-        # self.config.set_locale_negotiator(default_locale_negotiator)
-
     def set_template_globals(self, fn=None):
         '''Prepares a subscriber to IBeforeRender that adds
         very useful variables to the template context dictionary.
@@ -255,8 +221,7 @@ class PyramidStarter(object):
         You can customize this by passing a function in.
         '''
         from pyramid import interfaces
-        from pyramid.events import subscriber
-        from pyramid.i18n import get_localizer, get_locale_name
+        from pyramid.i18n import get_localizer
         from pyramid.url import route_url, static_url
         package_name = self.package_name
 
@@ -271,8 +236,6 @@ class PyramidStarter(object):
                                   route_url(name, request, *a, **kw)
             event['base_path'] = settings.get('base_path', '/')
             event['static_url'] = lambda s: static_url(s, request)
-            event['locale_name'] = get_locale_name(request)  # to set xml:lang
-            event['enabled_locales'] = settings['enabled_locales']
             event['appname'] = settings.get('app.name', 'Application')
             # http://docs.pylonsproject.org/projects/pyramid_cookbook/dev/i18n.html
             localizer = get_localizer(request)
