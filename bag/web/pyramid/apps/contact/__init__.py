@@ -3,14 +3,15 @@
 from __future__ import unicode_literals  # unicode by default
 from __future__ import absolute_import
 from pyramid.view import view_config, view_defaults
-from ..views import BaseView
-from ...starter import register_view_class
 import colander as c
 import deform as d
 from marrow.mailer import Message
+from ... import _
+from ...starter import register_view_class
+from ..views import BaseView
 
 
-def create_contact_view(BaseView=BaseView, route_name='contact', _=unicode,
+def create_contact_view(BaseView=BaseView, route_name='contact',
         action='', renderer=None, master_template='aaa.genshi',
         len_name=dict(min=2, max=200),
         len_subject=dict(max=256),
