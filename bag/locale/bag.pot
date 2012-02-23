@@ -1,0 +1,67 @@
+# Translations template for bag.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the bag project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: bag 0.2.0dev\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-02-23 03:57-0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: bag/web/pyramid/deform.py:29
+msgid "Submit"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:60
+msgid "English"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:61
+msgid "Strings as in the code"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:62
+msgid "Brazilian Portuguese"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:63
+msgid "Spanish"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:64
+msgid "German"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/__init__.py:50
+msgid "Send"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/__init__.py:54
+msgid "Contact"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/__init__.py:105
+msgid "Name"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/__init__.py:107
+msgid "Email"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/__init__.py:110
+msgid "Subject"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/__init__.py:112
+msgid "Message"
+msgstr ""
+
