@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __url__ = "http://code.google.com/p/bag"
-__version__ = "0.2.0"
+__version__ = "0.2.0dev"
 __license__ = 'BSD'
 __author__ = 'Nando Florestan'
 __copyright__ = "Copyright (C) 2012 Nando Florestan"

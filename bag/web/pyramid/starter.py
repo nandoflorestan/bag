@@ -106,11 +106,16 @@ class PyramidStarter(object):
         '''Pyramid "handlers" emulate Pylons 1 "controllers".
         https://github.com/Pylons/pyramid_handlers
         '''
+        from warnings import warn
+        warn('enable_handlers() is deprecated. Pyramid 1.3 does not need them.')
         from pyramid_handlers import includeme
         self.config.include(includeme)
         self.scan()
 
     def enable_sqlalchemy(self, initialize_sql=None):
+        '''Looks like ptah.ptahsettings.initialize_sql() does more or less
+        the same thing. Don't call this if you use Ptah.
+        '''
         from sqlalchemy import engine_from_config
         settings = self.settings
         self.engine = engine = engine_from_config(settings, 'sqlalchemy.')
@@ -203,14 +208,25 @@ class PyramidStarter(object):
         setup(template_dirs)
         self.config.add_static_view('deform', 'deform:static')
 
-    def configure_favicon(self, path='static/icon/32.png'):
-        from mimetypes import guess_type
+    def enable_favicon(self, path='static/favicon.ico'):
+        '''Registers a view that serves /favicon.ico.
+
+        web_deps.PageDeps contains a favicon_tag() method that you can use to
+        create the link to it.
+        '''
+        '''FileResponse shall become available in Pyramid > 1.3a8:
+
         from pyramid.resource import abspath_from_resource_spec
-        self.settings['favicon'] = path = abspath_from_resource_spec(
-            self.settings.get('favicon', '{}:{}'.format(self.package_name, path)))
-        self.settings['favicon_content_type'] = guess_type(path)[0]
+        path = abspath_from_resource_spec(self.package_name + ':' + icopath)
+        from pyramid.response import FileResponse
+        def favicon_view(request):
+            return FileResponse(path, request=request)
+        self.config.add_route('favicon', '/favicon.ico')
+        self.config.add_view(favicon_view, route_name='favicon')
+        '''
 
     def enable_robots(self, path='static/robots.txt'):
+        '''Reads robots.txt into memory, then sets up a view that serves it.'''
         from mimetypes import guess_type
         from pyramid.resource import abspath_from_resource_spec
         path = abspath_from_resource_spec(
@@ -233,7 +249,11 @@ class PyramidStarter(object):
         # self.config.set_locale_negotiator(default_locale_negotiator)
 
     def set_template_globals(self, fn=None):
-        '''Intended to be overridden in subclasses.'''
+        '''Prepares a subscriber to IBeforeRender that adds
+        very useful variables to the template context dictionary.
+
+        You can customize this by passing a function in.
+        '''
         from pyramid import interfaces
         from pyramid.events import subscriber
         from pyramid.i18n import get_localizer, get_locale_name
@@ -265,8 +285,7 @@ class PyramidStarter(object):
                                       domain=package_name, mapping=mapping)
 
         self.config.add_subscriber(fn or template_globals,
-                                   interfaces.IBeforeRender,
-        )
+                                   interfaces.IBeforeRender)
 
     def declare_routes_from_views(self):
         self.scan()  # in order to find all the decorated view classes

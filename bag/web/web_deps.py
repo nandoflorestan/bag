@@ -571,7 +571,7 @@ $(function() {
         ie=dict(
             rel='shortcut icon',
             typ='type="image/x-icon"',
-            url='/static/favicon32.ico',
+            url='/static/favicon.ico',
             sizes="32x32"),
         normal=dict(
             rel='icon',
