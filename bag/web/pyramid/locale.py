@@ -7,11 +7,12 @@ in the configuration file.
 
 To enable it, there are 2 steps.
 
-1) Add a setting to your .ini file with the locales you want to enable, such as:
+1) Add a setting to your .ini file with the locales you want to enable,
+such as::
 
     bag.locale.enable = en pt_BR es de fr
 
-2) Add to your initialization file:
+2) Add to your initialization file::
 
     config.include('bag.web.pyramid.locale')
 
@@ -19,9 +20,10 @@ The above line registers a view so you can, for instance, browse to
 /locale/pt_BR
 in order to change the locale to Brazilian Portuguese.
 
-Also, you will find that the "bag.locale.enable" setting is replaced with
-an OrderedDictionary that is useful for you to build a user interface
-for locale choice. In templates the dictionary is accessed as *enabled_locales*.
+Also, you will find that the "bag.locale.enable" setting
+is replaced with an OrderedDictionary that is useful
+for you to build a user interface for locale choice.
+In templates the dictionary is accessed as *enabled_locales*.
 
 For instance, you might do this in your template to list the
 available locales so the user can click and change languages:
@@ -47,6 +49,7 @@ In your master template, you can set the 2 lang attributes on the <html> tag:
 from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
 from collections import OrderedDict
+from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name
 from . import _
@@ -128,7 +131,22 @@ def locale_view(request):
         headers=locale_cookie_headers(locale_code))
 
 
-# TODO Function that detects locale from browser
+def locale_from_browser(request):
+    '''The browser provides the user's preferred languages, ordered.
+    They come in the *Accept-Language* header.
+
+    This function returns the best match between that list and
+    the enabled languages.
+
+    Most of the implementation is in the WebOb request object.
+
+    TODO: Test
+    '''
+    settings = request.registry.settings
+    enabled_locales = settings[SETTING_NAME].keys()
+    first = enabled_locales[0]
+    return request.accept_language.best_match(enabled_locales,
+        default_match=settings.get("pyramid.default_locale_name", first))
 
 
 def add_template_globals(event):
@@ -150,6 +168,17 @@ def includeme(config):
     config.add_subscriber(add_template_globals, IBeforeRender)
 
 
+class BaseLocalizedView(object):
+    '''A mixin class for your application's base view class.'''
+    def format_number(self, n):
+        return format_number(n, locale=get_locale_name(self.request))
+
+    def format_currency(self, n, currency=None, format=None):
+        return format_currency(n, format=format,
+            currency=currency or getattr(self, 'default_currency', 'USD'),
+            locale=get_locale_name(self.request))
+
+
 # Colander and Deform section
 # ===========================
 
@@ -162,6 +191,7 @@ def locale_exists_validator(settings):
     '''
     from colander import Invalid
     enabled_locales = settings[SETTING_NAME]
+
     def validator(node, value):
         if value not in enabled_locales:
             raise Invalid(node, _('Please select a language.'))
