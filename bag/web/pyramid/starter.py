@@ -5,6 +5,8 @@ from __future__ import absolute_import
 import os
 import stat
 from pyramid.config import Configurator
+from pyramid.resource import abspath_from_resource_spec
+from pyramid.response import FileResponse
 from .plugins_manager import PluginsManager, BasePlugin
 
 
@@ -35,9 +37,9 @@ class PyramidStarter(object):
 
     def __init__ (self, config, packages=[]):
         '''Arguments:
-        `config` is the Pyramid configurator instance, or a dictionary that
-        can be used to create such an instance.
-        `packages` is a sequence of additional packages that should be
+
+        * *config* is the Pyramid configurator instance.
+        * *packages* is a sequence of additional packages that should be
         scanned/enabled.
         '''
         self.require_python27()
@@ -55,7 +57,7 @@ class PyramidStarter(object):
         from pyramid.i18n import TranslationStringFactory
         self._ = TranslationStringFactory(self.package_name)
         self.makedirs('{here}/locale')
-        config.add_translation_dirs(self.package_name + ':locale', 'bag:locale')
+        config.add_translation_dirs('bag:locale')
 
     @property
     def settings(self):
@@ -63,6 +65,7 @@ class PyramidStarter(object):
 
     def makedirs(self, key):
         '''Creates a directory if it does not yet exist.
+
         The argument is a string that may contain one of these placeholders:
         {here} or {up}.
         '''
@@ -74,9 +77,9 @@ class PyramidStarter(object):
 
     def enable_handlers(self):
         '''Pyramid "handlers" emulate Pylons 1 "controllers".
-        https://github.com/Pylons/pyramid_handlers
-
         This is deprecated because Pyramid is now more powerful.
+
+        https://github.com/Pylons/pyramid_handlers
         '''
         from warnings import warn
         warn('enable_handlers() is deprecated. Pyramid 1.3 does not need them.')
@@ -186,22 +189,18 @@ class PyramidStarter(object):
 
         web_deps.PageDeps contains a favicon_tag() method that you can use to
         create the link to it.
-        '''
-        '''FileResponse shall become available in Pyramid > 1.3a8:
 
-        from pyramid.resource import abspath_from_resource_spec
-        path = abspath_from_resource_spec(self.package_name + ':' + icopath)
-        from pyramid.response import FileResponse
+        FileResponse appeared in Pyramid 1.3a9.
+        '''
+        path = abspath_from_resource_spec(self.package_name + ':' + path)
         def favicon_view(request):
             return FileResponse(path, request=request)
-        self.config.add_route('favicon', '/favicon.ico')
+        self.config.add_route('favicon', 'favicon.ico')
         self.config.add_view(favicon_view, route_name='favicon')
-        '''
 
     def enable_robots(self, path='static/robots.txt'):
         '''Reads robots.txt into memory, then sets up a view that serves it.'''
         from mimetypes import guess_type
-        from pyramid.resource import abspath_from_resource_spec
         path = abspath_from_resource_spec(
             self.settings.get('robots', '{}:{}'.format(self.package_name, path)))
         content_type = guess_type(path)[0]
@@ -264,9 +263,12 @@ class PyramidStarter(object):
                 k.declare_deps(deps, rooted, settings)
 
     def scan(self):
-        self.config.scan(self.package_name)
+        self.packages.append(self.package_name)
         for p in self.packages:
             self.config.scan(p)
+            locale_dir = abspath_from_resource_spec(p + ':locale')
+            if os.path.isdir(locale_dir):
+                self.config.add_translation_dirs(locale_dir)
         # Make this method a noop for the future (scan only once)
         self.scan = lambda: None
 
