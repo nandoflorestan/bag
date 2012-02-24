@@ -25,17 +25,17 @@ def makedirs(s):
         os.makedirs(s)
 
 
-view_classes = []
 def register_view_class(cls):
     '''Class decorator that adds the class to a list.'''
     view_classes.append(cls)
     return cls
+view_classes = []
 
 
 class PyramidStarter(object):
     '''Reusable configurator for nice Pyramid applications.'''
 
-    def __init__ (self, config, packages=[]):
+    def __init__(self, config, packages=[]):
         '''Arguments:
 
         * *config* is the Pyramid configurator instance.
@@ -44,14 +44,15 @@ class PyramidStarter(object):
         '''
         self.require_python27()
         self.config = config
-        if not self.settings.has_key('app.name'):
-            raise KeyError \
-                ('Your configuration files are missing an "app.name" setting.')
+        if not 'app.name' in self.settings:
+            raise KeyError(
+                'Your configuration files are missing an "app.name" setting.')
         # Add self to config so other applications can find it
         config.bag = self
         self.packages = packages
         self.package_name = config.package.__name__
-        self.directory = os.path.abspath(os.path.dirname(config.package.__file__))
+        self.directory = os.path.abspath(
+            os.path.dirname(config.package.__file__))
         self.parent_directory = os.path.dirname(self.directory)
         # Create the _() function for internationalization
         from pyramid.i18n import TranslationStringFactory
@@ -82,7 +83,8 @@ class PyramidStarter(object):
         https://github.com/Pylons/pyramid_handlers
         '''
         from warnings import warn
-        warn('enable_handlers() is deprecated. Pyramid 1.3 does not need them.')
+        warn(
+            'enable_handlers() is deprecated. Pyramid 1.3 does not need them.')
         from pyramid_handlers import includeme
         self.config.include(includeme)
         self.scan()
@@ -120,7 +122,8 @@ class PyramidStarter(object):
         '''
         from sqlalchemy.orm import scoped_session, sessionmaker
         from zope.sqlalchemy import ZopeTransactionExtension
-        sas = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+        sas = scoped_session(sessionmaker(
+            extension=ZopeTransactionExtension()))
         from sqlalchemy.ext.declarative import declarative_base
         Base = declarative_base()
         return Base, sas
@@ -151,11 +154,11 @@ class PyramidStarter(object):
         if hasattr(self.config, 'ptah_init_mailer'):
             # If using Ptah, instead of installing another mailer for it,
             # we can still send simple messages with the following hack.
-            class Sender(object):                  # Provide Ptah with an object
-                def send(self, author, to, msg):   # that has a send() method.
+            class Sender(object):                 # Provide Ptah with an object
+                def send(self, author, to, msg):  # that has a send() method.
                     from quopri import decodestring
-                    m = mailer.new(to=to, plain=decodestring(msg.get_payload()),
-                        subject=unicode(msg['subject']))
+                    m = mailer.new(to=to, subject=unicode(msg['subject']),
+                        plain=decodestring(msg.get_payload()))
                     mailer.send(m)
             self.config.ptah_init_mailer(Sender())
 
@@ -193,6 +196,7 @@ class PyramidStarter(object):
         FileResponse appeared in Pyramid 1.3a9.
         '''
         path = abspath_from_resource_spec(self.package_name + ':' + path)
+
         def favicon_view(request):
             return FileResponse(path, request=request)
         self.config.add_route('favicon', 'favicon.ico')
@@ -202,12 +206,14 @@ class PyramidStarter(object):
         '''Reads robots.txt into memory, then sets up a view that serves it.'''
         from mimetypes import guess_type
         path = abspath_from_resource_spec(
-            self.settings.get('robots', '{}:{}'.format(self.package_name, path)))
+            self.settings.get('robots', '{}:{}'
+                .format(self.package_name, path)))
         content_type = guess_type(path)[0]
         import codecs
         with codecs.open(path, 'r', encoding='utf-8') as f:
             content = f.read()
         from pyramid.response import Response
+
         def robots_view(request):
             return Response(content_type=content_type, app_iter=content)
         self.config.add_route('robots', '/robots.txt')
@@ -236,7 +242,6 @@ class PyramidStarter(object):
             event['base_path'] = settings.get('base_path', '/')
             event['static_url'] = lambda s: static_url(s, request)
             event['appname'] = settings.get('app.name', 'Application')
-            # http://docs.pylonsproject.org/projects/pyramid_cookbook/dev/i18n.html
             localizer = get_localizer(request)
             translate = localizer.translate
             pluralize = localizer.pluralize
@@ -318,7 +323,7 @@ def all_view_classes(registry):
     return [o for o in all_views(registry) if isinstance(o, type)]
 
 
-def authentication_policy(settings, include_ip=True, timeout=60*60*32,
+def authentication_policy(settings, include_ip=True, timeout=60 * 60 * 32,
                     reissue_time=60, find_groups=lambda userid, request: []):
     '''Returns an authentication policy object for configuration.'''
     try:
