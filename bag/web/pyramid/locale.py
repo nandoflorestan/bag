@@ -5,7 +5,7 @@
 It lets you enable and disable locales (as your translations allow)
 in the configuration file.
 
-This module also offers BaseLocalizedView, a useful mixin class for
+This module also offers *BaseLocalizedView*, a useful mixin class for
 your application's base view.
 
 Enabling the module in 2 steps
@@ -23,11 +23,13 @@ such as::
 Effects of enabling this module as described above
 --------------------------------------------------
 
-1) A view is registered so you can, for instance, browse to
+1) A view is registered so the user can, for instance, browse to
 /locale/pt_BR
 in order to change the locale to Brazilian Portuguese.
+This works by setting the locale cookie.
 
-2) A locale negotiator is registered that checks the browser's stated
+2) To improve the experience of first-time visitors,
+a locale negotiator is registered that checks the browser's stated
 preferred languages against the "bag.locale.enable" setting in the .ini file.
 
 3) The "bag.locale.enable" setting
@@ -61,6 +63,7 @@ on the <html> tag::
 from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
 from collections import OrderedDict
+from babel import Locale
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name, default_locale_negotiator
@@ -69,11 +72,14 @@ from . import _
 SETTING_NAME = 'bag.locale.enable'
 
 
-class Locale(object):
-    def __init__(self, code, name, title):
+class LocaleInfo(object):
+    def __init__(self, code, display_name, english_name, title=None,
+                 babel_locale=None):
         self.code = code
-        self.name = name
+        self.display_name = display_name
+        self.english_name = english_name
         self.title = title
+        self.babel_locale = babel_locale
 
     def __repr__(self):
         return self.code
@@ -82,32 +88,31 @@ class Locale(object):
         return self.name
 
 
+locale_titles = dict(
+    en='Change to English',
+    en_US='Change to English - United States',
+    en_DEV='Change to strings as in the source code',
+    pt='Mudar para português',
+    pt_BR='Mudar para português do Brasil',
+    es='Cambiar a español',
+    de='Auf Deutsch benutzen',
+)  # Please help us: send more entries to this dict
+
+
 class LocaleDict(OrderedDict):
     '''A dictionary of dictionaries grouping:
 
     * locale codes (i.e. "pt_BR"),
     * human-readable and translatable language names such as "English", and
-    * titles such as "Change to English".
+    * titles such as "Change to English", written in THAT language.
     '''
-    def add(self, code, name, title):
-        self[code] = Locale(code, name, title)
-
-    def populate(self):
-        '''To add locales, update this method :)'''
-        # TODO Obtain locale names automatically, they must be in Babel already
-        add = self.add
-        add('en', _('English'), 'Change to English')
-        add('en_US', _('English - US'), 'Change to English - United States')
-        add('en_DEV', _('Strings as in the code'), 'Change to developer slang')
-        add('pt', _('Portuguese'), 'Mudar para português')
-        add('pt_BR', _('Portuguese - Brazil'),
-            'Mudar para português do Brasil')
-        add('es', _('Spanish'), 'Cambiar a español')
-        add('de', _('German'), 'Auf Deutsch benutzen')
-        return self
-
-
-locales = LocaleDict().populate()
+    def add(self, code, display_name=None, english_name=None, title=None):
+        babel_locale = Locale(*code.split("_"))
+        self[code] = LocaleInfo(code,
+            display_name=display_name or babel_locale.display_name,
+            english_name=english_name or babel_locale.english_name,
+            title=title or locale_titles.get(code),
+            babel_locale=babel_locale)
 
 
 def prepare_enabled_locales(settings, Dict=LocaleDict):
@@ -122,7 +127,7 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
     # Apply the "codes" filter on the supported locales
     langs = Dict()
     for code in codes:
-        langs[code] = locales[code]
+        langs.add(code)
     # Replace the setting with the dictionary, containing more information
     settings[SETTING_NAME] = langs
     return langs
@@ -215,7 +220,7 @@ def locale_exists_validator(settings):
     validator that you can use on your user preferences form,
     so a user can only choose a locale that is enabled in the system.
 
-    TODO: Test this new implementation.
+    TODO: Test this new implementation when I use colander again...
     '''
     from colander import Invalid
     enabled_locales = settings[SETTING_NAME]
