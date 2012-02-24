@@ -5,7 +5,11 @@
 It lets you enable and disable locales (as your translations allow)
 in the configuration file.
 
-To enable it, there are 2 steps.
+This module also offers BaseLocalizedView, a useful mixin class for
+your application's base view.
+
+Enabling the module in 2 steps
+------------------------------
 
 1) Add a setting to your .ini file with the locales you want to enable,
 such as::
@@ -16,17 +20,24 @@ such as::
 
     config.include('bag.web.pyramid.locale')
 
-The above line registers a view so you can, for instance, browse to
+Effects of enabling this module as described above
+--------------------------------------------------
+
+1) A view is registered so you can, for instance, browse to
 /locale/pt_BR
 in order to change the locale to Brazilian Portuguese.
 
-Also, you will find that the "bag.locale.enable" setting
+2) A locale negotiator is registered that checks the browser's stated
+preferred languages against the "bag.locale.enable" setting in the .ini file.
+
+3) The "bag.locale.enable" setting
 is replaced with an OrderedDictionary that is useful
 for you to build a user interface for locale choice.
-In templates the dictionary is accessed as *enabled_locales*.
+
+4) In templates, that dictionary is available as *enabled_locales*.
 
 For instance, you might do this in your template to list the
-available locales so the user can click and change languages:
+available locales so the user can click and change languages::
 
     <span class='languages-selector'
         py:with="locales = enabled_locales.values()">
@@ -39,7 +50,8 @@ available locales so the user can click and change languages:
       </py:for>
     </span>
 
-In your master template, you can set the 2 lang attributes on the <html> tag:
+5) In your master template, you can set the 2 lang attributes
+on the <html> tag::
 
     xml:lang="${locale_code[:2]}" lang="${locale_code[:2]}"
 
@@ -51,7 +63,7 @@ from __future__ import unicode_literals  # unicode by default
 from collections import OrderedDict
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
-from pyramid.i18n import get_locale_name
+from pyramid.i18n import get_locale_name, default_locale_negotiator
 from . import _
 
 SETTING_NAME = 'bag.locale.enable'
@@ -82,10 +94,14 @@ class LocaleDict(OrderedDict):
 
     def populate(self):
         '''To add locales, update this method :)'''
+        # TODO Obtain locale names automatically, they must be in Babel already
         add = self.add
         add('en', _('English'), 'Change to English')
+        add('en_US', _('English - US'), 'Change to English - United States')
         add('en_DEV', _('Strings as in the code'), 'Change to developer slang')
-        add('pt_BR', _('Brazilian Portuguese'), 'Mudar para português')
+        add('pt', _('Portuguese'), 'Mudar para português')
+        add('pt_BR', _('Portuguese - Brazil'),
+            'Mudar para português do Brasil')
         add('es', _('Spanish'), 'Cambiar a español')
         add('de', _('German'), 'Auf Deutsch benutzen')
         return self
@@ -139,29 +155,41 @@ def locale_from_browser(request):
     the enabled languages.
 
     Most of the implementation is in the WebOb request object.
-
-    TODO: Test
     '''
-    settings = request.registry.settings
-    enabled_locales = settings[SETTING_NAME].keys()
-    first = enabled_locales[0]
-    return request.accept_language.best_match(enabled_locales,
-        default_match=settings.get("pyramid.default_locale_name", first))
+    # settings = request.registry.settings
+    # enabled_locales = settings[SETTING_NAME].keys()
+    # first = enabled_locales[0]
+    # return request.accept_language.best_match(enabled_locales,
+    #     default_match=settings.get("pyramid.default_locale_name", first))
+    return request.accept_language.best_match(
+        request.registry.settings[SETTING_NAME].keys())
+
+
+def locale_negotiator(request):
+    '''This is a locale negotiator that decorates Pyramid's default one.
+
+    If the default locale negotiator's schemes should fail,
+    we try to match the browser's stated preferred languages
+    with our configured enabled locales.
+    '''
+    return default_locale_negotiator(request) or locale_from_browser(request)
 
 
 def add_template_globals(event):
-    '''Makes the enabled locales dictionary readily available in
-    template context.
+    '''Makes the following variables readily available in template context:
+
+    * *enabled_locales*: OrderedDict containing the enabled locales
+    * *locale_code*: a string containing the locale of the current request,
+        which you can use to set the xml:lang attribute on your <html> tag.
     '''
     event['enabled_locales'] = \
         event['request'].registry.settings[SETTING_NAME]
-    event['locale_code'] = get_locale_name(event['request'])  # to set xml:lang
+    event['locale_code'] = get_locale_name(event['request'])
 
 
 def includeme(config):
     prepare_enabled_locales(config.get_settings())
-    from pyramid.i18n import default_locale_negotiator
-    config.set_locale_negotiator(default_locale_negotiator)
+    config.set_locale_negotiator(locale_negotiator)
     config.add_route('locale', 'locale/{locale}')
     config.add_view(locale_view, route_name='locale')
     from pyramid.interfaces import IBeforeRender
