@@ -10,7 +10,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
 from datetime import datetime
 from sqlalchemy import Column, Sequence
+from sqlalchemy.orm import MapperExtension
 from sqlalchemy.types import Integer, DateTime
+
 CASC = 'all, delete-orphan'
 
 
@@ -50,3 +52,18 @@ def col(attrib):
 def length(attrib):
     '''Returns the length of the attribute `attrib`.'''
     return _get_length(col(attrib))
+
+
+class CreatedChanged(object):
+    '''Mixin class for your models.'''
+    created = Column(DateTime, nullable=False)
+    changed = Column(DateTime, nullable=False)
+
+    class CreatedChangedMapperExt(MapperExtension):
+        def before_insert(self, mapper, connection, instance):
+            instance.created = instance.changed = datetime.utcnow()
+
+        def before_update(self, mapper, connection, instance):
+            instance.changed = datetime.utcnow()
+    __mapper_args__ = dict(extension=CreatedChangedMapperExt())
+# http://www.devsniper.com/sqlalchemy-tutorial-3-base-entity-class-in-sqlalchemy/

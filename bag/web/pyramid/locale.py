@@ -124,7 +124,7 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
     '''
     # Read from settings a list of locale codes that should be enabled
     codes = set(settings.get(SETTING_NAME, 'en').split(' '))
-    # Apply the "codes" filter on the supported locales
+    # Create the LocaleDict containing info for each code
     langs = Dict()
     for code in codes:
         langs.add(code)
