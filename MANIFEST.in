@@ -1,5 +1,5 @@
 include README.txt
-recursive-include bag/locale
+recursive-include bag/locale *
 include bag/web/transecma.js
-recursive-include bag/web/deform/templates
+recursive-include bag/web/deform/templates  *
 include bag/web/pyramid/apps/contact/contact.genshi
