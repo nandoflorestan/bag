@@ -1,4 +1,4 @@
-# Translations template for bag.
+# Portuguese (Brazil) translations for bag.
 # Copyright (C) 2012 ORGANIZATION
 # This file is distributed under the same license as the bag project.
 # Nando Florestan <nandoflorestan@gmail.com>, 2012.
@@ -7,60 +7,67 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bag 0.2.0dev\n"
 "Report-Msgid-Bugs-To: nandoflorestan@gmail.com\n"
-"POT-Creation-Date: 2012-02-23 03:36-0200\n"
-"PO-Revision-Date: 2012-02-23 03:54-0200\n"
+"POT-Creation-Date: 2012-02-26 10:57-0300\n"
+"PO-Revision-Date: 2012-02-26 11:00-0300\n"
 "Last-Translator: Nando Florestan <nandoflorestan@gmail.com>\n"
 "Language-Team: Portuguese <>\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bits\n"
 "Generated-By: Babel 0.9.6\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
 
 #: bag/web/pyramid/deform.py:29
 msgid "Submit"
 msgstr "Enviar"
 
-#: bag/web/pyramid/locale.py:60
-msgid "English"
-msgstr "inglês"
+#: bag/web/pyramid/locale.py:230
+msgid "Please select a language."
+msgstr "Por gentileza escolha uma língua."
 
-#: bag/web/pyramid/locale.py:61
-msgid "Strings as in the code"
-msgstr "Strings como no código-fonte"
+#: bag/web/pyramid/locale.py:234
+msgid "Locale"
+msgstr "Locale"
 
-#: bag/web/pyramid/locale.py:62
-msgid "Brazilian Portuguese"
-msgstr "português brasileiro"
+#: bag/web/pyramid/locale.py:245
+msgid "--Choose--"
+msgstr "--Escolher--"
 
-#: bag/web/pyramid/locale.py:63
-msgid "Spanish"
-msgstr "castelhano"
-
-#: bag/web/pyramid/locale.py:64
-msgid "German"
-msgstr "alemão"
-
-#: bag/web/pyramid/apps/contact/__init__.py:50
+#: bag/web/pyramid/apps/contact/__init__.py:51
 msgid "Send"
 msgstr "Enviar"
 
-#: bag/web/pyramid/apps/contact/__init__.py:54
+#: bag/web/pyramid/apps/contact/__init__.py:55
 msgid "Contact"
 msgstr "Contato"
 
-#: bag/web/pyramid/apps/contact/__init__.py:105
+#: bag/web/pyramid/apps/contact/__init__.py:106
 msgid "Name"
 msgstr "Nome"
 
-#: bag/web/pyramid/apps/contact/__init__.py:107
+#: bag/web/pyramid/apps/contact/__init__.py:108
 msgid "Email"
 msgstr "E-mail"
 
-#: bag/web/pyramid/apps/contact/__init__.py:110
+#: bag/web/pyramid/apps/contact/__init__.py:111
 msgid "Subject"
 msgstr "Assunto"
 
-#: bag/web/pyramid/apps/contact/__init__.py:112
+#: bag/web/pyramid/apps/contact/__init__.py:113
 msgid "Message"
 msgstr "Mensagem"
+
+#~ msgid "English"
+#~ msgstr "inglês"
+
+#~ msgid "Strings as in the code"
+#~ msgstr "Strings como no código-fonte"
+
+#~ msgid "Brazilian Portuguese"
+#~ msgstr "português brasileiro"
+
+#~ msgid "Spanish"
+#~ msgstr "castelhano"
+
+#~ msgid "German"
+#~ msgstr "alemão"
