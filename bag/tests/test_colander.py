@@ -7,6 +7,8 @@ from __future__ import unicode_literals  # unicode by default
 import unittest
 import colander as c
 
+# TODO: Make a TestSuite that includes the colander test suite.
+
 
 class EditSchema(c.MappingSchema):
     minLength = c.SchemaNode(c.Int(), validator=c.Range(min=1), missing=1)
