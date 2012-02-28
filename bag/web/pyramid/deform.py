@@ -49,7 +49,7 @@ def make_form(form_schema, f_template='form', i_template='mapping_item',
     return form
 
 
-# Decorator to verify the csrf_token
+# Decorator to verify the csrf_token. TODO: Use and test
 def verify_csrf_token(func):
     def wrapper(*a, **kw):
         request = get_current_request()
