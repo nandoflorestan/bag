@@ -11,7 +11,7 @@ from __future__ import unicode_literals  # unicode by default
 from datetime import datetime
 from sqlalchemy import Column, Sequence
 from sqlalchemy.orm import MapperExtension
-from sqlalchemy.types import Integer, DateTime
+from sqlalchemy.types import Integer, DateTime, Unicode
 
 CASC = 'all, delete-orphan'
 
@@ -67,3 +67,23 @@ class CreatedChanged(object):
             instance.changed = datetime.utcnow()
     __mapper_args__ = dict(extension=CreatedChangedMapperExt())
 # http://www.devsniper.com/sqlalchemy-tutorial-3-base-entity-class-in-sqlalchemy/
+
+
+class AddressBase(object):
+    '''Base class for addresses. In subclasses you can just define
+    __tablename__, id, the foreign key, and maybe indexes.
+    '''
+    #~ __tablename__ = 'customer'
+
+    #~ id = id_column(__tablename__)
+    street = Column(Unicode(160), default='')
+    district = Column(Unicode(80), default='')
+    city = Column(Unicode(80), default='')
+    province = Column(Unicode(40), default='')
+    country_code = Column(Unicode(2), default='')
+    zipcode = Column(Unicode(16), default='')
+    # kind = Column(Unicode(1), default='',
+    #     doc="c for commercial, r for residential")
+    # charge = Column(Boolean, default=False,
+    #     doc="Whether this is the address to bill to.")
+    # comment = Column(Unicode, default='')
