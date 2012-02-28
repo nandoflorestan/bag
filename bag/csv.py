@@ -133,3 +133,73 @@ class UnicodeDictReader(object):
             for key in self.fieldnames[lr:]:
                 d[key] = self.restval
         return d
+
+
+'''
+Downloading a large CSV file in a web app
+=========================================
+
+::
+
+    <mgedmin> I wonder if using app_iter results in less work (no need to ''.join() the stringio's internal buffer), or *more* work (it ''.joins() and then splits by '\n')
+    <mgedmin> a microbenchmark of app_iter=buf versus body=buf.getvalue() would be interesting to see
+    <nandoflorestan> mgedmin, the second option wouldn't make sense, I think
+    <mgedmin> nandoflorestan, I find your faith in Python's stdlib charming
+    <mgedmin> /usr/lib/python2.7/StringIO.py: __iter__() returns self, next() returns self.readline(), self.readline does self.buf += ''.join(self.buflist)
+    <mgedmin> maybe cStringIO is more optimized
+    <mgedmin> cStringIO in py2.6 doesn't have a buflist, afaics, just a buf
+    <mgedmin> so it's just creating many substrings unnecessarily
+    <mgedmin> verdict: app_iter creates unnecessary work
+    <nandoflorestan> no, the fault isn't with app_iter
+    <mgedmin> hm, a proper app-iter based solution for dynamically generating gigs of CSV data would be interesting
+    <nandoflorestan> well
+    <mgedmin> would it be possible to use the stdlib csv module in any way, I wonder?
+    <nandoflorestan> yes
+    <nandoflorestan> it supports file-like objects,
+    <mgedmin> but app-iter is pull-based, and csv is push-based
+    <nandoflorestan> of which file and StringIO are "subclasses"
+    <mgedmin> well, duh, worst case you can treat each set of, say, 100 lines, as a separate csv and just let app_iter concatenate those
+    <nandoflorestan> The problem you have found is really with using StringIO at all
+    <nandoflorestan> Just use generators all the way instead
+    <nandoflorestan> this make sense?
+    <mgedmin> so the question is, I suppose: is it possible to make use of the stdlib csv modules knowledge of various CSV dialects and CSV escaping rules, when you're rolling your own csv generator?
+    * mgedmin isn't solving a real problem, just having thought experiments, BTW
+    <mgedmin> mnemoc is the one who needs to generate CSV in a Pyramid view and was asking about the best way to do that
+    <mgedmin> there were no mentions of the multi-gigabyte data sets
+    <nandoflorestan> yes, it is possible, because csv supports a file-like interface which must give it one CSV line at a time.
+    <nandoflorestan> the csv module does not require that one use StringIO.
+    <mgedmin> so?
+    <mgedmin> pyramid doesn't have anything like response.write(bunch_of_data)
+    <mgedmin> and you can't yield across multiple functions
+    <nandoflorestan> 1)that's what app_iter is for
+    <nandoflorestan> 2) don't understand
+    <mgedmin> I'm curious how you would use csv with app_iter, that's all
+    <nandoflorestan> buffer = StringIO()
+    <nandoflorestan> writer = CsvWriter(buffer)
+    <nandoflorestan> response.headers["Content-Type"] = "text/plain"
+    <nandoflorestan> response.headers["Content-Disposition"] = "attachment;filename=" + blahblah
+    * mgedmin comes up with this: http://pastie.org/3471360
+    <nandoflorestan> mgedmin, exactly. truncate(0)
+    <mgedmin> ok
+    <mgedmin> I hoped maybe you knew a better solution
+    <nandoflorestan> sorry :)
+    <mgedmin> actually something like http://pastie.org/3471360 might be better -- larger buffers, don't yield after every single line
+    <mgedmin> 100 is probably too small but whatever, it's proof of concept
+    <nandoflorestan> very nice.
+
+
+    from cStringIO import StringIO
+    import csv
+
+    def csv_view(request):  # by mgedmin
+        buf = StringIO()
+        writer = csv.writer(buf)
+        def csvdata():
+            for n in range(100000):
+                writer.writerow(['fake', 'csv', 'line', str(n)])
+                if n % 100 == 99:
+                    yield buf.getvalue()
+                    buf.truncate(0)
+            yield buf.getvalue()
+        return Response(content_type='text/csv', app_iter=csvdata)
+'''
