@@ -79,6 +79,8 @@ def authenticated(func):
     '''Decorator that redirects to Pyramid's Forbidden view
     (Ptah wisely makes this the login page)
     if the user is not authenticated.
+
+    Depends on your base view class having a *user_id* property.
     '''
     def wrapper(self, *a, **kw):
         if self.user_id:

@@ -9,8 +9,8 @@ there are many different ways to initialize SQLALchemy.
 from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
 from datetime import datetime
-from sqlalchemy import Column, Sequence
-from sqlalchemy.orm import MapperExtension
+from sqlalchemy import Table, Column, ForeignKey, Sequence
+from sqlalchemy.orm import relationship, MapperExtension
 from sqlalchemy.types import Integer, DateTime, Unicode
 
 CASC = 'all, delete-orphan'
@@ -24,12 +24,11 @@ def now_column(nullable=False, **k):
     return Column(DateTime, default=datetime.utcnow, nullable=nullable, **k)
 
 
-def get_col(model, name):
-    '''Introspects the SQLALchemy model `model` and returns the column object
-    for the column named `name`. E.g.: col(User, 'email')
+def get_col(model, attribute_name):
+    '''Introspects the SQLALchemy model *model* and returns the column object
+    for *attribute_name*. E.g.: col(User, 'email')
     '''
-    cols = model._sa_class_manager.mapper.columns
-    return cols[name]
+    return model._sa_class_manager.mapper.columns[attribute_name]
 
 
 def _get_length(col):
@@ -52,6 +51,30 @@ def col(attrib):
 def length(attrib):
     '''Returns the length of the attribute `attrib`.'''
     return _get_length(col(attrib))
+
+
+def many_to_many(Model1, Model2, id_attr1='id', id_attr2='id', metadata=None,
+                 backref=None):
+    '''Easily set up a many-to-many relationship between 2 existing models.
+
+    Returns an association table and the relationship itself.
+    '''
+    table1 = Model1.__tablename__
+    table2 = Model2.__tablename__
+    col1 = col(getattr(Model1, id_attr1))
+    col2 = col(getattr(Model2, id_attr2))
+    type1 = col1.copy().type
+    type2 = col2.copy().type
+    metadata = metadata or Model1.__table__.metadata
+    association = Table(table1 + '_' + table2, metadata,
+        Column(table1 + '_id', type1, ForeignKey(table1 + '.' + col1.name),
+            nullable=False, index=True),
+        Column(table2 + '_id', type2, ForeignKey(table2 + '.' + col2.name),
+            nullable=False, index=True),
+    )
+    backref = backref or table1 + 's'
+    rel = relationship(Model2, secondary=association, backref=backref)
+    return association, rel
 
 
 class CreatedChanged(object):
