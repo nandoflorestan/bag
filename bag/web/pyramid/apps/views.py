@@ -8,8 +8,8 @@ apps that use the Pyramid web framework.
 from __future__ import unicode_literals  # unicode by default
 from __future__ import absolute_import
 from pyramid.decorator import reify
-from pyramid.httpexceptions import HTTPFound
-from pyramid.i18n import get_localizer, TranslationStringFactory
+from pyramid.exceptions import Forbidden
+from pyramid.i18n import get_localizer
 from pyramid.renderers import get_renderer
 from pyramid.settings import asbool
 from pyramid.url import route_url
@@ -65,7 +65,7 @@ class ChameleonBaseView(object):
         If settings['reload_templates'] is false, also memoizes the macros.
         '''
         if asbool(self.request.registry.settings.get('reload_templates')):
-            return  get_renderer(template).implementation().macros[macro_name]
+            return get_renderer(template).implementation().macros[macro_name]
         else:
             macro_path = template + '|' + macro_name
             macro = self.macro_cache.get(macro_path)
@@ -76,16 +76,15 @@ class ChameleonBaseView(object):
 
 
 def authenticated(func):
-    '''Decorator that redirects to the login page if the user is not yet
-    authenticated.
+    '''Decorator that redirects to Pyramid's Forbidden view
+    (Ptah wisely makes this the login page)
+    if the user is not authenticated.
     '''
     def wrapper(self, *a, **kw):
-        if self.request.user:
+        if self.user_id:
             return func(self, *a, **kw)
         else:
-            referrer = self.request.path
-            return HTTPFound(location=self.url('user', action='login',
-                _query=[('ref', referrer)]))
+            raise Forbidden()
     return wrapper
 
 
@@ -116,15 +115,4 @@ def get_request_class(User=None, sas=None, PageDeps=None):
                 '''
                 userid = authenticated_userid(self)
                 return sas.query(User).get(userid) if userid else None
-
     return CustomRequest
-
-
-def create_locale_cookie(locale, settings):
-    for loc in settings['enabled_locales']:
-        if loc['name'] == locale:
-            headers = [(b'Set-Cookie',
-                b'_LOCALE_={0}; expires=Fri, 31-Dec-9999 23:00:00 GMT; Path=/' \
-                .format(locale.encode('utf8')))]
-            return headers
-    raise KeyError('Locale not configured: "{}"'.format(locale))
