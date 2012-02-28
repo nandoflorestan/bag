@@ -48,7 +48,7 @@ def create_contact_view(BaseView=BaseView, route_name='contact',
             self.request = request
 
         def _get_form(self):
-            return d.Form(self.ContactSchema(), buttons=(_('Send'),),
+            return d.Form(self.ContactSchema(), buttons=(_('Send email'),),
                 action=action, formid='contact-form')
 
         def _template_context(self, contact_form=None):

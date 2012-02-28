@@ -22,7 +22,8 @@ def setup(deform_template_dirs):
 
         setup(['app:fieldtypes/templates', 'deform:templates'])
     '''
-    dirs = [resource_filename(*dir.split(':')) for dir in deform_template_dirs]
+    dirs = tuple([resource_filename(*dir.split(':')) \
+        for dir in deform_template_dirs])
     d.Form.set_zpt_renderer(dirs, translator=translator)
 
 
