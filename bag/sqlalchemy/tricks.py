@@ -79,17 +79,26 @@ def many_to_many(Model1, Model2, id_attr1='id', id_attr2='id', metadata=None,
 
 
 class CreatedChanged(object):
-    '''Mixin class for your models.'''
+    '''Mixin class for your models.
+
+    If you define __mapper_args__ in your model, you have to readd the
+    mapper extension:
+
+    .. code-block:: python
+
+        __mapper_args__ = dict(order_by=name,
+            extension=CreatedChanged.MapperExt())
+    '''
     created = Column(DateTime, nullable=False)
     changed = Column(DateTime, nullable=False)
 
-    class CreatedChangedMapperExt(MapperExtension):
+    class MapperExt(MapperExtension):
         def before_insert(self, mapper, connection, instance):
             instance.created = instance.changed = datetime.utcnow()
 
         def before_update(self, mapper, connection, instance):
             instance.changed = datetime.utcnow()
-    __mapper_args__ = dict(extension=CreatedChangedMapperExt())
+    __mapper_args__ = dict(extension=MapperExt())
 # http://www.devsniper.com/sqlalchemy-tutorial-3-base-entity-class-in-sqlalchemy/
 
 
@@ -105,7 +114,7 @@ class AddressBase(object):
     city = Column(Unicode(80), default='')
     province = Column(Unicode(40), default='')
     country_code = Column(Unicode(2), default='')
-    zipcode = Column(Unicode(16), default='')
+    postal_code = Column(Unicode(16), default='', doc='Zip code')
     # kind = Column(Unicode(1), default='',
     #     doc="c for commercial, r for residential")
     # charge = Column(Boolean, default=False,

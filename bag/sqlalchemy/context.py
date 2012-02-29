@@ -79,13 +79,15 @@ class SAContext(object):
         for val in adict.values():
             if hasattr(val, '__base__') and val.__base__ == self.base:
                 tables.append(val.__table__)
-            elif isinstance(val, Table):
+            elif isinstance(val, Table) and val.metadata == self.metadata:
                 tables.append(val)
         return tables
 
-    def clone(self, *args, **k):
+    def clone(self, **k):
         from copy import copy
-        o = copy(self, *args, **k)
+        o = copy(self)
+        if k:
+            o.create_engine(**k)
         return o
 
 
