@@ -20,7 +20,9 @@ Our preferred way of enabling the whole stack is this::
 Here are the changes we've made:
 
 * mapping_item.pt: Allows you to pass a *css_class* to any mapping schema, and
-  the class appears on the <li>.
+  the class appears on the outer item.
+* password.pt: Supports *maxlength* and *placeholder* and
+  automatically sets *required*.
 * textarea.pt: Supports *maxlength* and *placeholder* and
   automatically sets *required*.
 * textinput.pt: Supports *maxlength* and *placeholder* and
