@@ -212,6 +212,22 @@ class BaseLocalizedView(object):
             locale=get_locale_name(self.request))
 
 
+def sorted_countries(arg, top_entry=True):
+    '''*arg* may be either the desired locale code or the request object,
+    from which the locale will be discovered.
+
+    Returns a list of tuples like ``('BR', 'Brazil')``, already sorted,
+    ready for inclusion in your web form.
+    '''
+    code = arg if isinstance(arg, basestring) else get_locale_name(arg)
+    adict = Locale(code).territories
+    generator = (tup for tup in adict.iteritems() if len(tup[0]) == 2)
+    alist = sorted(generator, key=lambda x: x[1])
+    if top_entry:
+        alist.insert(0, ('', _("- Choose -")))
+    return alist  # of tuples
+
+
 # Colander and Deform section
 # ===========================
 
