@@ -11,6 +11,7 @@ from __future__ import unicode_literals  # unicode by default
 from datetime import datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import relationship, MapperExtension
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
 
 CASC = 'all, delete-orphan'
@@ -26,7 +27,7 @@ def now_column(nullable=False, **k):
 
 def get_col(model, attribute_name):
     '''Introspects the SQLALchemy model *model* and returns the column object
-    for *attribute_name*. E.g.: col(User, 'email')
+    for *attribute_name*. E.g.: ``get_col(User, 'email')``
     '''
     return model._sa_class_manager.mapper.columns[attribute_name]
 
@@ -36,20 +37,20 @@ def _get_length(col):
 
 
 def get_length(model, field):
-    '''Returns the length of column `field` of a SQLAlchemy model `model`.'''
+    '''Returns the length of column *field* of a SQLAlchemy model *model*.'''
     return _get_length(get_col(model, field))
 
 
 def col(attrib):
     '''Given a sqlalchemy.orm.attributes.InstrumentedAttribute
     (type of the attributes of model classes),
-    returns the corresponding column. E.g.: col(User.email)
+    returns the corresponding column. E.g.: ``col(User.email)``
     '''
     return attrib.property.columns[0]
 
 
 def length(attrib):
-    '''Returns the length of the attribute `attrib`.'''
+    '''Returns the length of the attribute *attrib*.'''
     return _get_length(col(attrib))
 
 
@@ -110,3 +111,28 @@ class AddressBase(object):
     # charge = Column(Boolean, default=False,
     #     doc="Whether this is the address to bill to.")
     # comment = Column(Unicode, default='')
+
+
+class EmailParts(object):
+    '''Mixin class that stores an email address in 2 columns,
+    one for the local part, one for the domain. This makes it easy to
+    find emails from the same domain.
+
+    Typical usage:
+
+    .. code-block:: python
+
+        class Customer(SABase, EmailParts):
+            __table_args__ = (UniqueConstraint('email_local', 'email_domain',
+                              name='customer_email_key'), {})
+    '''
+    email_local = Column(Unicode(160), nullable=False)
+    email_domain = Column(Unicode(255), nullable=False)
+
+    @hybrid_property
+    def email(self):
+        return self.email_local + '@' + self.email_domain
+
+    @email.setter
+    def email(self, val):
+        self.email_local, self.email_domain = val.split('@')
