@@ -21,8 +21,10 @@ Here are the changes we've made:
 
 * mapping_item.pt: Allows you to pass a *css_class* to any mapping schema, and
   the class appears on the <li>.
-* textinput.pt: Allows you to pass a *maxlength* and sets this attribute on
-  the <input>.
+* textarea.pt: Supports *maxlength* and *placeholder* and
+  automatically sets *required*.
+* textinput.pt: Supports *maxlength* and *placeholder* and
+  automatically sets *required*.
 * checkbox.pt: Allows you to pass a *text* argument to a Boolean schema, and
   the text appears on the right of the checkbox.
 
