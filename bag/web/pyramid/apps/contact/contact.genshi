@@ -12,8 +12,7 @@
       <h1>Thank you, your message has been sent.</h1>
     </py:if>
     <py:if test="not defined('email_sent')">
-        <h1 class='page-header'>Contact</h1>
-        ${Markup(contact_form)}
+      ${Markup(contact_form)}
     </py:if>
   </py:def>
 
