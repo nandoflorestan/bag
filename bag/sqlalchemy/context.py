@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (mapper, sessionmaker, scoped_session, validates,
-    relation, backref, deferred, eagerload)  # , synonym
+    relation, backref, deferred, eagerload, object_session)  # , synonym
 from sqlalchemy.types import (Unicode, UnicodeText, DateTime, Boolean,
                              Integer, BigInteger, DECIMAL, LargeBinary)
 from types import ModuleType

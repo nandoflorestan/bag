@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: bag 0.2.0\n"
+"Project-Id-Version: bag 0.2.1dev\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-02-26 10:57-0300\n"
+"POT-Creation-Date: 2012-03-02 09:49-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: bag/web/pyramid/deform.py:29
+#: bag/web/pyramid/deform.py:30
 msgid "Submit"
 msgstr ""
 
-#: bag/web/pyramid/locale.py:230
+#: bag/web/pyramid/locale.py:227
+msgid "- Choose -"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:246
 msgid "Please select a language."
 msgstr ""
 
-#: bag/web/pyramid/locale.py:234
+#: bag/web/pyramid/locale.py:250
 msgid "Locale"
 msgstr ""
 
-#: bag/web/pyramid/locale.py:245
+#: bag/web/pyramid/locale.py:261
 msgid "--Choose--"
 msgstr ""
 
 #: bag/web/pyramid/apps/contact/__init__.py:51
-msgid "Send"
+msgid "Send email"
 msgstr ""
 
 #: bag/web/pyramid/apps/contact/__init__.py:55

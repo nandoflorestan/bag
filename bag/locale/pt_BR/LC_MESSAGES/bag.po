@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bag 0.2.0dev\n"
 "Report-Msgid-Bugs-To: nandoflorestan@gmail.com\n"
-"POT-Creation-Date: 2012-02-26 10:57-0300\n"
-"PO-Revision-Date: 2012-02-26 11:00-0300\n"
+"POT-Creation-Date: 2012-03-02 09:49-0300\n"
+"PO-Revision-Date: 2012-03-02 09:50-0300\n"
 "Last-Translator: Nando Florestan <nandoflorestan@gmail.com>\n"
 "Language-Team: Portuguese <>\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
@@ -17,25 +17,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bits\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: bag/web/pyramid/deform.py:29
+#: bag/web/pyramid/deform.py:30
 msgid "Submit"
 msgstr "Enviar"
 
-#: bag/web/pyramid/locale.py:230
+#: bag/web/pyramid/locale.py:227
+#| msgid "--Choose--"
+msgid "- Choose -"
+msgstr "- Escolher -"
+
+#: bag/web/pyramid/locale.py:246
 msgid "Please select a language."
 msgstr "Por gentileza escolha uma língua."
 
-#: bag/web/pyramid/locale.py:234
+#: bag/web/pyramid/locale.py:250
 msgid "Locale"
 msgstr "Locale"
 
-#: bag/web/pyramid/locale.py:245
+#: bag/web/pyramid/locale.py:261
 msgid "--Choose--"
 msgstr "--Escolher--"
 
 #: bag/web/pyramid/apps/contact/__init__.py:51
-msgid "Send"
-msgstr "Enviar"
+msgid "Send email"
+msgstr "Enviar email"
 
 #: bag/web/pyramid/apps/contact/__init__.py:55
 msgid "Contact"
@@ -57,17 +62,5 @@ msgstr "Assunto"
 msgid "Message"
 msgstr "Mensagem"
 
-#~ msgid "English"
-#~ msgstr "inglês"
-
-#~ msgid "Strings as in the code"
-#~ msgstr "Strings como no código-fonte"
-
-#~ msgid "Brazilian Portuguese"
-#~ msgstr "português brasileiro"
-
-#~ msgid "Spanish"
-#~ msgstr "castelhano"
-
-#~ msgid "German"
-#~ msgstr "alemão"
+#~ msgid "Send"
+#~ msgstr "Enviar"
