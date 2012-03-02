@@ -33,10 +33,37 @@ Here are the changes we've made:
 This has been tested against deform_bootstrap 0.1a5.
 '''
 
+from __future__ import absolute_import
+from __future__ import unicode_literals  # unicode by default
+import colander as c
+import deform.widget as w
+from ...sqlalchemy.tricks import length
+
+
+def lengthen(max, min=0, size=None, widget_cls=w.TextInputWidget,
+             typ='input', placeholder=None, validators=None):
+    '''Use this to easily create well-sized inputs.
+
+    Returns a dict containing *widget* and *validator*,
+    all concerned about length.
+
+    If the parameter *max* is not an integer, it is treated as a model property
+    from which the real *max* can be inferred.
+    '''
+    if not isinstance(max, int):
+        max = length(max)
+    if not size:
+        size = max if max <= 35 else 35 + (max - 35) / 4
+    if size > 60:
+        size = 60
+    validator = c.Length(min=min, max=max)
+    if validators:
+        validator = c.All(validator, *validators)
+    return dict(widget=widget_cls(size=size, maxlength=max,
+        placeholder=placeholder, typ=typ), validator=validator)
+
 
 """
-from __future__ import unicode_literals  # unicode by default
-from __future__ import absolute_import
 import deform as d
 
 
