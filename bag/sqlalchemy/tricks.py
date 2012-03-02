@@ -140,8 +140,14 @@ class EmailParts(object):
 
     @hybrid_property
     def email(self):
-        return self.email_local + '@' + self.email_domain
+        return self.email_local + self.email_domain
 
     @email.setter
     def email(self, val):
-        self.email_local, self.email_domain = val.split('@')
+        local, self.email_domain = val.split('@')
+        self.email_local = local + '@'
+
+    @property
+    def email_loc(self):
+        '''Returns the local part without the @'''
+        return self.email_local[:-1]
