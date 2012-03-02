@@ -42,7 +42,7 @@ class BaseViewForDeform(BaseView):
         d = {}
         if isinstance(key_provider, basestring):
             key_provider = uncommafy(key_provider)
-        elif issubclass(key_provider, c.Schema):
+        elif not issubclass(key_provider, list):
             key_provider = [n.name for n in key_provider.nodes]
         for k in key_provider:
             val = getattr(model, k)
