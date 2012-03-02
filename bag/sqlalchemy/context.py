@@ -14,13 +14,16 @@ from sqlalchemy.orm import (mapper, sessionmaker, scoped_session, validates,
     relation, backref, deferred, eagerload)  # , synonym
 from sqlalchemy.types import (Unicode, UnicodeText, DateTime, Boolean,
                              Integer, BigInteger, DECIMAL, LargeBinary)
+from types import ModuleType
 from .tricks import id_column, now_column, CreatedChanged, CASC
 
 
 class SAContext(object):
     '''Convenient SQLALchemy initialization.
 
-    Usage::
+    Usage:
+
+    .. code-block:: python
 
         from bag.sqlalchemy.context import *
         # The above single statement imports most if not all of
@@ -43,23 +46,37 @@ class SAContext(object):
         # You can also create a copy of sa, bound to another engine:
         sa2 = sa.clone('sqlite://')
     '''
-    __slots__ = ('metadata', 'base', 'dburi', 'engine', 'Session')
+    __slots__ = ('base', 'dburi', 'engine', 'Session')
 
-    def __init__(self, *args, **k):
-        self.metadata = MetaData()
-        self.base = declarative_base(metadata=self.metadata)
+    def __init__(self, base=None, metadata=None, *args, **k):
+        self.dburi = None
+        self.engine = None
+        self.Session = None
+        if base:
+            self.base = base
+        else:
+            self.base = declarative_base(metadata=metadata)
+        if self.metadata.bind:
+            self._set_engine(self.metadata.bind)
         if args or k:
             self.create_engine(*args, **k)
 
-    def create_engine(self, dburi, **k):
-        self.dburi = dburi
-        self.engine = create_engine(dburi, **k)
+    def _set_engine(self, engine):
+        self.engine = engine
         self.Session = sessionmaker(bind=self.engine)
+        self.dburi = unicode(self.engine.url)
+
+    @property
+    def metadata(self):
+        return self.base.metadata
+
+    def create_engine(self, dburi, **k):
+        self._set_engine(create_engine(dburi, **k))
         return self
 
-    def use_memory(self, **k):
+    def use_memory(self, tables=None, **k):
         self.create_engine('sqlite:///:memory:', **k)
-        self.create_tables()
+        self.create_tables(tables=tables)
         return self
 
     def drop_tables(self, tables=None):
@@ -70,16 +87,20 @@ class SAContext(object):
         self.metadata.create_all(tables=tables, bind=self.engine)
         return self
 
-    def tables_in(self, adict):
-        '''Returns a list containing the tables in the context *adict*. Usage::
+    def tables_in(self, context):
+        '''*context* may be a dictionary or a module.
+
+        Returns a list containing the tables in the passed *context*::
 
             tables = sa.tables_in(globals())
         '''
         tables = []
-        for val in adict.values():
-            if hasattr(val, '__base__') and val.__base__ == self.base:
+        if isinstance(context, ModuleType):  # context is a python module
+            context = context.__dict__
+        for val in context.values():
+            if hasattr(val, '__base__') and val.__base__ is self.base:
                 tables.append(val.__table__)
-            elif isinstance(val, Table) and val.metadata == self.metadata:
+            elif isinstance(val, Table) and val.metadata is self.metadata:
                 tables.append(val)
         return tables
 
