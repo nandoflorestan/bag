@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
 import random
 import os
@@ -72,17 +73,9 @@ def simplify_chars(txt, encoding='ascii', binary=True, amap=None):
 
 def to_filename(txt, for_web=False, badchars=''):
     '''Massages *txt* until it is a good filename.'''
-    illegal = '\\/\t:?"<>|#$%&*[]•' + badchars
-    try:
-        for c in illegal:
-            txt = txt.replace(c, '')
-    except UnicodeDecodeError, e:
-        if type(txt) == str:
-            txt = txt.decode('ascii', 'ignore')
-            for c in illegal:
-                txt = txt.replace(c, '')
-        else:
-            raise
+    illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
+    for c in illegal:
+        txt = txt.replace(c, '')
     txt = simplify_chars(txt.strip())
     if for_web:
         txt = txt.replace(' ', '-') \
