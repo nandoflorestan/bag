@@ -46,12 +46,14 @@ class SAContext(object):
         # You can also create a copy of sa, bound to another engine:
         sa2 = sa.clone('sqlite://')
     '''
-    __slots__ = ('base', 'dburi', 'engine', 'Session')
+    __slots__ = ('base', 'dburi', 'engine', 'Session', 'session_extensions')
 
-    def __init__(self, base=None, metadata=None, *args, **k):
+    def __init__(self, base=None, metadata=None, session_extensions=None,
+                 *args, **k):
         self.dburi = None
         self.engine = None
         self.Session = None
+        self.session_extensions = session_extensions
         if base:
             self.base = base
         else:
@@ -63,8 +65,9 @@ class SAContext(object):
 
     def _set_engine(self, engine):
         self.engine = engine
-        self.Session = sessionmaker(bind=self.engine)
-        self.dburi = unicode(self.engine.url)
+        self.Session = sessionmaker(bind=engine,
+                                    extension=self.session_extensions)
+        self.dburi = unicode(engine.url)
 
     @property
     def metadata(self):
