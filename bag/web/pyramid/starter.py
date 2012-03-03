@@ -54,9 +54,6 @@ class PyramidStarter(object):
         self.directory = os.path.abspath(
             os.path.dirname(config.package.__file__))
         self.parent_directory = os.path.dirname(self.directory)
-        # Create the _() function for internationalization
-        from pyramid.i18n import TranslationStringFactory
-        self._ = TranslationStringFactory(self.package_name)
         self.makedirs('{here}/locale')
         config.add_translation_dirs('bag:locale')
 
