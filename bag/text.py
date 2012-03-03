@@ -12,6 +12,31 @@ def parse_iso_date(txt):
     return datetime.strptime(txt[:19], '%Y-%m-%d %H:%M:%S')
 
 
+def shorten(txt, length=10, ellipsis='…'):
+    '''Truncate *txt*, adding *ellipsis* to the end, with total *length*.'''
+    if len(txt) > length:
+        return txt[:length - len(ellipsis)] + ellipsis
+    else:
+        return txt
+
+
+def shorten_proper(name, length=11, ellipsis='…', min=None):
+    '''Shortens a proper name for displaying.'''
+    min = min or length / 2.0
+    words = name.split(' ')
+    output = []
+    l = -1
+    while words:
+        word = words.pop(0)
+        l += len(word) + 1
+        if l > length:
+            break
+        output.append(word)
+    output = ' '.join(output)
+    return output if output and len(output) >= min \
+        else shorten(name, length=length, ellipsis=ellipsis)
+
+
 def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
                               'abcdefghijklmnopqrstuvwxyz' \
                               '0123456789'):
@@ -107,18 +132,8 @@ def find_new_title(dir, filename):
     return p
 
 
-""" Removing this function... Just use filter(predicate, txt) instead.
-def filter_chars_in(txt, predicate):
-    '''Given a string and a function that takes a character and returns
-    True or False, returns the filtered string.
-    '''
-    return ''.join([c for c in txt if predicate(c)])
-"""
-
-
 def keep_digits(txt):
-    return txt if txt.isdigit() else \
-        filter_chars_in(txt, unicode.isdigit)
+    return filter(unicode.isdigit, txt)
 
 
 def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
