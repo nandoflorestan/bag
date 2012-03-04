@@ -39,7 +39,9 @@ for you to build a user interface for locale choice.
 4) In templates, that dictionary is available as *enabled_locales*.
 
 For instance, you might do this in your template to list the
-available locales so the user can click and change languages::
+available locales so the user can click and change languages:
+
+.. code-block:: html
 
     <span class='languages-selector'
         py:with="locales = enabled_locales.values()">

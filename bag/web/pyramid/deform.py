@@ -7,6 +7,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals  # unicode by default
 from pkg_resources import resource_filename
 import deform as d
+from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.i18n import get_localizer
 from pyramid.threadlocal import get_current_request
 from . import _
@@ -19,6 +20,8 @@ def translator(term):
 def setup(deform_template_dirs):
     '''Add our deform templates and set deform up for i18n.
     Example:
+
+    .. code-block:: python
 
         setup(['app:fieldtypes/templates', 'deform:templates'])
     '''
@@ -35,30 +38,14 @@ def get_button(text=_('Submit')):
                     name=filter(unicode.isalpha, text.lower()))
 
 
-def make_form(form_schema, f_template='form', i_template='mapping_item',
-              *args, **kwargs):
-    # Adds a csrf token to prevent attacks
-    if not 'csrf_token' in kwargs:
-        request = get_current_request()
-        kwargs['csrf_token'] = request.session.get_csrf_token()
-    form = d.Form(form_schema, *args, **kwargs)
-    class F(d.widget.FormWidget):
-        template = f_template
-        item_template = i_template
-    form.set_widgets({'':F()})
-    return form
-
-
-# Decorator to verify the csrf_token. TODO: Use and test
-def verify_csrf_token(func):
+def verify_csrf(func):
+    '''Decorator that checks the CSRF token. TODO: Use and test.'''
     def wrapper(*a, **kw):
         request = get_current_request()
-        token = request.session.get_csrf_token()
-        if '__csrf_token__' in request.params and \
-            request.params['__csrf_token__'] == token:
+        if request.params.get('_csrf_') == request.session.get_csrf_token():
             return func(*a, **kw)
         else:
-            raise HTTPUnauthorized('CSRF token did not match')
+            raise HTTPUnauthorized('You do not pass our CSRF protection.')
     return wrapper
 
 

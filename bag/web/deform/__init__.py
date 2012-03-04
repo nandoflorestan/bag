@@ -9,7 +9,9 @@
 
 Our alterations to Deform templates are in the "templates" subdirectory.
 
-Our preferred way of enabling the whole stack is this::
+Our preferred way of enabling the whole stack is this:
+
+.. code-block:: python
 
     starter.enable_deform((
         'bag:web/deform/templates',
@@ -19,6 +21,9 @@ Our preferred way of enabling the whole stack is this::
 
 Here are the changes we've made:
 
+* form.pt: Demands you stick a *csrf_token* onto the form object in order to
+  protect against cross-site request forgery. Otherwise, it is identical to
+  the template in deform_bootstrap.
 * mapping_item.pt: Allows you to pass a *css_class* to any mapping schema, and
   the class appears on the outer item.
 * password.pt: Supports *maxlength* and *placeholder* and

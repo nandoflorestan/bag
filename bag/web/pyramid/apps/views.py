@@ -33,10 +33,12 @@ class BaseViewForDeform(BaseView):
     def model_to_dict(self, model, key_provider):
         '''Helps when using Deform.
 
-        `key_provider` can be:
-        - a comma-delimited string of key names,
-        - a list of strings representing key names,
-        - a colander.Schema (or subclass).
+        *key_provider* can be:
+
+        * a comma-delimited string of key names,
+        * a list of strings representing key names,
+        * a colander.Schema (or subclass).
+
         Returns an appstruct dict with values taken from the model.
         '''
         d = {}
