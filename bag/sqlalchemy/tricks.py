@@ -17,8 +17,10 @@ from sqlalchemy.types import Integer, DateTime, Unicode
 CASC = 'all, delete-orphan'
 
 
-def id_column(tablename, typ=Integer):
-    return Column(typ, Sequence(tablename + '_id_seq'), primary_key=True)
+def pk(tablename):
+    # The type must be Integer for Sequences to work, AFAICT.
+    # Maybe this problem is in Python only?
+    return Column(Integer, Sequence(tablename + '_id_seq'), primary_key=True)
 
 
 def now_column(nullable=False, **k):
@@ -52,6 +54,21 @@ def col(attrib):
 def length(attrib):
     '''Returns the length of the attribute *attrib*.'''
     return _get_length(col(attrib))
+
+
+def fk(attrib, nullable=False, index=True):
+    '''Returns a ForeignKey column while automatically setting the type.'''
+    column = col(attrib)
+    return Column(column.copy().type, ForeignKey(column),
+                   nullable=nullable, index=index)
+
+
+def fk_rel(cls, backref, attrib='id', nullable=False, index=True):
+    '''Returns a ForeignKey column and a relationship,
+    while automatically setting the type of the foreign key.
+    '''
+    return (fk(getattr(cls, attrib), nullable=nullable, index=index),
+        relationship(cls, backref=backref))
 
 
 def many_to_many(Model1, Model2, id_attr1='id', id_attr2='id', metadata=None,

@@ -11,11 +11,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (mapper, sessionmaker, scoped_session, validates,
-    relation, backref, deferred, eagerload, object_session)  # , synonym
-from sqlalchemy.types import (Unicode, UnicodeText, DateTime, Boolean,
-                             Integer, BigInteger, DECIMAL, LargeBinary)
+    relationship, backref, deferred, eagerload, object_session)  # , synonym
+# http://www.postgresql.org/docs/9.1/static/datatype-numeric.html
+from sqlalchemy.types import (Unicode, UnicodeText, Date, DateTime, Boolean,
+                    SmallInteger, Integer, BigInteger, DECIMAL, LargeBinary)
 from types import ModuleType
-from .tricks import id_column, now_column, CreatedChanged, CASC
+from .tricks import pk, now_column, CreatedChanged, CASC
 
 
 class SAContext(object):
