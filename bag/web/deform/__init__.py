@@ -5,7 +5,10 @@
 
 * constitutes a third layer of templates on top of the package
   *deform_boostrap*, which skins Deform with Twitter's "bootstrap" library.
-* will contain special widgets for Deform.
+* contains special widgets for Deform.
+
+Our bootstrap-compatible templates
+==================================
 
 Our alterations to Deform templates are in the "templates" subdirectory.
 
@@ -36,6 +39,12 @@ Here are the changes we've made:
   the text appears on the right of the checkbox.
 
 This has been tested against deform_bootstrap 0.1a5.
+
+Our new widgets
+===============
+
+* bag.web.deform.TagsWidget: Sets up a beautiful jQuery-Tags-Input which in
+  turn comes from http://xoxco.com/projects/code/tagsinput/
 '''
 
 from __future__ import absolute_import
@@ -68,11 +77,20 @@ def lengthen(max, min=0, size=None, widget_cls=w.TextInputWidget,
         placeholder=placeholder, typ=typ), validator=validator)
 
 
+class TagsWidget(w.TextInputWidget):
+    '''This widget depends on xoxco's jQuery-Tags-Input.
+
+    Usage::
+
+        widget = TagsWidget(autocomplete_url='/some/url')
+    '''
+    template = 'tagsinput'
+    height = 'auto'
+    width = 'auto'
+
+
 """
-import deform as d
-
-
-class SlugWidget(d.widget.TextInputWidget):
+class SlugWidget(w.TextInputWidget):
     '''Lets you pass a *prefix* which will appear just before the <input>.
     TODO: This feature is probably no longer necessary
     since deform_bootstrap has *input_prepend* and *input_append*.
