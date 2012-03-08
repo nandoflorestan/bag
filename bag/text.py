@@ -37,6 +37,20 @@ def shorten_proper(name, length=11, ellipsis='…', min=None):
         else shorten(name, length=length, ellipsis=ellipsis)
 
 
+def uncommafy(txt, sep=','):
+    '''Takes a comma-delimited string (or a sequence of strings)
+    and returns a sequence of strings.
+    '''
+    if not txt:
+        return []
+    if not isinstance(txt, basestring):
+        return txt  # the sequence itself
+    for item in txt.split(sep):
+        item = item.strip()
+        if item:
+            yield item
+
+
 def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
                               'abcdefghijklmnopqrstuvwxyz' \
                               '0123456789'):
