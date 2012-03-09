@@ -8,6 +8,8 @@ http://docs.pylonshq.com/
 
 To enable the pyramid_genshi extension:
 
+.. code-block:: python
+
     from mootiro_web.pyramid_genshi import enable_genshi
     enable_genshi(config, extension='.genshi')
 
@@ -15,7 +17,7 @@ To enable the pyramid_genshi extension:
 the file extension you are using for your templates.
 
 Once the extension is active, add the following to the application section
-of your Pyramid application’s .ini file:
+of your Pyramid application’s .ini file::
 
     [app:yourapp]
     # ... other stuff ...
@@ -29,19 +31,18 @@ houses the templates.
 Adding more than one directory forms a search path.
 
 Then you should decorate your views like this, passing only the file name
-(no path):
+(no path)::
 
     @action(renderer='root.genshi')
 
-You can also configure these rendering parameters:
+You can also configure these rendering parameters::
 
-    genshi.encoding = utf-8
     genshi.doctype = html5
     genshi.method = xhtml
 
 Finally, you can enable internationalization of Genshi templates by
 configuring "genshi.translation_domain". Usually the value is your
-application name. This adds a translation filter:
+application name. This adds a translation filter::
 
     genshi.translation_domain = SomeDomain
 '''
@@ -92,7 +93,7 @@ class GenshiTemplateRenderer(object):
                       auto_reload=asbool(settings.get('reload_templates')),
                       callback=callback)
         self.strip_whitespace = settings.get('genshi.strip_whitespace', True)
-        self.encoding = settings.get('genshi.encoding', 'utf-8')
+        # self.encoding = settings.get('genshi.encoding', 'utf-8')
         self.doctype = settings.get('genshi.doctype', 'html5')
         self.method = settings.get('genshi.method', 'xhtml')
 
@@ -130,8 +131,8 @@ class GenshiTemplateRenderer(object):
         """Loads a Genshi template and returns its output as a unicode object
         containing an HTML fragment, taking care of some details.
 
-        - template_file is the name of the Genshi template file to be rendered.
-        - dic is a dictionary to populate the template instance.
+        * template_file is the name of the Genshi template file to be rendered.
+        * dic is a dictionary to populate the template instance.
         """
         t = self.loader.load(template_file)
         # encoding=None makes Genshi return a unicode object:
@@ -144,6 +145,7 @@ def enable_genshi(config, extension='.genshi'):
     '''
     def renderer_factory(info):
         ''' ``info`` contains:
+
         name = Attribute('The value passed by the user as the renderer name')
         package = Attribute('The "current package" when the renderer '
                             'configuration statement was found')

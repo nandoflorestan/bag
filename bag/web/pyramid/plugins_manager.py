@@ -10,7 +10,9 @@ def find_subclasses(cls, path):
     """Finds all subclasses of `cls` in .py files located below `path`
     (does look in subdirectories).
 
-    Usage: classes = find_subclasses(BasePlugin, "pluginsfolder")
+    Usage::
+
+        classes = find_subclasses(BasePlugin, "pluginsfolder")
 
     @param cls: the base class that all subclasses should inherit from
     @type cls: class

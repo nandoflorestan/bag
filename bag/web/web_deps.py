@@ -41,6 +41,8 @@ The following classes solve the described problem.
 First of all, while you configure the application, you declare the files
 that might be imported:
 
+.. code-block:: python
+
     deps = WebDeps()
     deps.lib('jquery', url="/static/lib/jquery-1.7.1.min.js")
     deps.lib('deform', url="/static/lib/deform.js",
@@ -50,11 +52,13 @@ The first argument to lib() -- and in fact to the other methods, too --
 is a simple name for you to refer to the item later on.
 
 As you can see, we can declare that deform.js depends on jquery and jquery.ui.
-For more than one dependency, you just provide a comma-separated string:
+For more than one dependency, you just provide a comma-separated string::
 
     deps='jquery, jquery.ui'
 
 What about CSS stylesheets? Just call css() instead of lib():
+
+.. code-block:: python
 
     deps.css('jquery.ui', url='/static/css/jquery.ui.css')
     deps.css('deform', url="/deform/css/form.css", deps='jquery.ui')
@@ -64,17 +68,21 @@ They, too, can depend on other stylesheets, which are then output first.
 Often javascript libraries work together with certain CSS stylesheets.
 So we have a notion of a *package*:
 
+.. code-block:: python
+
     deps.package('deform', libs='deform', css='deform',
          script='alert("Spam!");', deps='another_package')
 
 A package is a special kind of dependency. It can refer to
 scripts, stylesheets, other packages, and even contain some javascript code.
 
-The above package declaration allows you to later say "I need the 'deform' package here', and the system will output the deform javascript library,
-the deform CSS stylesheet, all their dependencies, plus some javascript code.
+The above package declaration allows you to later say
+"I need the 'deform' package here', and the system will output
+the deform javascript library, CSS stylesheet, all their dependencies, and
+some javascript code.
 
 When everything needed by the web application has been declared, you need to
-call close() to obtain a class that you will use on your pages:
+call close() to obtain a class that you will use on your pages::
 
     PageDeps = deps.close()
 
@@ -84,6 +92,8 @@ But web servers are usually threaded and we cannot confuse the needs of
 one page being served with another's. So now, for each new request,
 make sure your web framework instantiates a PageDeps, and make it available to
 controllers and templates. For instance, in the Pyramid web framework:
+
+.. code-block:: python
 
     def on_new_request(event):
         event.request.deps = PageDeps()
@@ -95,6 +105,8 @@ controllers and templates. For instance, in the Pyramid web framework:
 After that, controller/view code -- as well as templates, in some more
 powerful templating languages -- can easily access a per-request
 PageDeps instance and do this kind of thing:
+
+.. code-block:: python
 
     # Use just one library:
     request.deps.lib('jquery')
@@ -113,25 +125,25 @@ output only once and in the correct order.
 Finally, we must deliver the HTML output. We shall use the best practice of
 putting the CSS stylesheets at the top of the page and all the javascript
 at the bottom of the page, near </body>. So, in your master template,
-firstly include this inside the <head> element:
+firstly include this inside the <head> element::
 
     ${Markup(request.deps.top_output)}
 
 ...where "Markup" is whatever function your templating language uses to
 mark a string as a literal, so it won't be escaped.
-"Markup" is from Genshi. In Chameleon you would say:
+"Markup" is from Genshi. In Chameleon you would say::
 
     ${structure: request.deps.top_output}
 
 OR you can say "deps.css.tags" to the same effect: outputting the stylesheets.
 
-Secondly include this just before the </body> tag:
+Secondly include this just before the </body> tag::
 
     ${Markup(request.deps.bottom_output)}
 
 Alternatively, use "deps.lib.tags" and "deps.script.tags".
 
-You can also simply get lists of URLs (already sorted):
+You can also simply get lists of URLs (already sorted)::
 
     request.deps.css.urls
     request.deps.lib.urls
@@ -162,6 +174,8 @@ then letting you choose one in your configuration file.
 How do you declare more than one URL? Well, the system stores any
 keyword arguments you pass to lib() and css():
 
+.. code-block:: python
+
     deps.lib('jquery', prod="/static/lib/jquery-1.7.1.min.js",
         dev="/static/lib/jquery-1.7.1.js",
         cdn='http://google.com/some/address/jquery-1.7.1.min.js')
@@ -169,18 +183,20 @@ keyword arguments you pass to lib() and css():
 Now the system has 3 URLs to choose from. Which will be in effect? Well, you
 also provide a callable, that returns the desired URL, to the
 WebDeps constructor as a "url_provider" keyword argument.
-Its default implementation is this:
+Its default implementation is this::
 
     url_provider=lambda resource: resource.url
 
 Evidently the above implementation gets the URL from the "url" argument.
 But that could be "dev", "prod", "cdn" or whatever you like.
 It is trivial for you to put this decision in a configuration file.
-Suppose the configuration file says:
+Suppose the configuration file says::
 
     web_deps.url_choice = cdn
 
 All you have to do is:
+
+.. code-block:: python
 
     # Read the string from the configuration file, providing a default
     choice = settings.get('web_deps.url_choice', 'prod')
@@ -233,23 +249,12 @@ http://code.google.com/p/bag/issues/list
 
 
 from __future__ import unicode_literals  # unicode by default
-from ..memoize import memoize
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-
-
-SEP = ','
-def uncommafy(txt):
-    '''Gets a comma-delimited string (or a list of strings)
-    and returns a list of strings.
-    '''
-    if not txt:  return []
-    if isinstance(txt, basestring):
-        return [t.strip() for t in unicode(txt).split(SEP)]
-    else:
-        return txt
+from ..memoize import memoize
+from ..text import uncommafy
 
 
 def uniquefy(seq, id_fun=lambda x: x):
@@ -260,7 +265,8 @@ def uniquefy(seq, id_fun=lambda x: x):
     result = []
     for item in seq:
         marker = id_fun(item)
-        if marker in seen: continue
+        if marker in seen:
+            continue
         seen[marker] = 1
         result.append(item)
     return result
@@ -274,7 +280,7 @@ class Dependency(object):
         assert isinstance(handle, basestring)
         self.handle = \
             handle if isinstance(handle, unicode) else unicode(handle)
-        self.dep_handles = uncommafy(deps)
+        self.dep_handles = list(uncommafy(deps))
         self.deps = None  # This is only computed on close()
         for k, v in kw.iteritems():
             setattr(self, k, v)
@@ -303,7 +309,7 @@ class DepsRegistry(object):
     def admit(self, *deps):
         '''The arguments must be Dependency instances.'''
         for dep in deps:
-            if self.items.has_key(dep.handle):
+            if dep.handle in self.items:
                 raise KeyError('{} already registered.'.format(dep.handle))
             self.items[dep.handle] = dep
 
@@ -314,9 +320,10 @@ class DepsRegistry(object):
                 uniquefy([self.items[d] for d in item.dep_handles])
                 # , id_fun=lambda d: d.handle)
         # Do not allow admit() to work anymore
+
         def admit(dep):
-            raise RuntimeError \
-                ('Cannot admit() because registry is already closed.')
+            raise RuntimeError(
+                'Cannot admit() because registry is already closed.')
         self.admit = admit
 
     @memoize(100, keymaker=repr)
@@ -380,6 +387,8 @@ class WebDeps(object):
     '''Should be used at web server initialization time to register every
     javascript and CSS file used by the application. Example:
 
+    .. code-block:: python
+
         deps = WebDeps()
         deps.lib('jquery', url="/static/lib/jquery-1.7.1.min.js")
         deps.lib('deform', url="/static/lib/deform.js",
@@ -411,6 +420,7 @@ class WebDeps(object):
         self.lib.close()
         self.css.close()
         self.package.close()
+
         def factory():
             return PageDeps(self.lib, self.css, self.package)
         return factory
@@ -472,12 +482,12 @@ class PackageComponent(object):
     scripts, stylesheets, other packages, and even contain some
     javascript code.
 
-    During application initialization you can define a package like this:
+    During application initialization you can define a package like this::
 
         deps.package('deform', libs='deform', css='deform',
              script='alert("Spam!");', deps='another_package')
 
-    Later - in a request - you can require all the package elements at once:
+    Later - in a request - you can require all the package elements at once::
 
         deps.package('deform')
 
@@ -488,7 +498,9 @@ class PackageComponent(object):
 
     def __call__(self, handles):
         '''Adds one or more package requirements to this page or request.'''
-        for handle in uncommafy(handles):
+        handles = uncommafy(handles) if isinstance(handles, basestring) \
+            else handles
+        for handle in handles:
             package = self._packages.items[handle]
             if hasattr(package, 'deps'):
                 self([d.handle for d in package.deps])
@@ -529,11 +541,13 @@ class PageDeps(object):
     def light_accordion(self, selector='.accordion', h_tag='h3'):
         '''Implements an accordion that depends on jquery only, not jquery.ui.
 
-        The CSS you need is:
+        The CSS you need is::
 
             .accordion > h3 { cursor: pointer; }
 
         The HTML should have this structure:
+
+        .. code-block:: html
 
             <div class="accordion">
               <h3>Question 1</h3>
@@ -593,5 +607,5 @@ $(function() {
         changing the PageDeps.favicon_props dictionary.
         '''
         return '<link rel="{rel}" {typ} href="{url}" sizes="{sizes}" />' \
-            .format(**self.favicon_props \
-                ['ie' if self.is_ie(request) else 'normal'])
+            .format(**self.favicon_props['ie' if self.is_ie(request) \
+                else 'normal'])

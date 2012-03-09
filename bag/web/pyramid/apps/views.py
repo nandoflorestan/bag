@@ -13,6 +13,7 @@ from pyramid.i18n import get_localizer
 from pyramid.renderers import get_renderer
 from pyramid.settings import asbool
 from pyramid.url import route_url
+from ....text import uncommafy
 
 
 class BaseView(object):

@@ -8,6 +8,8 @@ http://docs.pylonshq.com/
 
 To enable the pyramid_kajiki extension, do this:
 
+.. code-block:: python
+
     from mootiro_web.pyramid_kajiki import enable_kajiki
     enable_kajiki(config)
 
@@ -15,7 +17,7 @@ After this, files with these file extensions are considered to be
 Kajiki templates: '.txt', '.xml', '.html', '.html5'.
 
 Once the template loader is active, add the following to the
-application section of your Pyramid application’s .ini file:
+application section of your Pyramid application’s .ini file::
 
     [app:yourapp]
     # ... other stuff ...
@@ -67,15 +69,16 @@ class KajikiTemplateRenderer(object):
 
 
 def renderer_factory(info):
-    ''' ``info`` contains:
-    name = Attribute('The value passed by the user as the renderer name')
-    package = Attribute('The "current package" when the renderer '
-                        'configuration statement was found')
-    type = Attribute('The renderer type name')
-    registry = Attribute('The "current" application registry when the '
-                         'renderer was created')
-    settings = Attribute('The ISettings dictionary related to the '
-                         'current app')
+    ''' *info* contains::
+
+        name = Attribute('The value passed by the user as the renderer name')
+        package = Attribute('The "current package" when the renderer '
+                            'configuration statement was found')
+        type = Attribute('The renderer type name')
+        registry = Attribute('The "current" application registry when the '
+                             'renderer was created')
+        settings = Attribute('The ISettings dictionary related to the '
+                             'current app')
     '''
     registry = info.registry
     settings = info.settings
