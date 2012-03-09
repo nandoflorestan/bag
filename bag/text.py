@@ -39,12 +39,8 @@ def shorten_proper(name, length=11, ellipsis='…', min=None):
 
 def uncommafy(txt, sep=','):
     '''Takes a comma-delimited string (or a sequence of strings)
-    and returns a sequence of strings.
+    and returns a generator of stripped strings. No empty string is yielded.
     '''
-    if not txt:
-        return []
-    if not isinstance(txt, basestring):
-        return txt  # the sequence itself
     for item in txt.split(sep):
         item = item.strip()
         if item:
