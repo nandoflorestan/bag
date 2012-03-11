@@ -1,13 +1,14 @@
 /*!
- * Transecma, a javaScript i18n library v0.1
- * http://github.com/it3s/mootiro_web
+ * Transecma, a javaScript i18n library v0.2
+ * http://code.google.com/p/bag/
  *
- * Copyright 2011, Nando Florestan
+ * Copyright 2012, Nando Florestan
  *
  * Usage:
 
-// The input is a translation map such as
-translationsObject = {
+// Above this code there must be a translation map called "translations", e.g.:
+
+translations = {
     'I think we must review our processes.':
         'Who the hell was so stupid as to cause this #$%&*???',
     "If you don't know why I'm mad at you, do you think I'm going to tell you?":
@@ -16,9 +17,7 @@ translationsObject = {
     'Item [0] of [1]':
         'We have [1] items (really, [1]) and this is item number [0].'
 }
-localizer = Transecma(translationsObject);
-// We recommend these 3 nicknames for the translator function:
-gettext = tr = _ = localizer.translate;
+
 // Here are some demonstrations:
 tests = [
     _('I came, I saw, I conquered!'),
@@ -50,16 +49,11 @@ String.prototype.interpol.test = function() {
         != "Item #5 of 7. Really, item 5.")  throw('Blimey -- oh no!');
 }
 
+if (!window.translations)  translations = {};
 
-function Transecma(tt) {
-    // The argument must be a dictionary containing the translations.
-    o = {
-        translate: function (msg1, msg2, n) {
-            if (n == null || n == 1)
-                return tt[msg1] || msg1;
-            else
-                return tt[msg2] || msg2;
-        }
-    };
-    return o;
+gettext = tr = _ = function (msg1, msg2, n) {
+    if (n == null || n == 1)
+        return translations[msg1] || msg1;
+    else
+        return translations[msg2] || msg2;
 }

@@ -16,12 +16,14 @@ setup(
     include_package_data=True,
     author_email = "nandoflorestan@gmail.com",
     download_url = "http://code.google.com/p/bag/downloads/list",
-    description = "A library for many purposes",
+    description = "A library for many purposes, including javascript i18n "
+                  "and stuff for the Pyramid web framework.",
+    long_description = bag.__long_description__,
     zip_safe = False,
     test_suite='bag.tests',
-    keywords = ["python", 'sqlalchemy', 'text', 'HTML', 'CSV',
-                'translation', 'file hash', 'encoding', 'codecs',
-                'console'],
+    keywords = ["python", 'pyramid', 'deform', 'sqlalchemy', 'HTML', 'CSV',
+                'translation', 'i18n', 'internationalization', 'file hash',
+                'encoding', 'codecs', 'text', 'console'],
     classifiers = [ # http://pypi.python.org/pypi?:action=list_classifiers
         "Development Status :: 5 - Production/Stable",
         'Environment :: Console',
@@ -36,5 +38,11 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         'Topic :: Text Processing :: General',
         ],
-    long_description = bag.__long_description__,
+    entry_points = '''
+[babel.extractors]
+jquery_templates = bag.web.transecma:extract_jquery_templates
+
+[console_scripts]
+po2json = bag.web.transecma:po2json_command
+''',
 )
