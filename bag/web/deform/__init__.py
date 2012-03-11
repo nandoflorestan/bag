@@ -98,3 +98,24 @@ class SlugWidget(w.TextInputWidget):
     # TODO: Make the slug input reflect the content of another input
     template = 'slug'
 """
+
+
+class Trilean(c.SchemaType):
+    """A type that can represent true, false and null."""
+    def serialize(self, node, appstruct):
+        if appstruct is c.null:
+            return c.null
+        return appstruct and 'true' or 'false'
+
+    def deserialize(self, node, cstruct):
+        if cstruct in ('<colander.null>', c.null):
+            return c.null
+        try:
+            result = str(cstruct)
+        except:
+            raise c.Invalid(node,
+                _('${val} is not a string', mapping={'val':cstruct}))
+        result = result.lower()
+        if result in ('false', '0'):
+            return False
+        return True
