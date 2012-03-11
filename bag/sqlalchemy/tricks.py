@@ -126,12 +126,13 @@ class AddressBase(object):
     #~ __tablename__ = 'customer'
 
     #~ id = id_column(__tablename__)
-    street = Column(Unicode(160), default='')
-    district = Column(Unicode(80), default='')
-    city = Column(Unicode(80), default='')
-    province = Column(Unicode(40), default='')
-    country_code = Column(Unicode(2), default='')
-    postal_code = Column(Unicode(16), default='', doc='Zip code')
+    street = Column('street',     Unicode(160), default='')
+    district = Column('district', Unicode(80),  default='')
+    city = Column('city',         Unicode(80), default='')
+    province = Column('province', Unicode(40), default='')
+    country_code = Column('country_code', Unicode(2), default='')
+    postal_code = Column('postal_code',  Unicode(16), default='',
+        doc='Zip code')
     # kind = Column(Unicode(1), default='',
     #     doc="c for commercial, r for residential")
     # charge = Column(Boolean, default=False,
@@ -152,19 +153,13 @@ class EmailParts(object):
             __table_args__ = (UniqueConstraint('email_local', 'email_domain',
                               name='customer_email_key'), {})
     '''
-    email_local = Column(Unicode(160), nullable=False)
-    email_domain = Column(Unicode(255), nullable=False)
+    email_local = Column('email_local',   Unicode(160), nullable=False)
+    email_domain = Column('email_domain', Unicode(255), nullable=False)
 
     @hybrid_property
     def email(self):
-        return self.email_local + self.email_domain
+        return self.email_local + '@' + self.email_domain
 
     @email.setter
     def email(self, val):
-        local, self.email_domain = val.split('@')
-        self.email_local = local + '@'
-
-    @property
-    def email_loc(self):
-        '''Returns the local part without the @'''
-        return self.email_local[:-1]
+        self.email_local, self.email_domain = val.split('@')
