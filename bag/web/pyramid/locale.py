@@ -222,12 +222,14 @@ def sorted_countries(arg, top_entry=True):
     ready for inclusion in your web form.
     '''
     code = arg if isinstance(arg, basestring) else get_locale_name(arg)
-    adict = Locale(code).territories
-    generator = (tup for tup in adict.iteritems() if len(tup[0]) == 2)
-    alist = sorted(generator, key=lambda x: x[1])
-    if top_entry:
-        alist.insert(0, ('', _("- Choose -")))
-    return alist  # of tuples
+    def generator(territories):
+        if top_entry:
+            yield (b'', _("- Choose -"))
+        for tup in territories:
+            if len(tup[0]) == 2:  # Keep only countries
+                yield tup
+    return sorted(generator(Locale(code).territories.iteritems()),
+        key=lambda x: x[1])
 
 
 # Colander and Deform section
@@ -256,11 +258,13 @@ def language_dropdown(settings, title=_('Locale'), name='locale',
     '''
     import colander as c
     import deform as d
-    options = [(loc.code, loc.name) for loc in \
-               settings[SETTING_NAME].values()]
-    options = sorted(options, key=lambda t: _(t[1]))
-    if blank_option_at_top:
-        options.insert(0, ('', _('--Choose--')))
+
+    def options():
+        if blank_option_at_top:
+            yield ('', _('- Choose -'))
+        for loc in settings[SETTING_NAME].values():
+            yield (loc.code, loc.display_name)
+    values = sorted(options(), key=lambda t: _(t[1]))
     return c.SchemaNode(c.Str(), title=title, name=name,
                         validator=locale_exists_validator(settings),
-                        widget=d.widget.SelectWidget(values=options))
+                        widget=d.widget.SelectWidget(values=values))
