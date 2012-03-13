@@ -26,7 +26,8 @@
       <p class="errorMsg">${field.errormsg}</p>
     </div>
 
-    <input type="hidden" name="_csrf_" value="${field.csrf_token}" />
+    <input tal:condition="hasattr(field, 'csrf_token')"
+      type="hidden" name="_csrf_" value="${field.csrf_token}" />
 
     <div
         tal:define="rndr field.renderer;
