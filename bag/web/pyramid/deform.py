@@ -3,8 +3,8 @@
 
 '''Functions to set up and more easily use Deform with Pyramid.'''
 
-from __future__ import absolute_import
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 from pkg_resources import resource_filename
 import deform as d
 from pyramid.httpexceptions import HTTPUnauthorized
@@ -50,44 +50,11 @@ def verify_csrf(func):
 
 
 def monkeypatch_colander():
-    '''Alter Colander to fix an issue of versions 0.9.2-0.9.6 where
-    All() raises "TypeError: sequence item 0: expected string, list found"
-    when child exceptions are used.
-
-    Further, we introduce the more useful asdict2() method.
+    '''Alter Colander to introduce the more useful asdict2() method.
     '''
+    print('Adding asdict2() to Colander.')
     import colander as c
     from colander import interpolate, Invalid
-
-    def __call__(self, node, value):
-        msgs = []
-        excs = []
-        for validator in self.validators:
-            try:
-                validator(node, value)
-            except Invalid, e:
-                excs.append(e)
-                msgs.append(e.msg)
-        if msgs:
-            exc = Invalid(node, msgs)
-            for e in excs:
-                e.children and exc.children.extend(e.children)
-            raise exc
-
-    def asdict(self):
-        """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
-        paths = self.paths()
-        errors = {}
-        for path in paths:
-            keyparts = []
-            msgs = []
-            for exc in path:
-                exc.msg and msgs.extend(exc.messages())
-                keyname = exc._keyname()
-                keyname and keyparts.append(keyname)
-            errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
-        return errors
 
     def asdict2(self):
         """Also returns a dictionary containing a basic
@@ -115,33 +82,9 @@ def monkeypatch_colander():
         errors = set(errors)  # Filter out repeats
         adict = {}
         for key, msg in errors:
-            if adict.has_key(key):
+            if key in adict:
                 adict[key] = adict[key] + '; ' + msg
             else:
                 adict[key] = msg
         return adict
-
-    def messages(self):
-        """ Return an iterable of error messages for this exception
-        using the ``msg`` attribute of this error node.  If the
-        ``msg`` attribute is iterable, it is returned.  If it is not
-        iterable, a single-element list containing the ``msg`` value
-        is returned."""
-        if hasattr(self.msg, '__iter__'):
-            return self.msg
-        elif self.msg:
-            return [self.msg]
-        else:  # maybe self.msg is None
-            return []
-
-    # Colander 0.9.7 corrects the bug, but it still does not contain asdict2().
-    from pkg_resources import require, parse_version
-    package = require('colander')[0]
-    if parse_version(package.version) <= parse_version('0.9.6'):
-        print('Monkeypatching Colander to fix its bug.')
-        c.All.__call__ = __call__
-        c.Invalid.asdict = asdict
-        c.Invalid.messages = messages
-    # In any case, add asdict2() whose output is more appropriate.
-    print('Adding asdict2() to Colander.')
     c.Invalid.asdict2 = asdict2

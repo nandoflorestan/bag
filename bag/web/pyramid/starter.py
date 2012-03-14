@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals  # unicode by default
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import os
 import stat
 from pyramid.config import Configurator
@@ -42,7 +42,8 @@ class PyramidStarter(object):
         * *packages* is a sequence of additional packages that should be
         scanned/enabled.
         '''
-        self.require_python27()
+        self.package_name = config.package.__name__
+        self.require_python_version()
         self.config = config
         if not 'app.name' in self.settings:
             raise KeyError(
@@ -50,7 +51,6 @@ class PyramidStarter(object):
         # Add self to config so other applications can find it
         config.bag = self
         self.packages = packages
-        self.package_name = config.package.__name__
         self.directory = os.path.abspath(
             os.path.dirname(config.package.__file__))
         self.parent_directory = os.path.dirname(self.directory)
@@ -285,12 +285,12 @@ class PyramidStarter(object):
         '''Returns a list of the routes configured in this application.'''
         return all_routes(self.config)
 
-    def require_python27(self):
-        '''Demand Python 2.7 (ensure not trying to run it on 2.6.).'''
+    def require_python_version(self):
+        '''Demand Python 2.7 or > 3.2.'''
         from sys import version_info, exit
         version_info = version_info[:2]
-        if version_info < (2, 7) or version_info >= (3, 0):
-            exit('\n' + self.package_name + ' requires Python 2.7.x.')
+        if version_info < (2, 7) or (3, 0) <= version_info < (3, 2):
+            exit('\n' + self.package_name + ' requires Python 2.7.x or > 3.2.')
 
     def load_plugins(self, entry_point_groups=None, directory=None,
             base_class=BasePlugin):

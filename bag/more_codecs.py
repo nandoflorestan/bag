@@ -35,7 +35,7 @@ Both Python and iconv change over time, so the list of codecs that each
 supports is prolly going to change. The registered codecs are in a dictionary:
 
     from oui.more_codecs import codecs_dict
-    print codecs_dict.keys()
+    print(codecs_dict.keys())
 
 You may add and remove codecs from the codecs_dict.
 
@@ -420,9 +420,9 @@ def _iconv_factory(codec_name):
 
 if __name__ == '__main__':
     interesting_codecs = discover_interesting_codecs()
-    print "Here are the %i codecs that Python does not know, but iconv does:" \
-        % len(interesting_codecs)
-    print interesting_codecs
+    print("Here are the %i codecs that Python does not know, but iconv does:"
+        % len(interesting_codecs))
+    print(interesting_codecs)
     # Now register the codecs and test
     codecs.register(_iconv_factory)
     x = u'Ã¡Ã©Ã­Ã³ÃºÃ§Ã§Ã§'

@@ -47,8 +47,8 @@ Our new widgets
   turn comes from http://xoxco.com/projects/code/tagsinput/
 '''
 
-from __future__ import absolute_import
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import colander as c
 import deform.widget as w
 from ...sqlalchemy.tricks import length

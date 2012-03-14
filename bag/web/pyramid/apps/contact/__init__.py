@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals  # unicode by default
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 from pyramid.view import view_config, view_defaults
 import colander as c
 import deform as d

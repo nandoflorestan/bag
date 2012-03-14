@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import unicode_literals  # unicode by default
+
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import random
 import os
 import re
 from datetime import datetime
+from .six import *  # for Python 2 and 3 compatibility
 
 
 def parse_iso_date(txt):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 from functools import wraps
 # Instead of wrapper.__doc__ = f.__doc__ and wrapper.__name__ = f.__name__,
 # use functools.wraps.

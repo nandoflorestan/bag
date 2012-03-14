@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import os
 import stat
 import urllib2
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 
 def isdir(s):

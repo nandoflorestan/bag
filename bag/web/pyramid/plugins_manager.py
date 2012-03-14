@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals  # unicode by default
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import os
 from pyramid.decorator import reify
+from ...six import *  # for Python 2 and 3 compatibility
 
 
 def find_subclasses(cls, path):
@@ -94,7 +95,7 @@ class PluginsManager(object):
         #~ for name, plugin in self.config.registry.all_plugins.iteritems():
             #~ if settings['plugins.' + name].lower() != 'disabled':
                 #~ yield name, plugin
-        return {name: plugin for name, plugin in self.all.iteritems() \
+        return {name: plugin for name, plugin in iteritems(self.all) \
             if self.is_enabled(name)
         }
 
@@ -120,7 +121,7 @@ class PluginsManager(object):
                 package_dir = os.path.dirname(getsourcefile(gilpun.__class__))
                 source = os.path.join(package_dir, 'static')
                 if not os.path.isdir(source):  continue
-            # print 'symlinking', source
+            # print('symlinking', source)
             dest = os.path.join(destination_dir, name.replace(' ', '_'))
             if os.path.exists(dest):
                 os.remove(dest)

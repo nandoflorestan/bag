@@ -21,6 +21,7 @@ setup(
     long_description = bag.__long_description__,
     zip_safe = False,
     test_suite='bag.tests',
+    install_requires=['six'],
     keywords = ["python", 'pyramid', 'deform', 'sqlalchemy', 'HTML', 'CSV',
                 'translation', 'i18n', 'internationalization', 'file hash',
                 'encoding', 'codecs', 'text', 'console'],

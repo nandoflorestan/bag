@@ -28,8 +28,8 @@ templates. As of 2011-01, if you want a search path, you must roll your own.
 If you do... let us know.
 '''
 
-from __future__ import unicode_literals  # unicode by default
-from __future__ import absolute_import
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 
 from paste.deploy.converters import asbool
 from zope.interface import implements

@@ -6,8 +6,8 @@ These have been separated from SQLAlchemy initialization modules because
 there are many different ways to initialize SQLALchemy.
 '''
 
-from __future__ import absolute_import
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 from datetime import datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import relationship, MapperExtension

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 from datetime import datetime, timedelta
 from decimal import Decimal
 from sqlalchemy import (Table, Column, ForeignKey, Sequence, desc,
@@ -16,6 +16,7 @@ from sqlalchemy.orm import (mapper, sessionmaker, scoped_session, validates,
 from sqlalchemy.types import (Unicode, UnicodeText, Date, DateTime, Boolean,
                     SmallInteger, Integer, BigInteger, DECIMAL, LargeBinary)
 from types import ModuleType
+from ..six import *  # for Python 2 and 3 compatibility
 from .tricks import pk, now_column, CreatedChanged, CASC
 
 

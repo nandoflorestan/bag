@@ -104,7 +104,8 @@ its functions, especially interpol().
 '''
 
 
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import os
 import re
 
@@ -138,7 +139,7 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
              tuples
     :rtype: ``iterator``
     '''
-    # print 'Keywords: {}. Options: {}'.format(keywords, options)
+    # print('Keywords: {}. Options: {}'.format(keywords, options))
     encoding = options.get('encoding', 'utf-8')
     comments = []
     funcname = message = None

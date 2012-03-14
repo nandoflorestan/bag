@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 __url__ = 'http://code.google.com/p/bag'
 __version__ = "0.2.1dev"
 __license__ = 'BSD'

@@ -62,18 +62,20 @@ on the <html> tag::
 ...because the variable "locale_code" is made available to template context.
 '''
 
-from __future__ import absolute_import
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 from collections import OrderedDict
 from babel import Locale
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name, default_locale_negotiator
+from ...six import *  # for Python 2 and 3 compatibility
 from . import _
 
 SETTING_NAME = 'bag.locale.enable'
 
 
+@compat23
 class LocaleInfo(object):
     def __init__(self, code, display_name, english_name, title=None,
                  babel_locale=None):
@@ -87,7 +89,7 @@ class LocaleInfo(object):
         return self.code
 
     def __unicode__(self):
-        return self.name
+        return self.display_name
 
 
 locale_titles = dict(
@@ -221,14 +223,14 @@ def sorted_countries(arg, top_entry=True):
     Returns a list of tuples like ``('BR', 'Brazil')``, already sorted,
     ready for inclusion in your web form.
     '''
-    code = arg if isinstance(arg, basestring) else get_locale_name(arg)
+    code = arg if isinstance(arg, string_types) else get_locale_name(arg)
     def generator(territories):
         if top_entry:
             yield (b'', _("- Choose -"))
         for tup in territories:
             if len(tup[0]) == 2:  # Keep only countries
                 yield tup
-    return sorted(generator(Locale(code).territories.iteritems()),
+    return sorted(iteritems(generator(Locale(code).territories)),
         key=lambda x: x[1])
 
 

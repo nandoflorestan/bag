@@ -248,11 +248,10 @@ http://code.google.com/p/bag/issues/list
 '''
 
 
-from __future__ import unicode_literals  # unicode by default
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+from io import StringIO
+from ..six import *  # for Python 2 and 3 compatibility
 from ..memoize import memoize
 from ..text import uncommafy
 
@@ -272,22 +271,23 @@ def uniquefy(seq, id_fun=lambda x: x):
     return result
 
 
+@compat23
 class Dependency(object):
     def __init__(self, handle, deps='', **kw):
         '''You can store whatever attributes you like by providing keyword
         arguments. The only required argument is a name for this dependency.
         '''
-        assert isinstance(handle, basestring)
-        self.handle = \
-            handle if isinstance(handle, unicode) else unicode(handle)
+        assert isinstance(handle, unicode)
+        #~ self.handle = \
+            #~ handle if isinstance(handle, unicode) else unicode(handle)
+        self.handle = handle
         self.dep_handles = list(uncommafy(deps))
         self.deps = None  # This is only computed on close()
-        for k, v in kw.iteritems():
+        for k, v in iteritems(kw):
             setattr(self, k, v)
 
     def __repr__(self):
-        return '{}("{}")'.format(self.__class__.__name__, self.handle) \
-            .encode('ascii', 'replace')
+        return '{}("{}")'.format(self.__class__.__name__, self.handle)
 
     def __unicode__(self):
         return self.handle
@@ -315,7 +315,7 @@ class DepsRegistry(object):
 
     def close(self):
         # Find every actual dependency object from declared handle strings
-        for item in self.items.itervalues():
+        for item in itervalues(self.items):
             item.deps = \
                 uniquefy([self.items[d] for d in item.dep_handles])
                 # , id_fun=lambda d: d.handle)
@@ -340,8 +340,8 @@ class DepsRegistry(object):
         This method can only be called after close().
         '''
         flat = []
-        if isinstance(items, basestring):
-            items = [self.items[h] for h in uncommafy(items)]
+        if isinstance(items, string_types):
+            items = (self.items[h] for h in uncommafy(items))
         for item in items:
             flat.extend(item.recursive_deps())
         return uniquefy(reversed(flat))
@@ -498,8 +498,8 @@ class PackageComponent(object):
 
     def __call__(self, handles):
         '''Adds one or more package requirements to this page or request.'''
-        handles = uncommafy(handles) if isinstance(handles, basestring) \
-            else handles
+        if isinstance(handles, string_types):
+            handles = uncommafy(handles)
         for handle in handles:
             package = self._packages.items[handle]
             if hasattr(package, 'deps'):
@@ -512,6 +512,7 @@ class PackageComponent(object):
                 self._deps.script(package.script)
 
 
+@compat23
 class PageDeps(object):
     '''Represents the dependencies of a page;
     an instance must be used on each request.

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import unittest
+from bag.six import *
 from bag.web.web_deps import *
 
 
@@ -9,8 +11,13 @@ class TestDepsRegistry(unittest.TestCase):
     def test_summon(self):
         reg = DepsRegistry()
         all = Dependency('montão', deps='n, m, b, a')
-        self.assertEqual(repr(all), b'Dependency("mont?o")')
-        self.assertEqual(unicode(all), u'montão')
+
+        if PY2:
+            self.assertEqual(repr(all), b'Dependency("mont?o")')
+        else:
+            self.assertEqual(repr(all), 'Dependency("montão")')
+
+        self.assertEqual(unicode(all), 'montão')
         n = Dependency('n', deps='b, m')
         m = Dependency('m', deps='a')
         a = Dependency('a')
@@ -46,9 +53,9 @@ class TestPageDeps(unittest.TestCase):
     def test_request1(self):
         deps = self.PageDeps()
         deps.lib('jquery')
-        self.assertEqual(deps.lib.urls, [u'/static/lib/jquery-1.7.1.min.js'])
+        self.assertEqual(deps.lib.urls, ['/static/lib/jquery-1.7.1.min.js'])
         deps.css('jquery')
-        self.assertEqual(deps.css.urls, [u'http://jquery.css'])
+        self.assertEqual(deps.css.urls, ['http://jquery.css'])
         deps.script('alert("Bruhaha");')
         self.assertEqual(deps.script.tags, '<script type="text/javascript">' \
             '\nalert("Bruhaha");\n</script>\n')
@@ -85,8 +92,8 @@ class TestPageDeps(unittest.TestCase):
         deps = self.PageDeps()
         deps.lib('deform, jquery')
         deps.lib('jquery')
-        self.assertEqual(deps.lib.urls, [u'/static/lib/jquery-1.7.1.min.js',
-            u'/static/lib/jquery-ui-1.8.16.min.js', u"/static/lib/deform.js"])
+        self.assertEqual(deps.lib.urls, ['/static/lib/jquery-1.7.1.min.js',
+            '/static/lib/jquery-ui-1.8.16.min.js', "/static/lib/deform.js"])
 
     def test_package1(self):
         deps = self.PageDeps()

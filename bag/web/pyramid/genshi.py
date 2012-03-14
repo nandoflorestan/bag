@@ -47,9 +47,9 @@ application name. This adds a translation filter::
     genshi.translation_domain = SomeDomain
 '''
 
-from __future__ import unicode_literals  # unicode by default
-from __future__ import absolute_import
-
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+from bag.six import *  # for Python 2 and 3 compatibility
 from paste.deploy.converters import asbool
 from zope.interface import implements
 from zope.interface import Interface

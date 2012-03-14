@@ -3,9 +3,11 @@
 
 '''Demonstration and correction of a colander 0.9.2 - 0.9.6 bug.'''
 
-from __future__ import unicode_literals  # unicode by default
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
 import unittest
 import colander as c
+from bag.six import *
 
 # TODO: Make a TestSuite that includes the colander test suite.
 
@@ -37,13 +39,13 @@ class TestColander(unittest.TestCase):
         from bag.web.pyramid.deform import monkeypatch_colander
         monkeypatch_colander()
         expected_asdict = {
-            'minLength': u'Length inconsistency; Word count inconsistency; Higher than max length',
-            'minWords': u'Length inconsistency; Word count inconsistency; Higher than max words',
+            'minLength': 'Length inconsistency; Word count inconsistency; Higher than max length',
+            'minWords': 'Length inconsistency; Word count inconsistency; Higher than max words',
         }
         expected_asdict2 = {
-            '': u'Word count inconsistency; Length inconsistency',
-            'minLength': u'Higher than max length',
-            'minWords': u'Higher than max words',
+            '': 'Word count inconsistency; Length inconsistency',
+            'minLength': 'Higher than max length',
+            'minWords': 'Higher than max words',
         }
         try:
             edit_schema.deserialize(dict(
