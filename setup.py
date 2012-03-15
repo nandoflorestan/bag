@@ -34,7 +34,12 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
+        "Framework :: Pylons",
         'Topic :: Database',
+        "Topic :: Internet :: WWW/HTTP",
+        'Topic :: Internet :: WWW/HTTP :: WSGI'
         'Topic :: Multimedia :: Graphics :: Graphics Conversion',
         "Topic :: Software Development :: Libraries :: Python Modules",
         'Topic :: Text Processing :: General',

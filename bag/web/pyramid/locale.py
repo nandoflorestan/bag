@@ -216,7 +216,7 @@ class BaseLocalizedView(object):
             locale=get_locale_name(self.request))
 
 
-def sorted_countries(arg, top_entry=True):
+def sorted_countries(arg, top_entry=True):  # TODO memoized version
     '''*arg* may be either the desired locale code or the request object,
     from which the locale will be discovered.
 
