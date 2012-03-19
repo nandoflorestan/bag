@@ -34,13 +34,13 @@ This module recognizes that e-mail validation can be done in several different
 ways, according to purpose:
 
 1) Most of the time you just want validation according to the standard rules.
-So just say:  v = EmailValidator()
+So just say:  ``v = EmailValidator()``
 
 2) If you are creating e-mail addresses for your server or your organization,
 you might need to satisfy a stricter policy such as "dash is not allowed in
 email addresses". The EmailValidator constructor accepts a *local_part_chars*
 argument to help build the right regular expression for you.
-Example:  v = EmailValidator(local_part_chars='.-+_')
+Example:  ``v = EmailValidator(local_part_chars='.-+_')``
 
 3) What about typos? An erroneous dot at the end of a typed email is typical.
 Other common errors with the dots revolve around the @: user@.domain.com.
@@ -56,7 +56,7 @@ it manually. For this you use the *fix* flag when instantiating a validator::
 
 4) TODO: Squash the bugs in this feature!
 Paranoid people may wish to verify that the informed domain actually exists.
-For that you can pass a *lookup_dns='a'* argument to the constructor, or even
+For that you can pass a ``lookup_dns='a'`` argument to the constructor, or even
 *lookup_dns='mx'* to verify that the domain actually has e-mail servers.
 To use this feature, you need to install the *pydns* library::
 
