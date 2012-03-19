@@ -10,7 +10,7 @@ import csv
 try:
     from .web.pyramid import _
 except ImportError:
-    _ = str
+    _ = str  # and i18n is disabled.
 
 
 def decoding(stream, encoding='utf8'):
@@ -115,6 +115,39 @@ class DecodingCsvWithHeaders(object):
 
     def __next__(self):
         return self.CsvRow(self.readline())
+
+
+def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
+    '''Generator that yields CSV lines using a buffer of size *buffer_rows*.
+    The values for the first CSV line may be provided as *headers*, and
+    the remaining ones as *rows*, which is preferrably another generator.
+
+    For instance, in Pyramid you might have a view like this::
+
+        return Response(content_type='text/csv', app_iter=buffered_csv_writing(
+            rows=my_generator, headers=['name', 'email'], buffer_rows=50))
+    '''
+    from io import StringIO
+    buf = StringIO()
+    writer = csv.writer(buf)
+    if headers:
+        writer.writerow(headers)
+    for i, row in enumerate(rows()):
+        writer.writerow(row)
+        if i % buffer_rows == 0:
+            yield buf.getvalue().encode(encoding)
+            buf.truncate(0)  # But in Python 3, truncate() does not move
+            buf.seek(0)    # the file pointer, so we seek(0) explicitly.
+    yield buf.getvalue().encode(encoding)
+    buf.close()
+
+
+def pyramid_download_csv(response, file_title, rows, encoding='utf8', **k):
+    response.headers["Content-Type"] = "text/csv"  # TODO: test
+    response.headers["Content-Disposition"] = \
+        "attachment;filename={}.{}.csv".format(file_title, encoding)
+    response.app_iter = buffered_csv_writing(rows, encoding=encoding, **k)
+    return response
 
 
 '''
