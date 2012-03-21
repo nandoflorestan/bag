@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Demonstration and correction of a colander 0.9.2 - 0.9.6 bug.'''
+'''Tests an improvement to colander 0.9.7.'''
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
@@ -42,18 +42,18 @@ class TestColander(unittest.TestCase):
             'minLength': 'Length inconsistency; Word count inconsistency; Higher than max length',
             'minWords': 'Length inconsistency; Word count inconsistency; Higher than max words',
         }
-        expected_asdict2 = {
-            '': 'Word count inconsistency; Length inconsistency',
-            'minLength': 'Higher than max length',
-            'minWords': 'Higher than max words',
-        }
         try:
             edit_schema.deserialize(dict(
                 minLength=2, maxLength=1, minWords=2, maxWords=1
             ))
         except c.Invalid as e:
             self.assertEqual(e.asdict(), expected_asdict)
-            self.assertEqual(e.asdict2(), expected_asdict2)
+            dict2 = e.asdict2()
+            self.assertEqual(dict2['minLength'], 'Higher than max length')
+            self.assertEqual(dict2['minWords'], 'Higher than max words')
+            self.assertIn(dict2[''], (
+                'Length inconsistency; Word count inconsistency',
+                'Word count inconsistency; Length inconsistency'))
         else:
             # Ops, Invalid was NOT raised, that is a problem. :(
             self.assertTrue(False)

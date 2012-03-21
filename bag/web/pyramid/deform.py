@@ -50,7 +50,7 @@ def verify_csrf(func):
 
 
 def monkeypatch_colander():
-    '''Alter Colander to introduce the more useful asdict2() method.
+    '''Alter Colander 0.9.7 to introduce the more useful asdict2() method.
     '''
     print('Adding asdict2() to Colander.')
     import colander as c
