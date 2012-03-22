@@ -55,8 +55,9 @@ class BaseViewForDeform(BaseView):
 
     def dict_to_model(self, adict, model):
         '''Helps when using Deform.'''
+        import colander as c
         for key, val in adict.items():
-            setattr(model, key, val)
+            setattr(model, key, None if val is c.null else val)
         return model
 
 
