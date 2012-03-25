@@ -143,7 +143,7 @@ def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
 
 
 def pyramid_download_csv(response, file_title, rows, encoding='utf8', **k):
-    response.headers["Content-Type"] = "text/csv"  # TODO: test
+    response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = \
         "attachment;filename={}.{}.csv".format(file_title, encoding)
     response.app_iter = buffered_csv_writing(rows, encoding=encoding, **k)

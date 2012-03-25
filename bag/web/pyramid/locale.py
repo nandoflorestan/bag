@@ -139,9 +139,9 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
 
 def locale_cookie_headers(locale_code):
     '''Returns HTTP headers setting the cookie that sets the Pyramid locale.'''
-    return [(b'Set-Cookie',
-        b'_LOCALE_={0}; expires=Fri, 31-Dec-9999 23:00:00 GMT; Path=/' \
-        .format(locale_code.encode('utf8')))]
+    return [('Set-Cookie',
+        '_LOCALE_={0}; expires=Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(
+        locale_code))]
 
 
 def locale_view(request):
