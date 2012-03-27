@@ -49,6 +49,7 @@ Our new widgets
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
+import deform as d
 import colander as c
 import deform.widget as w
 from ...sqlalchemy.tricks import length
@@ -75,6 +76,13 @@ def lengthen(max, min=0, size=None, widget_cls=w.TextInputWidget,
         validator = c.All(validator, *validators)
     return dict(widget=widget_cls(size=size, maxlength=max,
         placeholder=placeholder, typ=typ), validator=validator)
+
+
+def make_button(title, icon=None):
+    '''Conveniently create a button, optionally with a bootstrap icon.'''
+    b = d.Button(title)
+    b.icon = icon
+    return b
 
 
 class TagsWidget(w.TextInputWidget):
