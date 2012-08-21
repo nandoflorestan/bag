@@ -51,8 +51,7 @@ from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 from bag.six import *  # for Python 2 and 3 compatibility
 from paste.deploy.converters import asbool
-from zope.interface import implements
-from zope.interface import Interface
+from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
 from pyramid.resource import abspath_from_resource_spec
 
@@ -64,9 +63,8 @@ def to_list(sequence):
         return sequence
 
 
+implementer(ITemplateRenderer)
 class GenshiTemplateRenderer(object):
-    implements(ITemplateRenderer)
-
     def __init__(self, settings):
         from genshi.template import TemplateLoader
         try:

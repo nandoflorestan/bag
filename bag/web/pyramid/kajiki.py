@@ -32,15 +32,13 @@ from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 
 from paste.deploy.converters import asbool
-from zope.interface import implements
-from zope.interface import Interface
+from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
 from pyramid.resource import abspath_from_resource_spec
 
 
+implementer(ITemplateRenderer)
 class KajikiTemplateRenderer(object):
-    implements(ITemplateRenderer)
-
     def __init__(self, info):
         self.loader = info.registry.kajiki_loader
 
