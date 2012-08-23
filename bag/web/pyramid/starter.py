@@ -172,7 +172,6 @@ class PyramidStarter(object):
         '''
         sd = self.settings.setdefault
         sd('genshi.translation_domain', self.package_name)
-        # Setting removed:  sd('genshi.encoding', 'utf-8')
         sd('genshi.doctype', 'html5')
         sd('genshi.method', 'xhtml')
         from .genshi import enable_genshi
