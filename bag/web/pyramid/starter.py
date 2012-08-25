@@ -32,6 +32,13 @@ def register_view_class(cls):
 view_classes = []
 
 
+def subdict(adict, prefix):
+    '''Returns a new dict based on keys that start with a prefix.'''
+    lprefix = len(prefix)
+    return {key[lprefix:]: val for key, val in adict.items() \
+            if key.startswith(prefix)}
+
+
 class PyramidStarter(object):
     '''Reusable configurator for nice Pyramid applications.'''
 
@@ -137,14 +144,12 @@ class PyramidStarter(object):
 
     def enable_marrow_mailer(self):
         '''This method enables https://github.com/marrow/marrow.mailer
-        which is the new TurboMail.
 
         After this you can access registry.mailer to send messages.
         '''
         from marrow.mailer import Mailer, Message
         import atexit
-        options = {key[5:]: self.settings[key] for key in self.settings \
-            if key.startswith('mail.')}
+        options = subdict(self.settings, 'marrow.mailer.')
         mailer = self.config.registry.mailer = Mailer(options)
         mailer.start()
         atexit.register(mailer.stop)
@@ -292,7 +297,7 @@ class PyramidStarter(object):
             exit('\n' + self.package_name + ' requires Python 2.7.x or > 3.2.')
 
     def load_plugins(self, entry_point_groups=None, directory=None,
-            base_class=BasePlugin):
+        base_class=BasePlugin):
         self.config.registry.plugins = self.plugins = \
             PluginsManager(self.settings)
         if directory:
@@ -320,7 +325,7 @@ def all_view_classes(registry):
 
 
 def authentication_policy(settings, include_ip=True, timeout=60 * 60 * 32,
-                    reissue_time=60, find_groups=lambda userid, request: []):
+    reissue_time=60, find_groups=lambda userid, request: []):
     '''Returns an authentication policy object for configuration.'''
     try:
         secret = settings['cookie_salt']

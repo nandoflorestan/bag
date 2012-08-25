@@ -23,7 +23,7 @@ from six import *  # http://packages.python.org/six/
 PY2 = sys.version_info[0] == 2
 
 try:
-    unicode
+    unicode = unicode
 except NameError:
     unicode = basestring = str
 
