@@ -2,7 +2,7 @@
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
-from ...six import compat23
+from ...six import compat23, unicode
 
 
 @compat23
@@ -14,7 +14,8 @@ class FlashMessage(object):
     KINDS = set('error warning info success'.split())
 
     def __init__(self, request, text, kind='warning', block=False,
-            allow_duplicate=True):
+            allow_duplicate=False):
+        '''*block* should be True for multiline text.'''
         if not kind in self.KINDS:
             raise RuntimeError("Unknown kind of alert: \"{}\". " \
                 "Possible kinds are {}".format(kind, self.KINDS))
@@ -31,4 +32,4 @@ class FlashMessage(object):
 
 def render_flash_messages(request):
     msgs = request.session.pop_flash()
-    return ''.join(msgs)
+    return ''.join([unicode(m) for m in msgs])
