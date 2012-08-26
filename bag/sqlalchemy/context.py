@@ -2,22 +2,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
-from datetime import datetime, timedelta
-from decimal import Decimal
-from sqlalchemy import (Table, Column, ForeignKey, Sequence, desc,
-    UniqueConstraint, and_, or_, MetaData, create_engine,
-    __version__ as sa_version)
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import (mapper, sessionmaker, scoped_session, validates,
-    relationship, backref, deferred, eagerload, object_session)  # , synonym
-# http://www.postgresql.org/docs/9.1/static/datatype-numeric.html
-from sqlalchemy.types import (Unicode, UnicodeText, Date, DateTime, Boolean,
-                    SmallInteger, Integer, BigInteger, DECIMAL, LargeBinary)
+import re
+from sqlalchemy import Table, create_engine
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.orm import sessionmaker, scoped_session
 from types import ModuleType
-from ..six import *  # for Python 2 and 3 compatibility
-from .tricks import pk, now_column, CreatedChanged, CASC
+from ..six import unicode
+
+__all__ = ('SAContext',)
 
 
 class SAContext(object):
@@ -27,9 +19,7 @@ class SAContext(object):
 
     .. code-block:: python
 
-        from bag.sqlalchemy.context import *
-        # The above single statement imports most if not all of
-        # what you need to define a model and use it.
+        from bag.sqlalchemy.context import SAContext
 
         sa = SAContext()  # you can provide create_engine's args here
         # Now define your model with sa.metadata and sa.base
@@ -48,18 +38,20 @@ class SAContext(object):
         # You can also create a copy of sa, bound to another engine:
         sa2 = sa.clone('sqlite://')
     '''
-    __slots__ = ('base', 'dburi', 'engine', 'Session', 'session_extensions')
+    __slots__ = ('base', 'dburi', 'engine', 'Session', '_scoped_session',
+        'session_extensions')
 
-    def __init__(self, base=None, metadata=None, session_extensions=None,
-                 *args, **k):
+    def __init__(self, base=None, base_class=None, metadata=None,
+            session_extensions=None, zope_transaction=False, *args, **k):
         self.dburi = None
         self.engine = None
         self.Session = None
-        self.session_extensions = session_extensions
-        if base:
-            self.base = base
-        else:
-            self.base = declarative_base(metadata=metadata)
+        self._scoped_session = None
+        self.base = base or declarative_base(cls=base_class, metadata=metadata)
+        self.session_extensions = session_extensions or []
+        if zope_transaction:
+            from zope.sqlalchemy import ZopeTransactionExtension
+            self.session_extensions.append(ZopeTransactionExtension())
         if self.metadata.bind:
             self._set_engine(self.metadata.bind)
         if args or k:
@@ -71,10 +63,6 @@ class SAContext(object):
                                     extension=self.session_extensions)
         self.dburi = unicode(engine.url)
 
-    @property
-    def metadata(self):
-        return self.base.metadata
-
     def create_engine(self, dburi, **k):
         self._set_engine(create_engine(dburi, **k))
         return self
@@ -83,6 +71,21 @@ class SAContext(object):
         self.create_engine('sqlite:///:memory:', **k)
         self.create_tables(tables=tables)
         return self
+
+    @property
+    def ss(self):
+        '''Returns a scoped session. This is memoized (meaning, created only
+        when first used and then stored.
+        '''
+        if not self._scoped_session:
+            assert not self.Session is None, \
+                'Tried to use the scoped session before the engine was set.'
+            self._scoped_session = scoped_session(self.Session)
+        return self._scoped_session
+
+    @property
+    def metadata(self):
+        return self.base.metadata
 
     def drop_tables(self, tables=None):
         self.metadata.drop_all(tables=tables, bind=self.engine)
