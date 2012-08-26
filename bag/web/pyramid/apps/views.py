@@ -31,6 +31,9 @@ class BaseView(object):
         return route_url(name, self.request, *a, **kw)
 
 
+undefined = object()
+
+
 class BaseViewForDeform(BaseView):
     def model_to_dict(self, model, key_provider):
         '''Helps when using Deform.
@@ -49,7 +52,9 @@ class BaseViewForDeform(BaseView):
         elif not issubclass(key_provider, list):
             key_provider = [n.name for n in key_provider.nodes]
         for k in key_provider:
-            val = getattr(model, k)
+            val = getattr(model, k, undefined)
+            if val is undefined:
+                continue
             d[k] = c.null if val is None else val
         return d
 
@@ -82,13 +87,17 @@ class ChameleonBaseView(object):
 
 def authenticated(func):
     '''Decorator that redirects to Pyramid's Forbidden view
-    (Ptah wisely makes this the login page)
     if the user is not authenticated.
 
-    Depends on your base view class having a *user_id* property.
+    Depends on your request object possessing a *user* instance variable.
+    This can easily be configured::
+
+        # str('user') returns a bytestring under Python 2 and a
+        # unicode string under Python 3, which is what we need:
+        config.set_request_property(get_user, str('user'), reify=True)
     '''
     def wrapper(self, *a, **kw):
-        if self.user_id:
+        if self.request.user:
             return func(self, *a, **kw)
         else:
             raise Forbidden()
