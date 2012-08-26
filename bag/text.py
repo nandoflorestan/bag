@@ -91,11 +91,11 @@ ascii_map = [('a', 'áàâãäå\u0101'),
 ascii_map.extend(latin1_map)
 
 
-def simplify_chars(txt, encoding='ascii', binary=True, amap=None):
+def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
     '''Removes from *txt* (a unicode object) all characters not
     supported by *encoding*, but using a map to "simplify" some
     characters instead of just removing them.
-    If *binary* is true, returns a binary string.
+    If *byts* is true, returns a bytestring.
     '''
     if amap is None:
         if encoding == 'ascii':
@@ -105,7 +105,7 @@ def simplify_chars(txt, encoding='ascii', binary=True, amap=None):
     for plain, funny in amap:
         for f in funny:
             txt = txt.replace(f, plain)
-    return txt.encode(encoding, 'ignore') if binary else txt
+    return txt.encode(encoding, 'ignore') if byts else txt
 
 
 def to_filename(txt, for_web=False, badchars=''):
