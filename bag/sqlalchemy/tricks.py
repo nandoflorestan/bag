@@ -8,19 +8,15 @@ there are many different ways to initialize SQLALchemy.
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
-from datetime import datetime
+import re
+from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import relationship, MapperExtension
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
 
 CASC = 'all, delete-orphan'
-
-
-def pk(tablename):
-    # The type must be Integer for Sequences to work, AFAICT.
-    # Maybe this problem is in Python only?
-    return Column(Integer, Sequence(tablename + '_id_seq'), primary_key=True)
 
 
 def now_column(nullable=False, **k):
@@ -66,21 +62,32 @@ def fk(attrib, nullable=False, index=True):
 def fk_rel(cls, backref, attrib='id', nullable=False, index=True):
     '''Returns a ForeignKey column and a relationship,
     while automatically setting the type of the foreign key.
+
+    Usage:
+
+        # A relationship in an Address model:
+        person_id, person = fk_rel(Person, 'addresses',
+            nullable=False, index=True)
     '''
     return (fk(getattr(cls, attrib), nullable=nullable, index=index),
         relationship(cls, backref=backref))
 
 
-def many_to_many(Model1, Model2, id_attr1='id', id_attr2='id', metadata=None,
+def many_to_many(Model1, Model2, pk1='pk', pk2='pk', metadata=None,
                  backref=None):
     '''Easily set up a many-to-many relationship between 2 existing models.
 
     Returns an association table and the relationship itself.
+
+    Usage:
+
+        customer_user, Customer.users = many_to_many(Customer, User,
+            pk2='__id__')
     '''
     table1 = Model1.__tablename__
     table2 = Model2.__tablename__
-    col1 = col(getattr(Model1, id_attr1))
-    col2 = col(getattr(Model2, id_attr2))
+    col1 = col(getattr(Model1, pk1))
+    col2 = col(getattr(Model2, pk2))
     type1 = col1.copy().type
     type2 = col2.copy().type
     metadata = metadata or Model1.__table__.metadata
@@ -95,8 +102,56 @@ def many_to_many(Model1, Model2, id_attr1='id', id_attr2='id', metadata=None,
     return association, rel
 
 
+def pk(tablename):
+    # The type must be Integer for Sequences to work, AFAICT.
+    # Maybe this problem is in Python only?
+    return Column(Integer, Sequence(tablename + '_id_seq'),
+        primary_key=True, autoincrement=True)
+
+
+class MinimalBase(object):
+    """Declarative base class that auto-generates __tablename__."""
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+
+    @declared_attr
+    def __tablename__(cls):
+        """Convert the CamelCase class name to an underscores_between_words
+        table name.
+        """
+        name = cls.__name__.replace('Mixin', '')
+        return name[0].lower() + \
+            re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
+
+    def to_dict(self, blacklist=None, convert_date=False):
+        """Dumps the properties of the object into a dict for use in json."""
+        props = {}
+        for key in self.__dict__:
+            if key in (blacklist or self.blacklist) or key.startswith('__') \
+                    or key.startswith('_sa_'):
+                continue
+            obj = getattr(self, key)
+            if isinstance(obj, datetime) or isinstance(obj, date):
+                if convert_date:
+                    props[key] = obj.isoformat()
+                else:
+                    props[key] = obj
+            else:
+                props[key] = obj
+        return props
+    blacklist = ['password']
+
+
+class PK(object):  # TODO: Test
+    '''Mixin class that includes a primary key column.'''
+    @declared_attr
+    def pk(cls):
+        '''We use "pk" instead of "id" because "id" is a python builtin.'''
+        return Column(Integer, autoincrement=True, primary_key=True)
+
+
 class CreatedChanged(object):
-    '''Mixin class for your models.
+    '''Mixin class for your models. It updates the *created* and *changed*
+    columns automatically.
 
     If you define __mapper_args__ in your model, you have to readd the
     mapper extension:
@@ -123,9 +178,9 @@ class AddressBase(object):
     '''Base class for addresses. In subclasses you can just define
     __tablename__, id, the foreign key, and maybe indexes.
     '''
-    #~ __tablename__ = 'customer'
+    # __tablename__ = 'customer'
 
-    #~ id = id_column(__tablename__)
+    # pk = pk(__tablename__)
     street = Column('street',     Unicode(160), default='')
     district = Column('district', Unicode(80),  default='')
     city = Column('city',         Unicode(80), default='')
