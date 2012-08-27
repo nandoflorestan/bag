@@ -59,7 +59,7 @@ def fk(attrib, nullable=False, index=True):
                    nullable=nullable, index=index)
 
 
-def fk_rel(cls, backref, attrib='id', nullable=False, index=True):
+def fk_rel(cls, backref, attrib='pk', nullable=False, index=True):
     '''Returns a ForeignKey column and a relationship,
     while automatically setting the type of the foreign key.
 
