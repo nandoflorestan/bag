@@ -22,9 +22,10 @@ from six import *  # http://packages.python.org/six/
 
 PY2 = sys.version_info[0] == 2
 
-try:
+try:  # OK in Python 2:
     unicode = unicode
-except NameError:
+    basestring = basestring
+except NameError:  # Executes in Python 3:
     unicode = basestring = str
 
 
