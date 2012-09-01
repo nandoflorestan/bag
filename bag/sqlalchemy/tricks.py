@@ -140,8 +140,24 @@ class MinimalBase(object):
         return props
     blacklist = ['password']
 
+    @classmethod
+    def get_or_create(cls, session, **filters):  # TODO: Test
+        instance = session.Query(cls.filter_by(**filters)).first()
+        is_new = not instance
+        if not instance:
+            instance = cls()
+            session.add(instance)
+        return instance, is_new
 
-class PK(object):  # TODO: Test
+    @classmethod
+    def create_or_update(cls, session, values={}, **filters):  # TODO: Test
+        instance, is_new = cls.get_or_create(session, **filters)
+        for k, v in values.items():
+            setattr(instance, k, v)
+        return instance, is_new
+
+
+class PK(object):
     '''Mixin class that includes a primary key column.'''
     @declared_attr
     def pk(cls):
