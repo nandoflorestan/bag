@@ -1,8 +1,0 @@
-<textarea tal:attributes="class field.widget.css_class;
-                          cols field.widget.cols;
-                         rows field.widget.rows;
-                   maxlength getattr(field.widget, 'maxlength', None);
-                placeholder getattr(field.widget, 'placeholder', None);
-                  required 'true' if field.required else None;"
-          id="${field.oid}"
-          name="${field.name}">${cstruct}</textarea>
