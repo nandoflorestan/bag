@@ -156,6 +156,10 @@ class MinimalBase(object):
             setattr(instance, k, v)
         return instance, is_new
 
+    @classmethod
+    def count(cls, session, **filters):
+        return session.query(cls).filter_by(**filters).count()
+
 
 class PK(object):
     '''Mixin class that includes a primary key column.'''
