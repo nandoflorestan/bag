@@ -141,16 +141,22 @@ class MinimalBase(object):
     blacklist = ['password']
 
     @classmethod
-    def get_or_create(cls, session, **filters):  # TODO: Test
-        instance = session.Query(cls.filter_by(**filters)).first()
+    def get_or_create(cls, session, **filters):
+        '''Returns a tuple (object, is_new). is_new is True if the
+        object already exists in the database.
+        '''
+        instance = session.query(cls).filter_by(**filters).first()
         is_new = not instance
         if not instance:
-            instance = cls()
+            instance = cls(**filters)
             session.add(instance)
         return instance, is_new
 
     @classmethod
-    def create_or_update(cls, session, values={}, **filters):  # TODO: Test
+    def create_or_update(cls, session, values={}, **filters):
+        '''First obtains either an existing object or a new one, based on
+        *filters*. Then applies *values* and returns a tuple (object, is_new).
+        '''
         instance, is_new = cls.get_or_create(session, **filters)
         for k, v in values.items():
             setattr(instance, k, v)
