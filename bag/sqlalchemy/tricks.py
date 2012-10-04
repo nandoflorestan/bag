@@ -122,7 +122,7 @@ class MinimalBase(object):
         return name[0].lower() + \
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
 
-    def to_dict(self, blacklist=None, convert_date=False):
+    def to_dict(self, blacklist=None, convert_date=False):  # TODO Whitelist
         """Dumps the properties of the object into a dict for use in json."""
         props = {}
         for key in self.__dict__:
@@ -142,12 +142,12 @@ class MinimalBase(object):
 
     @classmethod
     def get_or_create(cls, session, **filters):
-        '''Returns a tuple (object, is_new). is_new is True if the
+        '''Returns a tuple (object, is_new). *is_new* is True if the
         object already exists in the database.
         '''
         instance = session.query(cls).filter_by(**filters).first()
         is_new = not instance
-        if not instance:
+        if is_new:
             instance = cls(**filters)
             session.add(instance)
         return instance, is_new

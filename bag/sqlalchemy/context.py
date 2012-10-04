@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
-import re
 from sqlalchemy import Table, create_engine
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declarative_base  # , declared_attr
 from sqlalchemy.orm import sessionmaker, scoped_session
 from types import ModuleType
 from ..six import unicode
@@ -75,7 +74,7 @@ class SAContext(object):
     @property
     def ss(self):
         '''Returns a scoped session. This is memoized (meaning, created only
-        when first used and then stored.
+        when first used and then stored).
         '''
         if not self._scoped_session:
             assert not self.Session is None, \
