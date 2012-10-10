@@ -108,12 +108,14 @@ def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
     return txt.encode(encoding, 'ignore') if byts else txt
 
 
-def to_filename(txt, for_web=False, badchars=''):
+def to_filename(txt, for_web=False, badchars='', maxlength=0):
     '''Massages *txt* until it is a good filename.'''
     illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
     for c in illegal:
         txt = txt.replace(c, '')
-    txt = simplify_chars(txt.strip())
+    txt = simplify_chars(txt).strip()
+    if maxlength:
+        txt = txt[:maxlength].strip()
     if for_web:
         txt = txt.replace(' ', '-') \
                  .replace('--', '-').replace('--', '-').lower()
