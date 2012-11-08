@@ -7,10 +7,20 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from .six import basestring
 
 
 def setup_log(name='main', directory='logs', backups=3,
     level=logging.DEBUG, screen_level=logging.INFO):
+    # If strings are passed in as levels, "decode" them first
+    levels = dict(debug=logging.DEBUG, critical=logging.CRITICAL,
+        error=logging.ERROR, fatal=logging.FATAL, info=logging.INFO,
+        warn=logging.WARN, warning=logging.WARNING)
+    if isinstance(level, basestring):
+        level = levels[level]
+    if isinstance(screen_level, basestring):
+        screen_level = levels[screen_level]
+    # Set up logging
     log = logging.getLogger(name)
     if len(log.handlers) == 0:
         try:
