@@ -46,6 +46,7 @@ class BaseViewForDeform(BaseView):
 
         Returns an appstruct dict with values taken from the model.
         '''
+        import colander as c
         d = {}
         if isinstance(key_provider, basestring):
             key_provider = uncommafy(key_provider)
