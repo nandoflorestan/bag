@@ -1,14 +1,33 @@
 # -*- coding: utf-8 -*-
 
+'''Advanced flash messages scheme for Pyramid.
+
+    from bag.web.pyramid.flash_msg import FlashMessage
+    FlashMessage(request,
+        "You can enqueue a message simply by instantiating a FlashMessage.",
+        kind='warning')
+
+    # At app initialization:
+    config.include('bag.web.pyramid.flash_msg')
+    # This allows you to do, in templates:
+    # ${request.render_flash_messages()}
+    # ...and the messages will appear with Bootstrap styling.
+
+You can set QUEUES to something else if you like, from user code.
+'''
+
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
+from cgi import escape
 from ...six import compat23, unicode
+
+QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
 def bootstrap_msg(text, kind='warning', block=False):
     return '<div class="alert alert-{0}{1}"><button type="button" ' \
         'class="close" data-dismiss="alert">×</button>{2}</div>\n' \
-        .format(kind, ' alert-block' if block else '', text)
+        .format(escape(kind), ' alert-block' if block else '', escape(text))
 
 
 @compat23
@@ -17,7 +36,7 @@ class FlashMessage(object):
     To register a message, simply instantiate it.
     '''
     __slots__ = 'kind text block'.split()
-    KINDS = set('error warning info success'.split())
+    KINDS = set(['error', 'warning', 'info', 'success'])
 
     def __init__(self, request, text, kind='warning', block=False,
             allow_duplicate=False):
@@ -36,20 +55,30 @@ class FlashMessage(object):
 
 def render_flash_messages(request):
     msgs = request.session.pop_flash()  # Pops from the empty string queue
-    return ''.join([unicode(m) for m in msgs])
+    return ''.join([unicode(m) if isinstance(m, FlashMessage) \
+        else bootstrap_msg(m) for m in msgs])
 
 
-# Below is code for compatibility with other systems only.
-
-
-def render_flash_messages_from_queues(request, queues=(
-    'error', 'warning', 'info', 'success', '')):
-    '''Some people are using queues named after bootstrap message flavours.
+def render_flash_messages_from_queues(request):
+    '''This method is for compatibility with other systems only.
+    Some developers are using queues named after bootstrap message flavours.
     I think my system (using only the default queue '') is better,
     but this function provides a way to display their flash messages, too.
     '''
     msgs = []
-    for q in queues:
+    for q in QUEUES:
         for m  in request.session.pop_flash(q):
-            msgs.append(bootstrap_msg(m, q))
+            html = unicode(m) if isinstance(m, FlashMessage) \
+                else bootstrap_msg(m, q)
+            msgs.append(html)
     return ''.join(msgs)
+
+
+def includeme(config):
+    '''Make the request object capable of rendering the flash messages.
+
+    Better to have this in the request, not in the views;
+    this way, overridden templates can use it, too.
+    '''
+    config.add_request_method(callable=render_flash_messages_from_queues,
+        name='render_flash_messages')
