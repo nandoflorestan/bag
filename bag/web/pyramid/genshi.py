@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''This module allows the Genshi templating language --
@@ -6,35 +5,46 @@ http://pypi.python.org/pypi/Genshi/
 -- to be used in the Pyramid web framework --
 http://docs.pylonshq.com/
 
-To enable the pyramid_genshi extension:
+To enable this extension, just include it as your app starts up:
 
 .. code-block:: python
 
     config.include('bag.web.pyramid.genshi')
 
-...where `config` is your Configurator instance, and `extension` is
-the file extension you are using for your templates.
+Then you can decorate your views like the other Pyramid templating languages,
+passing an asset specification to the ``renderer`` argument::
 
-Once the extension is active, add the following to the application section
-of your Pyramid application’s .ini file::
+    @view_config(route_name='faq', renderer='mial:templates/faq-page.genshi')
 
-    [app:yourapp]
+Configuring a set of template directories
+=========================================
+
+You don't need to do this. But if you would like to
+provide only the file name (without a path) to the renderer, like this::
+
+    @view_config(route_name='faq', renderer='faq-page.genshi')
+
+...then you must set ``genshi.directories`` in the application section
+of your Pyramid application’s .ini file:
+
+    [app:myapp]
     # ... other stuff ...
     genshi.directories = myapp:templates
                          myapp:another/templates/directory
 
-This configures the set of directories searched.
+This configures a set of directories that are searched.
 The portion of each directory argument before the colon is a
 package name. The remainder is a subpath within the package which
 houses the templates.
-Adding more than one directory forms a search path.
 
-Then you should decorate your views like this, passing only the file name
-(no path)::
+But I have optimized for asset specifications. The renderer name is interpreted
+first as an asset specification, then if the file is not found,
+the directories are searched.
 
-    @action(renderer='root.genshi')
+Other settings
+==============
 
-You can also configure these rendering parameters::
+You can configure these rendering parameters:
 
     genshi.doctype = html5
     genshi.method = xhtml
@@ -44,15 +54,29 @@ The default is ".genshi":
 
     genshi.extension = .genshi
 
+The Genshi template loader keeps templates cached in memory. You can control
+the size of this LRU cache through this setting (my default is 100):
+
+    genshi.max_cache_size = 100
+
 Finally, internationalization of Genshi templates is enabled by the value of
 ``genshi.translation_domain``. By default it is the name of your
 application package.
 
     genshi.translation_domain = myapp
+
+Rendering a page fragment
+=========================
+
+From anywhere in your web app you can use the renderer like this::
+
+    some_html = settings['genshi_renderer'].fragment(
+        'myapp:templates/menu.genshi', template_context_dict)
 '''
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
+from os import path
 from bag.six import basestring
 from paste.deploy.converters import asbool
 from zope.interface import implementer
@@ -67,15 +91,30 @@ def to_list(sequence):
         return sequence
 
 
+def load_template(asset):
+    '''Make the Genshi TemplateLoader work with typical Pyramid
+    asset specifications by passing this function to
+    the TemplateLoader constructor as one of the paths.
+    '''
+    # print('LOAD {}'.format(asset))
+    abspath = abspath_from_resource_spec(asset)
+    stream = open(abspath, 'r')  # Genshi catches the possible IOError.
+    mtime = path.getmtime(abspath)
+    filename = path.basename(abspath)
+
+    def file_not_changed():
+        # debug = 'SAME' if mtime == path.getmtime(abspath) else 'MODIFIED'
+        # print(debug, abspath)
+        return mtime == path.getmtime(abspath)
+    return (abspath, filename, stream, file_not_changed)
+
+
 @implementer(ITemplateRenderer)
 class GenshiTemplateRenderer(object):
     def __init__(self, settings):
-        from genshi.template import TemplateLoader
-        try:
-            dirs = settings['genshi.directories']
-        except KeyError:
-            raise KeyError('You need to configure genshi.directories.')
+        dirs = settings.get('genshi.directories', [])
         paths = [abspath_from_resource_spec(p) for p in to_list(dirs)]
+        paths.insert(0, load_template)  # enable Pyramid asset specifications
 
         # http://genshi.edgewall.org/wiki/Documentation/i18n
         # If genshi.translation_domain has a value,
@@ -94,11 +133,12 @@ class GenshiTemplateRenderer(object):
                 Translator(translate).setup(template)
         else:
             callback = None
-        self.loader = TemplateLoader(paths,
-                      auto_reload=asbool(settings.get('reload_templates')),
-                      callback=callback)
+
+        from genshi.template import TemplateLoader
+        self.loader = TemplateLoader(paths, callback=callback,
+            auto_reload=asbool(settings.get('pyramid.reload_templates')),
+            max_cache_size=int(settings.get('genshi.max_cache_size', 100)))
         self.strip_whitespace = settings.get('genshi.strip_whitespace', True)
-        # self.encoding = settings.get('genshi.encoding', 'utf-8')
         self.doctype = settings.get('genshi.doctype', 'html5')
         self.method = settings.get('genshi.method', 'xhtml')
 
@@ -128,26 +168,23 @@ class GenshiTemplateRenderer(object):
         # Render the template and return a string
         return template.generate(**system) \
             .render(method=self.method,
-                    encoding=None,  # self.encoding,
+                    encoding=None,  # so Genshi outputs a unicode object
                     doctype=self.doctype,
                     strip_whitespace=self.strip_whitespace)
 
-    def fragment(self, template_file, dic):
+    def fragment(self, template, dic):
         """Loads a Genshi template and returns its output as a unicode object
         containing an HTML fragment, taking care of some details.
 
-        * template_file is the name of the Genshi template file to be rendered.
+        * template is the Genshi template file to be rendered.
         * dic is a dictionary to populate the template instance.
         """
-        t = self.loader.load(template_file)
-        # encoding=None makes Genshi return a unicode object:
-        return t.generate(**dic) \
-            .render(method=self.method, encoding=None)
+        t = self.loader.load(template)
+        return t.generate(**dic).render(method=self.method, encoding=None)
 
 
 def includeme(config):
-    '''Allows us to use the Genshi templating language in Pyramid.
-    '''
+    '''Easily integrates Genshi template rendering into Pyramid.'''
     settings = config.get_settings()
     # By default, the translation domain is the application name:
     settings.setdefault('genshi.translation_domain', config.registry.__name__)
