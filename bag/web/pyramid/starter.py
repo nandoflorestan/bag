@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 import os
@@ -7,6 +7,7 @@ import stat
 from pyramid.config import Configurator
 from pyramid.resource import abspath_from_resource_spec
 from pyramid.response import FileResponse
+from ...log import setup_log
 from .plugins_manager import PluginsManager, BasePlugin
 
 
@@ -42,7 +43,7 @@ def subdict(adict, prefix):
 class PyramidStarter(object):
     '''Reusable configurator for nice Pyramid applications.'''
 
-    def __init__(self, config, packages=[]):
+    def __init__(self, config, packages=[], log=None):
         '''Arguments:
 
         * *config* is the Pyramid configurator instance.
@@ -63,6 +64,7 @@ class PyramidStarter(object):
         self.parent_directory = os.path.dirname(self.directory)
         self.makedirs('{here}/locale')
         config.add_translation_dirs('bag:locale')
+        self.log = log or setup_log(name='PyramidStarter')
 
     @property
     def settings(self):
@@ -75,10 +77,6 @@ class PyramidStarter(object):
         {here} or {up}.
         '''
         makedirs(key.format(here=self.directory, up=self.parent_directory))
-
-    def log(self, text):
-        '''TODO: Implement logging setup'''
-        print(text)
 
     def enable_handlers(self):
         '''Pyramid "handlers" emulate Pylons 1 "controllers".
@@ -105,14 +103,14 @@ class PyramidStarter(object):
             try:
                 module = import_module(self.package_name + '.models')
             except ImportError as e:
-                self.log('Could not find the models module.')
+                self.log.warn('Could not find the models module.')
             else:
                 try:
                     initialize_sql = module.initialize_sql
                 except AttributeError as e:
-                    self.log('initialize_sql() does not exist.')
+                    self.log.warn('initialize_sql() does not exist.')
         if initialize_sql:
-            self.log('initialize_sql()')
+            self.log.info('initialize_sql()')
             initialize_sql(engine, settings=settings)
         registry = self.config.registry
         if hasattr(registry, 'plugins'):

@@ -13,9 +13,13 @@ from .six import basestring
 def setup_log(name='main', directory='logs', backups=3,
     level=logging.DEBUG, screen_level=logging.INFO):
     # If strings are passed in as levels, "decode" them first
-    levels = dict(debug=logging.DEBUG, critical=logging.CRITICAL,
-        error=logging.ERROR, fatal=logging.FATAL, info=logging.INFO,
-        warn=logging.WARN, warning=logging.WARNING)
+    levels = dict(
+        debug=logging.DEBUG,                         # 10
+        info=logging.INFO,                            # 20
+        warn=logging.WARN, warning=logging.WARNING,    # 30
+        error=logging.ERROR,                            # 40
+        critical=logging.CRITICAL, fatal=logging.FATAL,  # 50
+    )
     if isinstance(level, basestring):
         level = levels[level]
     if isinstance(screen_level, basestring):
