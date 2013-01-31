@@ -17,7 +17,7 @@ The fact that these are just bits and pieces does not prevent them from
 having bugs, so they are under version control at
 {0}
 
-Currently, the library requires Python 2.7.x.
+The library is tested on Python 2.7 and 3.3.
 
 Most important library contents
 ===============================
@@ -46,7 +46,7 @@ If you use the Pyramid web framework
   starting up Pyramid web applications.
 * **bag.web.pyramid.genshi** -- Use the Genshi templating language
   with the Pyramid web framework.
-* **bag.web.pyramid.kajiki** -- Use the new Kajiki templating language
+* **bag.web.pyramid.kajiki** -- Use the Kajiki templating language
   with the Pyramid web framework.
 
 Less important library contents

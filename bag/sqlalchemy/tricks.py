@@ -15,6 +15,7 @@ from sqlalchemy.orm import relationship, MapperExtension
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
+from ..web import gravatar_image
 
 CASC = 'all, delete-orphan'
 
@@ -244,3 +245,7 @@ class EmailParts(object):
     @email.setter
     def email(self, val):
         self.email_local, self.email_domain = val.split('@')
+
+    def gravatar_image(self, default='mm', size=80, cacheable=True):
+        return gravatar_image(self.email, default=default, size=size,
+            cacheable=cacheable)

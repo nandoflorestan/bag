@@ -313,12 +313,12 @@ def all_view_classes(registry):
 
 
 def authentication_policy(settings, include_ip=True, timeout=60 * 60 * 32,
-    reissue_time=60, find_groups=lambda userid, request: []):
+    reissue_time=60, groupfinder=lambda userid, request: []):
     '''Returns an authentication policy object for configuration.'''
     try:
         secret = settings['cookie_salt']
     except KeyError as e:
         raise KeyError('Your config file is missing a cookie_salt.')
     from pyramid.authentication import AuthTktAuthenticationPolicy
-    return AuthTktAuthenticationPolicy(secret, callback=find_groups,
+    return AuthTktAuthenticationPolicy(secret, callback=groupfinder,
         include_ip=include_ip, timeout=timeout, reissue_time=reissue_time)
