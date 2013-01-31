@@ -10,8 +10,7 @@ To enable the pyramid_genshi extension:
 
 .. code-block:: python
 
-    from mootiro_web.pyramid_genshi import enable_genshi
-    enable_genshi(config, extension='.genshi')
+    config.include('bag.web.pyramid.genshi')
 
 ...where `config` is your Configurator instance, and `extension` is
 the file extension you are using for your templates.
@@ -40,16 +39,21 @@ You can also configure these rendering parameters::
     genshi.doctype = html5
     genshi.method = xhtml
 
-Finally, you can enable internationalization of Genshi templates by
-configuring "genshi.translation_domain". Usually the value is your
-application name. This adds a translation filter::
+You can also set the file extension that triggers the Genshi renderer.
+The default is ".genshi":
 
-    genshi.translation_domain = SomeDomain
+    genshi.extension = .genshi
+
+Finally, internationalization of Genshi templates is enabled by the value of
+``genshi.translation_domain``. By default it is the name of your
+application package.
+
+    genshi.translation_domain = myapp
 '''
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
-from bag.six import *  # for Python 2 and 3 compatibility
+from bag.six import basestring
 from paste.deploy.converters import asbool
 from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
@@ -63,7 +67,7 @@ def to_list(sequence):
         return sequence
 
 
-implementer(ITemplateRenderer)
+@implementer(ITemplateRenderer)
 class GenshiTemplateRenderer(object):
     def __init__(self, settings):
         from genshi.template import TemplateLoader
@@ -72,17 +76,20 @@ class GenshiTemplateRenderer(object):
         except KeyError:
             raise KeyError('You need to configure genshi.directories.')
         paths = [abspath_from_resource_spec(p) for p in to_list(dirs)]
-        # http://genshi.edgewall.org/wiki/Documentation/i18n.html
-        # If genshi.translation_domain is configured,
+
+        # http://genshi.edgewall.org/wiki/Documentation/i18n
+        # If genshi.translation_domain has a value,
         # we set up a callback in the loader
         domain = settings.get('genshi.translation_domain')
         if domain:
             from genshi.filters import Translator
             from pyramid.i18n import get_localizer
             from pyramid.threadlocal import get_current_request
+
             def translate(text):
                 return get_localizer(get_current_request()) \
                        .translate(text, domain=domain)
+
             def callback(template):
                 Translator(translate).setup(template)
         else:
@@ -138,22 +145,31 @@ class GenshiTemplateRenderer(object):
             .render(method=self.method, encoding=None)
 
 
-def enable_genshi(config, extension='.genshi'):
+def includeme(config):
     '''Allows us to use the Genshi templating language in Pyramid.
     '''
-    def renderer_factory(info):
-        ''' ``info`` contains:
-
-        name = Attribute('The value passed by the user as the renderer name')
-        package = Attribute('The "current package" when the renderer '
-                            'configuration statement was found')
-        type = Attribute('The renderer type name')
-        registry = Attribute('The "current" application registry when the '
-                             'renderer was created')
-        settings = Attribute('The ISettings dictionary related to the '
-                             'current app')
-        '''
-        return info.settings['genshi_renderer']
     settings = config.get_settings()
-    settings['genshi_renderer'] = GenshiTemplateRenderer(settings)
-    config.add_renderer(extension, renderer_factory)
+    # By default, the translation domain is the application name:
+    settings.setdefault('genshi.translation_domain', config.registry.__name__)
+    # TODO: Evaluate pyramid_genshi which maps to TranslationString calls.
+
+    # The renderer must be available to views so fragment templates can be
+    # rendered. So we store it in the settings object:
+    renderer = settings['genshi_renderer'] = GenshiTemplateRenderer(settings)
+
+    def factory(info):
+        '''info.name is the value passed by the user as the renderer name.
+
+        info.package is the "current package" when the renderer configuration
+        statement was found.
+
+        info.type is the renderer type name, i.e. ".genshi".
+
+        info.registry is the "current" application registry when
+        the renderer was created.
+
+        info.settings is the ISettings dictionary related to the current app.
+        '''
+        return renderer
+    extension = settings.get('genshi.extension', '.genshi')
+    config.add_renderer(extension, factory)

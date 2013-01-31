@@ -10,7 +10,7 @@ To enable the pyramid_kajiki extension, do this:
 
 .. code-block:: python
 
-    from mootiro_web.pyramid_kajiki import enable_kajiki
+    from bag.web.pyramid.kajiki import enable_kajiki
     enable_kajiki(config)
 
 After this, files with these file extensions are considered to be
@@ -37,7 +37,7 @@ from pyramid.interfaces import ITemplateRenderer
 from pyramid.resource import abspath_from_resource_spec
 
 
-implementer(ITemplateRenderer)
+@implementer(ITemplateRenderer)
 class KajikiTemplateRenderer(object):
     def __init__(self, info):
         self.loader = info.registry.kajiki_loader

@@ -170,18 +170,6 @@ class PyramidStarter(object):
         for extension in ('.txt', '.xml', '.html', '.html5'):
             self.config.add_renderer(extension, renderer_factory)
 
-    def enable_genshi(self):
-        '''Allows us to use the Genshi templating language.
-        We intend to switch to Kajiki down the road, therefore it would be
-        best to avoid py:match.
-        '''
-        sd = self.settings.setdefault
-        sd('genshi.translation_domain', self.package_name)
-        sd('genshi.doctype', 'html5')
-        sd('genshi.method', 'xhtml')
-        from .genshi import enable_genshi
-        enable_genshi(self.config)
-
     def enable_deform(self, template_dirs):
         from .deform import setup
         setup(template_dirs)
