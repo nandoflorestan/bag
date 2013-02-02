@@ -105,14 +105,13 @@ def create_contact_view(config, BaseView=BaseView, route_name='contact',
                 widget=d.widget.TextInputWidget(size=60, maxlength=160))
             message = c.SchemaNode(c.Str(), title=_('Message'),
                     widget=d.widget.TextAreaWidget(cols=60, rows=12))
-
-        if len_name:
-            ContactSchema.name.widget.maxlength = len_name.get('max')
-            ContactSchema.name.validator = c.Length(**len_name)
-        if len_subject:
-            ContactSchema.subject.validator = c.Length(**len_subject)
-        if len_message:
-            ContactSchema.message.validator = c.Length(**len_message)
+            if len_name:
+                name.widget.maxlength = len_name.get('max')
+                name.validator = c.Length(**len_name)
+            if len_subject:
+                subject.validator = c.Length(**len_subject)
+            if len_message:
+                message.validator = c.Length(**len_message)
     return ContactView
 
 
