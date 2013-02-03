@@ -51,6 +51,8 @@ def verify_csrf(func):
 
 def monkeypatch_colander():
     '''Alter Colander 0.9.7 to introduce the more useful asdict2() method.
+
+    (Still works with Colander 1.0a2, as shown by running the tests.)
     '''
     print('Adding asdict2() to Colander.')
     import colander as c

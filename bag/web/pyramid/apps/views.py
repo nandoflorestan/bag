@@ -48,10 +48,11 @@ class BaseViewForDeform(BaseView):
         '''
         import colander as c
         d = {}
+
         if isinstance(key_provider, basestring):
             key_provider = uncommafy(key_provider)
         elif not issubclass(key_provider, list):
-            key_provider = [n.name for n in key_provider.nodes]
+            key_provider = [n.name for n in key_provider.__all_schema_nodes__]
         for k in key_provider:
             val = getattr(model, k, undefined)
             if val is undefined:
