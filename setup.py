@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     test_suite='bag.tests',
     install_requires=['six'],
-    keywords=["python", 'pyramid', 'deform', 'sqlalchemy', 'HTML', 'CSV',
+    keywords=["python", 'pyramid', 'sqlalchemy', 'HTML', 'CSV',
                 'translation', 'i18n', 'internationalization', 'file hash',
                 'encoding', 'codecs', 'text', 'console'],
     classifiers=[  # http://pypi.python.org/pypi?:action=list_classifiers

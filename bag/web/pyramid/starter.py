@@ -168,12 +168,6 @@ class PyramidStarter(object):
         for extension in ('.txt', '.xml', '.html', '.html5'):
             self.config.add_renderer(extension, renderer_factory)
 
-    def enable_deform(self, template_dirs):
-        from .deform import setup
-        setup(template_dirs)
-        self.config.add_static_view('deform', 'deform:static')
-        self.config.add_translation_dirs('colander:locale', 'deform:locale')
-
     def enable_favicon(self, path='static/favicon.ico'):
         '''Registers a view that serves /favicon.ico.
 
