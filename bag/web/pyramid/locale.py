@@ -69,7 +69,7 @@ from babel import Locale
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name, default_locale_negotiator
-from ...six import *  # for Python 2 and 3 compatibility
+from ...six import compat23, PY2  # for Python 2 and 3 compatibility
 from . import _
 
 SETTING_NAME = 'bag.locale.enable'
@@ -137,11 +137,21 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
     return langs
 
 
-def locale_cookie_headers(locale_code):
-    '''Returns HTTP headers setting the cookie that sets the Pyramid locale.'''
-    return [('Set-Cookie',
-        '_LOCALE_={0}; expires=Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(
-        locale_code))]
+# waitress expects bytes on Python 2 and unicode on Python 3:
+if PY2:
+    def locale_cookie_headers(locale_code):
+        '''Returns HTTP headers setting the cookie that stores the
+        Pyramid locale.
+        '''
+        return [(b'Set-Cookie', b'_LOCALE_={0}; expires='
+            b'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code))]
+else:
+    def locale_cookie_headers(locale_code):
+        '''Returns HTTP headers setting the cookie that stores the
+        Pyramid locale.
+        '''
+        return [('Set-Cookie', '_LOCALE_={0}; expires='
+            'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code))]
 
 
 def locale_view(request):

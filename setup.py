@@ -40,7 +40,7 @@ setup(
         "Framework :: Pylons",
         'Topic :: Database',
         "Topic :: Internet :: WWW/HTTP",
-        'Topic :: Internet :: WWW/HTTP :: WSGI'
+        'Topic :: Internet :: WWW/HTTP :: WSGI',
         'Topic :: Multimedia :: Graphics :: Graphics Conversion',
         "Topic :: Software Development :: Libraries :: Python Modules",
         'Topic :: Text Processing :: General',
