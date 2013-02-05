@@ -1,66 +1,66 @@
 # Portuguese (Brazil) translations for bag.
-# Copyright (C) 2012 ORGANIZATION
+# Copyright (C) 2013 Nando Florestan
 # This file is distributed under the same license as the bag project.
-# Nando Florestan <nandoflorestan@gmail.com>, 2012.
+# Nando Florestan <nandoflorestan@gmail.com>, 2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bag 0.2.0dev\n"
+"Project-Id-Version: bag 0.3\n"
 "Report-Msgid-Bugs-To: nandoflorestan@gmail.com\n"
-"POT-Creation-Date: 2012-03-02 09:49-0300\n"
-"PO-Revision-Date: 2012-03-02 09:50-0300\n"
+"POT-Creation-Date: 2013-02-05 01:02-0200\n"
+"PO-Revision-Date: 2013-02-05 09:50-0300\n"
 "Last-Translator: Nando Florestan <nandoflorestan@gmail.com>\n"
 "Language-Team: Portuguese <>\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=2; plural=(n!=1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bits\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: bag/web/pyramid/deform.py:30
-msgid "Submit"
-msgstr "Enviar"
+#: bag/csv3.py:55
+msgid "The CSV file is missing the required header: "
+msgstr "Falta ao arquivo CSV o cabeçalho obrigatório: "
 
-#: bag/web/pyramid/locale.py:227
-#| msgid "--Choose--"
-msgid "- Choose -"
-msgstr "- Escolher -"
+#: bag/csv3.py:57
+msgid "The CSV file is missing the required headers: "
+msgstr "Faltam ao arquivo CSV os cabeçalhos obrigatórios: "
 
-#: bag/web/pyramid/locale.py:246
-msgid "Please select a language."
-msgstr "Por gentileza escolha uma língua."
-
-#: bag/web/pyramid/locale.py:250
-msgid "Locale"
-msgstr "Locale"
-
-#: bag/web/pyramid/locale.py:261
-msgid "--Choose--"
-msgstr "--Escolher--"
-
-#: bag/web/pyramid/apps/contact/__init__.py:51
+#: bag/web/pyramid/apps/contact/__init__.py:52
 msgid "Send email"
 msgstr "Enviar email"
 
-#: bag/web/pyramid/apps/contact/__init__.py:55
+#: bag/web/pyramid/apps/contact/__init__.py:56
 msgid "Contact"
 msgstr "Contato"
 
-#: bag/web/pyramid/apps/contact/__init__.py:106
+#: bag/web/pyramid/apps/contact/__init__.py:99
 msgid "Name"
 msgstr "Nome"
 
-#: bag/web/pyramid/apps/contact/__init__.py:108
+#: bag/web/pyramid/apps/contact/__init__.py:101
 msgid "Email"
-msgstr "E-mail"
+msgstr "Email"
 
-#: bag/web/pyramid/apps/contact/__init__.py:111
+#: bag/web/pyramid/apps/contact/__init__.py:104
 msgid "Subject"
 msgstr "Assunto"
 
-#: bag/web/pyramid/apps/contact/__init__.py:113
+#: bag/web/pyramid/apps/contact/__init__.py:106
 msgid "Message"
 msgstr "Mensagem"
 
-#~ msgid "Send"
-#~ msgstr "Enviar"
+#: bag/web/pyramid/apps/contact/contact.genshi:12
+msgid "Thank you, your message has been sent."
+msgstr "Obrigado, sua mensagem foi enviada."
+
+#: bag/web/pyramid/locale.py:229 bag/web/pyramid/locale.py:266
+msgid "- Choose -"
+msgstr "- Escolha -"
+
+#: bag/web/pyramid/locale.py:252
+msgid "Please select a language."
+msgstr "Por favor selecione uma língua."
+
+#: bag/web/pyramid/locale.py:256
+msgid "Locale"
+msgstr "Locale"

@@ -1,5 +1,2 @@
-include README.txt
-recursive-include bag/locale *.*
-include bag/web/transecma.js
-recursive-include bag/web/deform/templates  *.*
-include bag/web/pyramid/apps/contact/contact.genshi
+# http://docs.python.org/2/distutils/sourcedist.html#the-manifest-in-template
+recursive-include bag *.py *.css *.html *.js *.md *.pt *.genshi *.txt *.pot *.po *.mo

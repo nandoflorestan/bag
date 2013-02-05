@@ -1,63 +1,48 @@
-# Translations template for bag.
-# Copyright (C) 2012 ORGANIZATION
-# This file is distributed under the same license as the bag project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: bag 0.2.1dev\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-03-02 09:49-0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
-
-#: bag/web/pyramid/deform.py:30
-msgid "Submit"
+#: bag/csv3.py:55
+msgid "The CSV file is missing the required header: "
 msgstr ""
 
-#: bag/web/pyramid/locale.py:227
-msgid "- Choose -"
+#: bag/csv3.py:57
+msgid "The CSV file is missing the required headers: "
 msgstr ""
 
-#: bag/web/pyramid/locale.py:246
-msgid "Please select a language."
-msgstr ""
-
-#: bag/web/pyramid/locale.py:250
-msgid "Locale"
-msgstr ""
-
-#: bag/web/pyramid/locale.py:261
-msgid "--Choose--"
-msgstr ""
-
-#: bag/web/pyramid/apps/contact/__init__.py:51
+#: bag/web/pyramid/apps/contact/__init__.py:52
 msgid "Send email"
 msgstr ""
 
-#: bag/web/pyramid/apps/contact/__init__.py:55
+#: bag/web/pyramid/apps/contact/__init__.py:56
 msgid "Contact"
 msgstr ""
 
-#: bag/web/pyramid/apps/contact/__init__.py:106
+#: bag/web/pyramid/apps/contact/__init__.py:99
 msgid "Name"
 msgstr ""
 
-#: bag/web/pyramid/apps/contact/__init__.py:108
+#: bag/web/pyramid/apps/contact/__init__.py:101
 msgid "Email"
 msgstr ""
 
-#: bag/web/pyramid/apps/contact/__init__.py:111
+#: bag/web/pyramid/apps/contact/__init__.py:104
 msgid "Subject"
 msgstr ""
 
-#: bag/web/pyramid/apps/contact/__init__.py:113
+#: bag/web/pyramid/apps/contact/__init__.py:106
 msgid "Message"
+msgstr ""
+
+#: bag/web/pyramid/apps/contact/contact.genshi:12
+msgid "Thank you, your message has been sent."
+msgstr ""
+
+#: bag/web/pyramid/locale.py:229 bag/web/pyramid/locale.py:266
+msgid "- Choose -"
+msgstr ""
+
+#: bag/web/pyramid/locale.py:252
+msgid "Please select a language."
+msgstr ""
+
+#: bag/web/pyramid/locale.py:256
+msgid "Locale"
 msgstr ""
 

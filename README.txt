@@ -1,6 +1,7 @@
 http://code.google.com/p/bag
 
-Copyright (c) 2011, Nando Florestan
+Copyright (c) 2013, Nando Florestan
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
