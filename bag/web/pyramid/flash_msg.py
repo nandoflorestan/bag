@@ -12,16 +12,12 @@
     # This allows you to do, in templates:
     # ${request.render_flash_messages()}
     # ...and the messages will appear with Bootstrap styling.
-
-You can set QUEUES to something else if you like, from user code.
 '''
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 from cgi import escape
 from ...six import compat23, unicode
-
-QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
 def bootstrap_msg(text, kind='warning', block=False):
@@ -63,7 +59,10 @@ def render_flash_messages_from_queues(request):
     '''This method is for compatibility with other systems only.
     Some developers are using queues named after bootstrap message flavours.
     I think my system (using only the default queue '') is better,
+    because FlashMessage already supports a ``kind`` attribute,
     but this function provides a way to display their flash messages, too.
+
+    You can set QUEUES to something else if you like, from user code.
     '''
     msgs = []
     for q in QUEUES:
@@ -72,6 +71,8 @@ def render_flash_messages_from_queues(request):
                 else bootstrap_msg(m, q)
             msgs.append(html)
     return ''.join(msgs)
+
+QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
 def includeme(config):
