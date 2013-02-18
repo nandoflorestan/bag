@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''A little plugin supporting human language alternation in Pyramid.
@@ -69,7 +68,8 @@ from babel import Locale
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name, default_locale_negotiator
-from ...six import compat23, PY2  # for Python 2 and 3 compatibility
+from six import iteritems, string_types
+from ...six import compat23  # for Python 2 and 3 compatibility
 from . import _
 
 SETTING_NAME = 'bag.locale.enable'
@@ -100,7 +100,7 @@ locale_titles = dict(
     pt_BR='Mudar para português do Brasil',
     es='Cambiar a español',
     de='Auf Deutsch benutzen',
-)  # Please help us: send more entries to this dict
+    )  # Please help us: send more entries to this dict
 
 
 class LocaleDict(OrderedDict):
@@ -137,21 +137,14 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
     return langs
 
 
-# waitress expects bytes on Python 2 and unicode on Python 3:
-if PY2:
-    def locale_cookie_headers(locale_code):
-        '''Returns HTTP headers setting the cookie that stores the
-        Pyramid locale.
-        '''
-        return [(b'Set-Cookie', b'_LOCALE_={0}; expires='
-            b'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code))]
-else:
-    def locale_cookie_headers(locale_code):
-        '''Returns HTTP headers setting the cookie that stores the
-        Pyramid locale.
-        '''
-        return [('Set-Cookie', '_LOCALE_={0}; expires='
-            'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code))]
+def locale_cookie_headers(locale_code):
+    '''Returns HTTP headers setting the cookie that stores the
+    Pyramid locale.
+    '''
+    # str() calls below are because this module uses unicode literals and
+    # waitress expects bytes in Python 2 and unicode in Python 3.
+    return [(str('Set-Cookie'), str('_LOCALE_={0}; expires='
+        'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code)))]
 
 
 def locale_view(request):
@@ -234,13 +227,14 @@ def sorted_countries(arg, top_entry=True):  # TODO memoized version
     ready for inclusion in your web form.
     '''
     code = arg if isinstance(arg, string_types) else get_locale_name(arg)
+
     def generator(territories):
         if top_entry:
-            yield (b'', _("- Choose -"))
+            yield (str(''), _("- Choose -"))  # TODO translate somehow
         for tup in territories:
             if len(tup[0]) == 2:  # Keep only countries
                 yield tup
-    return sorted(iteritems(generator(Locale(code).territories)),
+    return sorted(generator(iteritems(Locale(code).territories)),
         key=lambda x: x[1])
 
 
@@ -264,7 +258,7 @@ def locale_exists_validator(settings):
 
 
 def language_dropdown(settings, title=_('Locale'), name='locale',
-                      blank_option_at_top=True):
+    blank_option_at_top=True):
     '''If you use Deform, you can use this to get a SchemaNode that lets
     the user select a locale from the enabled ones.
     '''
