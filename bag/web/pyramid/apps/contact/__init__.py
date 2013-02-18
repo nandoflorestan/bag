@@ -100,7 +100,8 @@ def create_contact_view(config, BaseView=BaseView, route_name='contact',
                 widget=d.widget.TextInputWidget(size=60, maxlength=160))
             email = c.SchemaNode(c.Str(), title=_('Email'),
                 validator=c.Email(),
-                widget=d.widget.TextInputWidget(size=50, maxlength=160))
+                widget=d.widget.TextInputWidget(size=50, maxlength=160,
+                    type='email'))
             subject = c.SchemaNode(c.Str(), title=_('Subject'),
                 widget=d.widget.TextInputWidget(size=60, maxlength=160))
             message = c.SchemaNode(c.Str(), title=_('Message'),
