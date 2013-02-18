@@ -1,13 +1,11 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 
 __url__ = 'http://code.google.com/p/bag'
-__version__ = "0.3"
+__version__ = '0.3.1'
 __license__ = 'BSD'
-__author__ = 'Nando Florestan'
 __copyright__ = 'Copyright (C) 2013 Nando Florestan'
 __long_description__ = '''
 Functions and classes for many purposes,
@@ -42,6 +40,7 @@ Most important library contents
 If you use the Pyramid web framework
 ====================================
 
+* **bag.web.pyramid.flash_msg** -- Advanced flash messages scheme for Pyramid.
 * **bag.web.pyramid.locale** -- Easily enable and disable locales,
   let users switch languages, and use the browser's languages by default.
 * **bag.web.pyramid.plugins_manager** -- Make your Pyramid app extensible

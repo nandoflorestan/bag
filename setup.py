@@ -9,7 +9,7 @@ import bag
 setup(
     url=bag.__url__,
     name="bag",
-    author=bag.__author__,
+    author='Nando Florestan',
     version=bag.__version__,
     license=bag.__license__,
     packages=find_packages(),
