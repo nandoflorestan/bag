@@ -37,13 +37,12 @@ class FlashMessage(object):
     def __init__(self, request, text, kind='warning', block=False,
             allow_duplicate=False):
         '''*block* should be True for multiline text.'''
-        if not kind in self.KINDS:
-            raise RuntimeError("Unknown kind of alert: \"{}\". " \
-                "Possible kinds are {}".format(kind, self.KINDS))
+        assert kind in self.KINDS, "Unknown kind of alert: \"{}\". " \
+                "Possible kinds are {}".format(kind, self.KINDS)
         self.kind = kind
         self.text = text
         self.block = block
-        request.session.flash(self, kind, allow_duplicate=allow_duplicate)
+        request.session.flash(self, allow_duplicate=allow_duplicate)
 
     def __unicode__(self):
         return bootstrap_msg(self.text, self.kind, self.block)
@@ -78,8 +77,23 @@ QUEUES = set(['error', 'warning', 'info', 'success', ''])
 def includeme(config):
     '''Make the request object capable of rendering the flash messages.
 
-    Better to have this in the request, not in the views;
+    We put ``render_flash_messages()`` in the request, not in some base view;
     this way, overridden templates can use it, too.
+
+    If you want to use the queues feature (not recommended), add this
+    configuration setting:
+
+        bag.flash.use_queues = true
     '''
-    config.add_request_method(callable=render_flash_messages_from_queues,
-        name='render_flash_messages')
+    from pyramid.settings import asbool
+    use_queues = config.registry.settings.get('bag.flash.use_queues', False)
+    fn = render_flash_messages_from_queues if asbool(use_queues) \
+        else render_flash_messages
+
+    from pkg_resources import get_distribution
+    if get_distribution('pyramid').version.startswith('1.3'):
+        config.set_request_property(fn, name=str('render_flash_messages'))
+        # str() call above is because Pyramid demands the native string type.
+    else:  # In Pyramid 1.4 and beyond, use *add_request_method*
+        config.add_request_method(callable=fn,
+            name=str('render_flash_messages'))
