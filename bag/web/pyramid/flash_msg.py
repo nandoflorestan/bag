@@ -85,6 +85,9 @@ def includeme(config):
 
         bag.flash.use_queues = true
     '''
+    global included
+    if included:
+        return
     from pyramid.settings import asbool
     use_queues = config.registry.settings.get('bag.flash.use_queues', False)
     fn = render_flash_messages_from_queues if asbool(use_queues) \
@@ -97,3 +100,5 @@ def includeme(config):
     else:  # In Pyramid 1.4 and beyond, use *add_request_method*
         config.add_request_method(callable=fn,
             name=str('render_flash_messages'))
+    included = True
+included = False

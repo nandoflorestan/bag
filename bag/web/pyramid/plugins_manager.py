@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
@@ -120,7 +119,8 @@ class PluginsManager(object):
                 # Calculate the static dir if not provided
                 package_dir = os.path.dirname(getsourcefile(gilpun.__class__))
                 source = os.path.join(package_dir, 'static')
-                if not os.path.isdir(source):  continue
+                if not os.path.isdir(source):
+                    continue
             # print('symlinking', source)
             dest = os.path.join(destination_dir, name.replace(' ', '_'))
             if os.path.exists(dest):

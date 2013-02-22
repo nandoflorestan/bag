@@ -1,65 +1,66 @@
 # -*- coding: utf-8 -*-
 
 '''A little plugin supporting human language alternation in Pyramid.
-It lets you enable and disable locales (as your translations allow)
-in the configuration file.
+    It lets you enable and disable locales (as your translations allow)
+    in the configuration file.
 
-This module also offers *BaseLocalizedView*, a useful mixin class for
-your application's base view.
+    This module also offers *BaseLocalizedView*, a useful mixin class for
+    your application's base view.
 
-Enabling the module in 2 steps
-------------------------------
+    Enabling the module in 2 steps
+    ------------------------------
 
-1) Add a setting to your .ini file with the locales you want to enable,
-such as::
+    1) Add a setting to your .ini file with the locales you want to enable,
+    such as::
 
-    bag.locale.enable = en pt_BR es de fr
+        bag.locale.enable = en pt_BR es de fr
 
-2) Add to your initialization file::
+    2) Add to your initialization file::
 
-    config.include('bag.web.pyramid.locale')
+        config.include('bag.web.pyramid.locale')
 
-Effects of enabling this module as described above
---------------------------------------------------
+    Effects of enabling this module as described above
+    --------------------------------------------------
 
-1) A view is registered so the user can, for instance, browse to
-/locale/pt_BR
-in order to change the locale to Brazilian Portuguese.
-This works by setting the locale cookie.
+    1) A view is registered so the user can, for instance, browse to
+    /locale/pt_BR
+    in order to change the locale to Brazilian Portuguese.
+    This works by setting the locale cookie.
 
-2) To improve the experience of first-time visitors,
-a locale negotiator is registered that checks the browser's stated
-preferred languages against the "bag.locale.enable" setting in the .ini file.
+    2) To improve the experience of first-time visitors, a locale negotiator
+    is registered that checks the browser's stated preferred languages
+    against the "bag.locale.enable" setting in the .ini file.
 
-3) The "bag.locale.enable" setting
-is replaced with an OrderedDictionary that is useful
-for you to build a user interface for locale choice.
+    3) The "bag.locale.enable" setting
+    is replaced with an OrderedDictionary that is useful
+    for you to build a user interface for locale choice.
 
-4) In templates, that dictionary is available as *enabled_locales*.
+    4) In templates, that dictionary is available as *enabled_locales*.
 
-For instance, you might do this in your template to list the
-available locales so the user can click and change languages:
+    For instance, you might do this in your template to list the
+    available locales so the user can click and change languages:
 
-.. code-block:: html
+    .. code-block:: html
 
-    <span class='languages-selector'
-        py:with="locales = enabled_locales.values()">
-      <py:for each="loc in locales">
-        <a href="${url('locale', locale=loc.code)}"
-           title="${loc.title}"
-           py:strip="locale_code == loc.code"
-           py:content="loc.code[:2]" />
-        <span py:if="not loc is locales[-1]" class="separator">|</span>
-      </py:for>
-    </span>
+        <span class='languages-selector'
+            py:with="locales = enabled_locales.values()">
+          <py:for each="loc in locales">
+            <a href="${url('locale', locale=loc.code)}"
+               title="${loc.title}"
+               py:strip="locale_code == loc.code"
+               py:content="loc.code[:2]" />
+            <span py:if="not loc is locales[-1]" class="separator">|</span>
+          </py:for>
+        </span>
 
-5) In your master template, you can set the 2 lang attributes
-on the <html> tag::
+    5) In your master template, you can set the 2 lang attributes
+    on the <html> tag::
 
-    xml:lang="${locale_code[:2]}" lang="${locale_code[:2]}"
+        xml:lang="${locale_code[:2]}" lang="${locale_code[:2]}"
 
-...because the variable "locale_code" is made available to template context.
-'''
+    ...because the variable ``locale_code`` is made available to
+    template context.
+    '''
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
@@ -78,7 +79,7 @@ SETTING_NAME = 'bag.locale.enable'
 @compat23
 class LocaleInfo(object):
     def __init__(self, code, display_name, english_name, title=None,
-                 babel_locale=None):
+        babel_locale=None):
         self.code = code
         self.display_name = display_name
         self.english_name = english_name
@@ -200,12 +201,16 @@ def add_template_globals(event):
 
 
 def includeme(config):
-    prepare_enabled_locales(config.get_settings())
-    config.set_locale_negotiator(locale_negotiator)
-    config.add_route('locale', 'locale/{locale}')
-    config.add_view(locale_view, route_name='locale')
-    from pyramid.interfaces import IBeforeRender
-    config.add_subscriber(add_template_globals, IBeforeRender)
+    global included
+    if not included:
+        prepare_enabled_locales(config.get_settings())
+        config.set_locale_negotiator(locale_negotiator)
+        config.add_route('locale', 'locale/{locale}')
+        config.add_view(locale_view, route_name='locale')
+        from pyramid.interfaces import IBeforeRender
+        config.add_subscriber(add_template_globals, IBeforeRender)
+        included = True
+included = False
 
 
 class BaseLocalizedView(object):

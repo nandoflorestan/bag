@@ -185,6 +185,9 @@ class GenshiTemplateRenderer(object):
 
 def includeme(config):
     '''Easily integrates Genshi template rendering into Pyramid.'''
+    global included
+    if included:
+        return
     settings = config.get_settings()
     # By default, the translation domain is the application name:
     settings.setdefault('genshi.translation_domain', config.registry.__name__)
@@ -210,3 +213,5 @@ def includeme(config):
         return renderer
     extension = settings.get('genshi.extension', '.genshi')
     config.add_renderer(extension, factory)
+    included = True
+included = False
