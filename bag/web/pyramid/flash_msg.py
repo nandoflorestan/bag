@@ -115,12 +115,11 @@ def includeme(config):
     fn = render_flash_messages_from_queues if asbool(use_queues) \
         else render_flash_messages
 
-    from pkg_resources import get_distribution
-    if get_distribution('pyramid').version.startswith('1.3'):
-        config.set_request_property(fn, name=str('render_flash_messages'))
-        # str() call above is because Pyramid demands the native string type.
-    else:  # In Pyramid 1.4 and beyond, use *add_request_method*
+    if hasattr(config, 'add_request_method'):  # Pyramid 1.4+
         config.add_request_method(callable=fn,
             name=str('render_flash_messages'))
+    else:  # Pyramid 1.3
+        config.set_request_property(fn, name=str('render_flash_messages'))
+        # str() call above is because Pyramid demands the native string type.
     included = True
 included = False
