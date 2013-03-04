@@ -66,6 +66,10 @@ class FlashMessage(object):
         self.block = block
         request.session.flash(self, allow_duplicate=allow_duplicate)
 
+    def __repr__(self):
+        return 'FlashMessage(req, "{}", kind="{}")'.format(
+            self.text, self.kind)
+
     def __unicode__(self):
         return bootstrap_msg(self.text, self.kind, self.block)
 
@@ -115,7 +119,7 @@ def includeme(config):
         else render_flash_messages
 
     def on_before_render(event):
-        event['render_flash_messages'] = fn
+        event['render_flash_messages'] = lambda: fn(event['request'])
 
     config.add_subscriber(on_before_render, BeforeRender)
     included = True
