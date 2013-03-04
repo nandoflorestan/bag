@@ -2,16 +2,38 @@
 
 '''Advanced flash messages scheme for Pyramid.
 
+Many people use the queues of flash messages to separate them by their level
+(error, warning, info or success) in code such as this::
+
+    request.session.flash(str(e), 'error')
+
+The problem with this is that messages won't appear in the order in which
+they were created. Because each queue is processed separately in the
+template, order is lost and messages are grouped by kind.
+
+Our solution: we store the level *with* the message, so you can create your
+flash messages as bootstrap alerts *in a single queue* like this::
+
     from bag.web.pyramid.flash_msg import FlashMessage
     FlashMessage(request,
         "You can enqueue a message simply by instantiating a FlashMessage.",
         kind='warning')
 
-    # At app initialization:
+An additional feature is available if you add this to your app initialization::
+
     config.include('bag.web.pyramid.flash_msg')
-    # This allows you to do, in templates:
-    # ${request.render_flash_messages()}
-    # ...and the messages will appear with Bootstrap styling.
+
+Then you can simply do, in templates:
+
+    ${request.render_flash_messages()}
+
+...to render the messages with Bootstrap styling.
+
+If you don't like that I am generating HTML in Python, or if you just
+want some additional styling, then you can just loop over the flash messages
+in your template (now you only need one queue) and use
+FlashMessage's instance variables to render the
+bootstrap alerts just the way you want them.
 '''
 
 from __future__ import (absolute_import, division, print_function,

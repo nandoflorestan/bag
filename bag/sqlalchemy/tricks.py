@@ -17,6 +17,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
 from ..web import gravatar_image
 
+# http://docs.sqlalchemy.org/en/latest/orm/session.html#cascades
 CASC = 'all, delete-orphan'
 
 
@@ -60,15 +61,17 @@ def fk(attrib, nullable=False, index=True):
                    nullable=nullable, index=index)
 
 
-def fk_rel(cls, backref, attrib='pk', nullable=False, index=True):
+def fk_rel(cls, backref=None, attrib='pk', nullable=False, index=True):
     '''Returns a ForeignKey column and a relationship,
     while automatically setting the type of the foreign key.
 
-    Usage:
+    Usage::
 
         # A relationship in an Address model:
         person_id, person = fk_rel(Person, 'addresses',
             nullable=False, index=True)
+        # *nullable* and *index* are usually ommited, because
+        # these are the default values and they are good.
     '''
     return (fk(getattr(cls, attrib), nullable=nullable, index=index),
         relationship(cls, backref=backref))
