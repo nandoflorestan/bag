@@ -15,7 +15,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     author_email="nandoflorestan@gmail.com",
-    download_url="http://code.google.com/p/bag/downloads/list",
+    # download_url="http://code.google.com/p/bag/downloads/list",
     description="A library for many purposes, including javascript i18n "
                   "and stuff for the Pyramid web framework.",
     long_description=bag.__long_description__,
