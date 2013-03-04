@@ -2,39 +2,39 @@
 
 '''Advanced flash messages scheme for Pyramid.
 
-Many people use the queues of flash messages to separate them by their level
-(error, warning, info or success) in code such as this::
+    Many people use the queues of flash messages to separate them by level
+    (error, warning, info or success) in code such as this::
 
-    request.session.flash(str(e), 'error')
+        request.session.flash(str(e), 'error')
 
-The problem with this is that messages won't appear in the order in which
-they were created. Because each queue is processed separately in the
-template, order is lost and messages are grouped by kind.
+    The problem with this is that messages won't appear in the order in which
+    they were created. Because each queue is processed separately in the
+    template, order is lost and messages are grouped by kind.
 
-Our solution: we store the level *with* the message, so you can create your
-flash messages as bootstrap alerts *in a single queue* like this::
+    Our solution: we store the level *with* the message, so you can create
+    flash messages as bootstrap alerts *in a single queue* like this::
 
-    from bag.web.pyramid.flash_msg import FlashMessage
-    FlashMessage(request,
-        "You can enqueue a message simply by instantiating a FlashMessage.",
-        kind='warning')
+        from bag.web.pyramid.flash_msg import FlashMessage
+        FlashMessage(request,
+            "You can enqueue a message simply by instantiating FlashMessage.",
+            kind='warning')
 
-An additional feature is available if you add this to your app initialization::
+    An additional feature is available if you do this at configuration time::
 
-    config.include('bag.web.pyramid.flash_msg')
+        config.include('bag.web.pyramid.flash_msg')
 
-Then you can simply do, in templates:
+    Then you can simply do, in templates:
 
-    ${request.render_flash_messages()}
+        ${render_flash_messages()}
 
-...to render the messages with Bootstrap styling.
+    ...to render the messages with Bootstrap styling.
 
-If you don't like that I am generating HTML in Python, or if you just
-want some additional styling, then you can just loop over the flash messages
-in your template (now you only need one queue) and use
-FlashMessage's instance variables to render the
-bootstrap alerts just the way you want them.
-'''
+    If you don't like that I am generating HTML in Python, or if you want
+    some additional content or style, then you can just loop over the
+    flash messages in your template (now you only need one queue) and use
+    FlashMessage's instance variables to render the
+    bootstrap alerts just the way you want them.
+    '''
 
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
@@ -97,10 +97,7 @@ QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
 def includeme(config):
-    '''Make the request object capable of rendering the flash messages.
-
-    We put ``render_flash_messages()`` in the request, not in some base view;
-    this way, overridden templates can use it, too.
+    '''Make a render_flash_messages() function available to every template.
 
     If you want to use the queues feature (not recommended), add this
     configuration setting:
@@ -110,16 +107,16 @@ def includeme(config):
     global included
     if included:
         return
+
+    from pyramid.events import BeforeRender
     from pyramid.settings import asbool
     use_queues = config.registry.settings.get('bag.flash.use_queues', False)
     fn = render_flash_messages_from_queues if asbool(use_queues) \
         else render_flash_messages
 
-    if hasattr(config, 'add_request_method'):  # Pyramid 1.4+
-        config.add_request_method(callable=fn,
-            name=str('render_flash_messages'))
-    else:  # Pyramid 1.3
-        config.set_request_property(fn, name=str('render_flash_messages'))
-        # str() call above is because Pyramid demands the native string type.
+    def on_before_render(event):
+        event['render_flash_messages'] = fn
+
+    config.add_subscriber(on_before_render, BeforeRender)
     included = True
 included = False
