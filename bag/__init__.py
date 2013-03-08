@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 
 __url__ = 'http://code.google.com/p/bag'
-__version__ = '0.3.3dev'
+__version__ = '0.3.3'
 __license__ = 'BSD'
 __copyright__ = 'Copyright (C) 2013 Nando Florestan'
 __long_description__ = '''

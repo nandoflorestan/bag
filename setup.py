@@ -17,7 +17,7 @@ setup(
     author_email="nandoflorestan@gmail.com",
     # download_url="http://code.google.com/p/bag/downloads/list",
     description="A library for many purposes, including javascript i18n "
-                  "and stuff for the Pyramid web framework.",
+                "and stuff for the Pyramid web framework.",
     long_description=bag.__long_description__,
     zip_safe=False,
     test_suite='bag.tests',
@@ -44,7 +44,7 @@ setup(
         'Topic :: Multimedia :: Graphics :: Graphics Conversion',
         "Topic :: Software Development :: Libraries :: Python Modules",
         'Topic :: Text Processing :: General',
-        ],
+    ],
     entry_points='''
 [babel.extractors]
 jquery_templates = bag.web.transecma:extract_jquery_templates
