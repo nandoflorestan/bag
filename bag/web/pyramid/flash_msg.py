@@ -2,8 +2,8 @@
 
 '''Advanced flash messages scheme for Pyramid.
 
-    Many people use the queues of flash messages to separate them by level
-    (error, warning, info or success) in code such as this::
+    Some developers have been using the queues of flash messages to separate
+    them by level (error, warning, info or success) in code such as this::
 
         request.session.flash(str(e), 'error')
 
@@ -39,13 +39,13 @@
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 from cgi import escape
-from ...six import compat23, unicode
+from ...six import compat23
 
 
-def bootstrap_msg(text, kind='warning', block=False):
+def bootstrap_msg(plain=None, rich=None, kind='warning'):
     return '<div class="alert alert-{0}{1}"><button type="button" ' \
-        'class="close" data-dismiss="alert">×</button>{2}</div>\n' \
-        .format(escape(kind), ' alert-block' if block else '', escape(text))
+        'class="close" data-dismiss="alert">×</button>{2}</div>\n'.format(
+        escape(kind), ' alert-block' if rich else '', rich or escape(plain))
 
 
 @compat23
@@ -53,30 +53,38 @@ class FlashMessage(object):
     '''A flash message that renders in Twitter Bootstrap 2.1 style.
     To register a message, simply instantiate it.
     '''
-    __slots__ = 'kind text block'.split()
+    __slots__ = ('kind', 'plain', 'rich')
+
+    def __getstate__(self):
+        '''Because we are using __slots__, pickling needs this method.'''
+        return {'kind': self.kind, 'plain': self.plain, 'rich': self.rich}
+
     KINDS = set(['error', 'warning', 'info', 'success'])
 
-    def __init__(self, request, text, kind='warning', block=False,
-            allow_duplicate=False):
-        '''*block* should be True for multiline text.'''
+    def __init__(self, request, plain=None, rich=None, kind='warning',
+                 allow_duplicate=False):
+        assert (plain and not rich) or (rich and not plain)
         assert kind in self.KINDS, "Unknown kind of alert: \"{}\". " \
-                "Possible kinds are {}".format(kind, self.KINDS)
+            "Possible kinds are {}".format(kind, self.KINDS)
         self.kind = kind
-        self.text = text
-        self.block = block
+        self.rich = rich
+        self.plain = plain
         request.session.flash(self, allow_duplicate=allow_duplicate)
 
     def __repr__(self):
-        return 'FlashMessage(req, "{}", kind="{}")'.format(
-            self.text, self.kind)
+        return 'FlashMessage("{}")'.format(self.plain)
 
     def __unicode__(self):
-        return bootstrap_msg(self.text, self.kind, self.block)
+        return self.rich or self.plain
+
+    @property
+    def html(self):
+        return bootstrap_msg(self.plain, self.rich, self.kind)
 
 
 def render_flash_messages(request):
     msgs = request.session.pop_flash()  # Pops from the empty string queue
-    return ''.join([unicode(m) if isinstance(m, FlashMessage) \
+    return ''.join([m.html if isinstance(m, FlashMessage)
         else bootstrap_msg(m) for m in msgs])
 
 
@@ -91,8 +99,8 @@ def render_flash_messages_from_queues(request):
     '''
     msgs = []
     for q in QUEUES:
-        for m  in request.session.pop_flash(q):
-            html = unicode(m) if isinstance(m, FlashMessage) \
+        for m in request.session.pop_flash(q):
+            html = m.html if isinstance(m, FlashMessage) \
                 else bootstrap_msg(m, q)
             msgs.append(html)
     return ''.join(msgs)
@@ -108,9 +116,9 @@ def includeme(config):
 
         bag.flash.use_queues = true
     '''
-    global included
-    if included:
-        return
+    if hasattr(config, 'bag_flash_msg_included'):
+        return  # Include only once per config
+    config.bag_flash_msg_included = True
 
     from pyramid.events import BeforeRender
     from pyramid.settings import asbool
@@ -122,5 +130,3 @@ def includeme(config):
         event['render_flash_messages'] = lambda: fn(event['request'])
 
     config.add_subscriber(on_before_render, BeforeRender)
-    included = True
-included = False
