@@ -129,16 +129,6 @@ class PyramidStarter(object):
         Base = declarative_base()
         return Base, sas
 
-    def enable_turbomail(self):
-        from warnings import warn
-        warn('enable_turbomail() is deprecated. Prefer enable_marrow_mailer()')
-        from turbomail.control import interface
-        import atexit
-        options = {key: self.settings[key] for key in self.settings \
-            if key.startswith('mail.')}
-        interface.start(options)
-        atexit.register(interface.stop, options)
-
     def enable_marrow_mailer(self):
         '''This method enables https://github.com/marrow/marrow.mailer
 
@@ -160,12 +150,6 @@ class PyramidStarter(object):
                         plain=decodestring(msg.get_payload()))
                     mailer.send(m)
             self.config.ptah_init_mailer(Sender())
-
-    def enable_kajiki(self):
-        '''Allows you to use the Kajiki templating language.'''
-        from .kajiki import renderer_factory
-        for extension in ('.txt', '.xml', '.html', '.html5'):
-            self.config.add_renderer(extension, renderer_factory)
 
     def enable_favicon(self, path='static/favicon.ico'):
         '''Registers a view that serves /favicon.ico.
@@ -218,7 +202,7 @@ class PyramidStarter(object):
             settings = request.registry.settings
             # A nicer "route_url": no need to pass it the request object.
             event['url'] = lambda name, *a, **kw: \
-                                  route_url(name, request, *a, **kw)
+                route_url(name, request, *a, **kw)
             event['base_path'] = settings.get('base_path', '/')
             event['static_url'] = lambda s: static_url(s, request)
             event['appname'] = settings.get('app.name', 'Application')
@@ -226,10 +210,10 @@ class PyramidStarter(object):
             translate = localizer.translate
             pluralize = localizer.pluralize
             event['_'] = lambda text, mapping=None: \
-                         translate(text, domain=package_name, mapping=mapping)
+                translate(text, domain=package_name, mapping=mapping)
             event['plur'] = lambda singular, plural, n, mapping=None: \
-                            pluralize(singular, plural, n,
-                                      domain=package_name, mapping=mapping)
+                pluralize(singular, plural, n,
+                domain=package_name, mapping=mapping)
 
         self.config.add_subscriber(fn or template_globals,
                                    interfaces.IBeforeRender)
@@ -276,7 +260,7 @@ class PyramidStarter(object):
             exit('\n' + self.package_name + ' requires Python 2.7.x or > 3.2.')
 
     def load_plugins(self, entry_point_groups=None, directory=None,
-        base_class=BasePlugin):
+                     base_class=BasePlugin):
         self.config.registry.plugins = self.plugins = \
             PluginsManager(self.settings)
         if directory:
@@ -288,12 +272,12 @@ class PyramidStarter(object):
 
 def all_routes(config):
     '''Returns a list of the routes configured in this application.'''
-    return [(x.name, x.pattern) for x in \
+    return [(x.name, x.pattern) for x in
             config.get_routes_mapper().get_routes()]
 
 
 def all_views(registry):
-    return set([o['introspectable']['callable'] \
+    return set([o['introspectable']['callable']
         for o in registry.introspector.get_category('views')])
 
 
@@ -304,7 +288,7 @@ def all_view_classes(registry):
 
 
 def authentication_policy(settings, include_ip=True, timeout=60 * 60 * 32,
-    reissue_time=60, groupfinder=lambda userid, request: []):
+        reissue_time=60, groupfinder=lambda userid, request: []):
     '''Returns an authentication policy object for configuration.'''
     try:
         secret = settings['cookie_salt']

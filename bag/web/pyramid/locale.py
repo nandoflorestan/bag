@@ -79,7 +79,7 @@ SETTING_NAME = 'bag.locale.enable'
 @compat23
 class LocaleInfo(object):
     def __init__(self, code, display_name, english_name, title=None,
-        babel_locale=None):
+                 babel_locale=None):
         self.code = code
         self.display_name = display_name
         self.english_name = english_name
@@ -101,7 +101,7 @@ locale_titles = dict(
     pt_BR='Mudar para português do Brasil',
     es='Cambiar a español',
     de='Auf Deutsch benutzen',
-    )  # Please help us: send more entries to this dict
+)  # Please help us: send more entries to this dict
 
 
 class LocaleDict(OrderedDict):
@@ -201,16 +201,16 @@ def add_template_globals(event):
 
 
 def includeme(config):
-    global included
-    if not included:
-        prepare_enabled_locales(config.get_settings())
-        config.set_locale_negotiator(locale_negotiator)
-        config.add_route('locale', 'locale/{locale}')
-        config.add_view(locale_view, route_name='locale')
-        from pyramid.interfaces import IBeforeRender
-        config.add_subscriber(add_template_globals, IBeforeRender)
-        included = True
-included = False
+    if hasattr(config, 'bag_locale_included'):
+        return  # Include only once per config
+    config.bag_locale_included = True
+
+    prepare_enabled_locales(config.get_settings())
+    config.set_locale_negotiator(locale_negotiator)
+    config.add_route('locale', 'locale/{locale}')
+    config.add_view(locale_view, route_name='locale')
+    from pyramid.interfaces import IBeforeRender
+    config.add_subscriber(add_template_globals, IBeforeRender)
 
 
 class BaseLocalizedView(object):
@@ -263,7 +263,7 @@ def locale_exists_validator(settings):
 
 
 def language_dropdown(settings, title=_('Locale'), name='locale',
-    blank_option_at_top=True):
+                      blank_option_at_top=True):
     '''If you use Deform, you can use this to get a SchemaNode that lets
     the user select a locale from the enabled ones.
     '''

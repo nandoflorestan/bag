@@ -75,7 +75,7 @@ From anywhere in your web app you can use the renderer like this::
 '''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from os import path
 from bag.six import basestring
 from paste.deploy.converters import asbool
@@ -185,9 +185,10 @@ class GenshiTemplateRenderer(object):
 
 def includeme(config):
     '''Easily integrates Genshi template rendering into Pyramid.'''
-    global included
-    if included:
-        return
+    if hasattr(config, 'bag_genshi_included'):
+        return  # Include only once per config
+    config.bag_genshi_included = True
+
     settings = config.get_settings()
     # By default, the translation domain is the application name:
     settings.setdefault('genshi.translation_domain', config.registry.__name__)
@@ -213,5 +214,3 @@ def includeme(config):
         return renderer
     extension = settings.get('genshi.extension', '.genshi')
     config.add_renderer(extension, factory)
-    included = True
-included = False
