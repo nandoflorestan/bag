@@ -179,6 +179,14 @@ class PK(object):
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
+class ID(object):
+    '''Mixin class that includes a primary key column "id".'''
+    @declared_attr
+    def id(cls):
+        '''So many projects out there are using "id" instead of "pk"...'''
+        return Column(Integer, autoincrement=True, primary_key=True)
+
+
 class CreatedChanged(object):
     '''Mixin class for your models. It updates the *created* and *changed*
     columns automatically.
