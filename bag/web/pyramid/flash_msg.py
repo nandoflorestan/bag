@@ -57,7 +57,12 @@ class FlashMessage(object):
 
     def __getstate__(self):
         '''Because we are using __slots__, pickling needs this method.'''
-        return {'kind': self.kind, 'plain': self.plain, 'rich': self.rich}
+        return {i: getattr(self, i) for i in self.__slots__}
+
+    def __setstate__(self, state):
+        '''Because we are using __slots__, unpickling needs this method.'''
+        for s in self.__slots__:
+            setattr(self, s, state.get(s))
 
     KINDS = set(['error', 'warning', 'info', 'success'])
 

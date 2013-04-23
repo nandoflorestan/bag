@@ -49,9 +49,9 @@ def uncommafy(txt, sep=','):
             yield item
 
 
-def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
-                              'abcdefghijklmnopqrstuvwxyz' \
-                              '0123456789'):
+def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                                'abcdefghijklmnopqrstuvwxyz'
+                                '0123456789'):
     '''Returns a random string of some `length`.'''
     return ''.join((random.choice(chars) for i in xrange(length)))
 
