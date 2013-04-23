@@ -4,21 +4,23 @@
 # http://peak.telecommunity.com/DevCenter/setuptools#developer-s-guide
 # from distutils.core import setup
 from setuptools import setup, find_packages
-import bag
+from codecs import open
+
+with open('README.rst', encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
-    url=bag.__url__,
+    url='https://github.com/nandoflorestan/bag',
     name="bag",
     author='Nando Florestan',
-    version=bag.__version__,
-    license=bag.__license__,
+    version='0.3.5dev',
+    license='BSD',
     packages=find_packages(),
     include_package_data=True,
     author_email="nandoflorestan@gmail.com",
-    # download_url="http://code.google.com/p/bag/downloads/list",
-    description="A library for many purposes, including javascript i18n "
+    description="A library for several purposes, including javascript i18n "
                 "and stuff for the Pyramid web framework.",
-    long_description=bag.__long_description__,
+    long_description=long_description,
     zip_safe=False,
     test_suite='bag.tests',
     install_requires=['six'],
