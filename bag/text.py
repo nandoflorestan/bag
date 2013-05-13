@@ -1,6 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import (absolute_import, division, print_function,
     unicode_literals)
 import random
@@ -122,6 +120,27 @@ def to_filename(txt, for_web=False, badchars='', maxlength=0):
     return txt
 
 
+def slugify(txt, exists=lambda x: False, badchars='', maxlength=16,
+            chars='abcdefghijklmnopqrstuvwxyz23456789',
+            min_suffix_length=1, max_suffix_length=4):
+    '''Returns a slug that does not yet exist, based on ``txt``.
+
+    You may provide ``exists``, a callback that takes a generated slug and
+    checks the database to see if it already exists.
+
+    Each attempt generates a longer suffix in order to keep the number of
+    attempts at a minimum.
+    '''
+    slug1 = slug = to_filename(txt, for_web=True, badchars=badchars,
+                               maxlength=maxlength - max_suffix_length - 1)
+    while exists(slug):
+        rnd = random_string(min_suffix_length, chars=chars)
+        slug = slug1 + '-' + rnd
+        if min_suffix_length != max_suffix_length:
+            min_suffix_length += 1
+    return slug
+
+
 def find_new_title(dir, filename):
     """If file *filename* exists in directory *dir*, adds or changes the
     end of the file title until a name is found that doesn't yet exist.
@@ -166,11 +185,11 @@ def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
     return best
 
 
-must_be_lowercase = [' ' + s + ' ' for s in \
+must_be_lowercase = [' ' + s + ' ' for s in
     'De Do Da Dos Das Em No Na Nos Nas E Para Por Com Sem Sobre '
     'O A Os As Um Uma Uns Umas Num Numa Nuns Numas Dum Duma Duns Dumas '
     'Que À Às Ao Aos Of The And For To With Without In On'.split()]
-must_be_uppercase = [' ' + s + ' ' for s in \
+must_be_uppercase = [' ' + s + ' ' for s in
     'CD DVD MP3 I II III IV V VII VIII IX X SP RG CPF OAB CREA'
     'CRM SAP PHP LINQ VBA XML'.split()]
 

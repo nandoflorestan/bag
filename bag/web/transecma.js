@@ -41,13 +41,13 @@ String.prototype.interpol = function () {
     } catch (e) {
         if (window.console) console.log(['Exception on interpol() called on',
             this, 'with arguments', arguments]);
-        throw(e);
+        throw (e);
     }
-}
-String.prototype.interpol.test = function() {
+};
+String.prototype.interpol.test = function () {
     if ('Item #[0] of [1]. Really, item [0].'.interpol(5, 7)
         != "Item #5 of 7. Really, item 5.")  throw('Blimey -- oh no!');
-}
+};
 
 if (!window.translations)  translations = {};
 
@@ -56,4 +56,4 @@ gettext = tr = _ = function (msg1, msg2, n) {
         return translations[msg1] || msg1;
     else
         return translations[msg2] || msg2;
-}
+};
