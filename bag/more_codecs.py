@@ -47,7 +47,6 @@ resulted in the default value of codecs_dict, with 894 codecs.
 import codecs
 import subprocess
 import os
-import re
 
 COMMAND = 'iconv'
 codecs_dict = [
@@ -220,6 +219,7 @@ codecs_dict = [
 
 codecs_dict = dict(zip(codecs_dict, codecs_dict))
 
+
 def get_supported_codecs():
     """Returns a list of the codec names that iconv supports."""
     cmd = [COMMAND, '--list']
@@ -227,7 +227,7 @@ def get_supported_codecs():
                              stdout=subprocess.PIPE,
                              stdin=open(os.devnull, 'w+'),
                              stderr=open(os.devnull, 'w+'))
-    return [line.strip('/').lower() for line in \
+    return [line.strip('/').lower() for line in
             iconv.communicate()[0].splitlines()]
 
 
@@ -351,10 +351,8 @@ def _run_iconv(from_codec, to_codec, extra_params=None):
     cmd = [COMMAND, '-f', from_codec, '-t', to_codec, '-s']  # -s is silent
     if extra_params:
         cmd.extend(extra_params)
-    iconv = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                  stdin=subprocess.PIPE,
-                                  stderr=subprocess.PIPE,
-                                  env={'LANG': 'C'})
+    iconv = subprocess.Popen(cmd, env={'LANG': 'C'}, stdout=subprocess.PIPE,
+                             stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     return iconv
 
 
@@ -408,14 +406,14 @@ def _iconv_factory(codec_name):
         StreamReader.decode = staticmethod(iconvdecode)
 
         return codecs.CodecInfo(
-                name=codec_name,
-                encode=iconvencode,
-                decode=iconvdecode,
-                incrementalencoder=IncrementalEncoder,
-                incrementaldecoder=IncrementalDecoder,
-                streamreader=StreamReader,
-                streamwriter=StreamWriter,
-            )
+            name=codec_name,
+            encode=iconvencode,
+            decode=iconvdecode,
+            incrementalencoder=IncrementalEncoder,
+            incrementaldecoder=IncrementalDecoder,
+            streamreader=StreamReader,
+            streamwriter=StreamWriter,
+        )
 
 
 if __name__ == '__main__':

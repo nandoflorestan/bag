@@ -105,7 +105,7 @@ its functions, especially interpol().
 
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import os
 import re
 
@@ -147,7 +147,7 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
     def new_regex(keyword, quote):
         # TODO: Allow plural messages, too
         return re.compile(
-            keyword + \
+            keyword +
             "\(" +     # open parentheses to call function
             quote +    # string start
             # TODO: Allow an escaped quote:
@@ -252,7 +252,7 @@ def po2json_command():
         po2json -h
     '''
     from argparse import ArgumentParser
-    p = ArgumentParser(description='Converts .po files into .js files ' \
+    p = ArgumentParser(description='Converts .po files into .js files '
         'for web application internationalization.')
     p.add_argument('--domain', '-D', dest='domain', default='js',
                    help="domain of PO files (default '%(default)s')")
@@ -261,8 +261,8 @@ def po2json_command():
     p.add_argument('--output-dir', '-o', dest='out_dir', metavar='DIR',
                    help="name of the output directory for .js files")
     p.add_argument('--use-fuzzy', '-f', dest='use_fuzzy', action='store_true',
-                   default=False,
-                   help='also include fuzzy translations (default %(default)s)')
+        default=False,
+        help='also include fuzzy translations (default %(default)s)')
     p.add_argument('--variable', '-n', dest='variable_name',
                    default='translations',
                    help="javascript variable name for the translations object")

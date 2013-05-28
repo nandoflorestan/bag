@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''web_deps.py
@@ -249,7 +248,7 @@ http://code.google.com/p/bag/issues/list
 
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from io import StringIO
 from ..six import *  # for Python 2 and 3 compatibility
 from ..memoize import memoize

@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from datetime import datetime, timedelta
 
 
@@ -38,7 +37,7 @@ class PercentageDone(object):
         if percent > self.current:
             self.current = percent
             self.delta = datetime.utcnow() - self.start
-            self.estimate = timedelta(0, \
+            self.estimate = timedelta(0,
                 100 * self.delta.seconds / percent)
             self.remaining = self.estimate - self.delta
             if self.remaining < timedelta(0):
@@ -57,8 +56,8 @@ class PercentageDone(object):
         remaining = self.calc(val)
         if not remaining:
             return
-        print('{0}% done, {1} left...' \
-            .format(self.current, str(remaining)[:7]))
+        print('{0}% done, {1} left...'.format(
+            self.current, str(remaining)[:7]))
         self.printed = datetime.utcnow()
 
 

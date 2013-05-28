@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''This module aims to provide the ultimate functions for:
@@ -89,8 +88,7 @@ Code written in 2009 and donated to the public domain.
 '''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
-
+                        unicode_literals)
 import re
 try:
     import DNS
@@ -208,7 +206,7 @@ class DomainValidator(BaseValidator):
         if lookup_record == "a":
             try:
                 answers = DNS.Request(domain).req().answers
-            except NameError as e:
+            except NameError:
                 print('To look up DNS records you must install pydns. Try:')
                 print('    easy_install -UZ pydns')
                 import sys
@@ -277,13 +275,13 @@ class EmailValidator(DomainValidator):
         # Validate the domain
         domain, err = self.validate_domain(domain)
         if err:
-            return email, \
-                   "The e-mail has a problem to the right of the @: %s" % err
+            return (email,
+                "The e-mail has a problem to the right of the @: %s" % err)
         # Validate the local part
         local, err = self.validate_local_part(local)
         if err:
-            return email, \
-                   "The email has a problem to the left of the @: %s" % err
+            return (email,
+                "The email has a problem to the left of the @: %s" % err)
         # It is valid
         return local + '@' + domain, ''
 

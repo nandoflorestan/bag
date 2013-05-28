@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''Helps with compatibility between Python 2 and 3.
@@ -17,7 +16,7 @@ Be sure to check out our ``@compat23`` class decorator.
 '''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from six import *  # http://packages.python.org/six/
 
 PY2 = sys.version_info[0] == 2

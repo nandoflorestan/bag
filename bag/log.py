@@ -3,7 +3,7 @@
 '''Easily set up logging.'''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import os
 import logging
 from logging.handlers import RotatingFileHandler
@@ -11,7 +11,7 @@ from six import string_types
 
 
 def setup_log(name=None, directory='logs', backups=3,
-    level=logging.DEBUG, screen_level=logging.INFO):
+              level=logging.DEBUG, screen_level=logging.INFO):
     '''This logs to screen if ``screen_level`` is not None, and logs to
     a scheme of rotating files if ``level`` is not None.
 

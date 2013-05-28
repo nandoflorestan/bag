@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''The stuff in this module is for Python 2 only.
@@ -35,7 +34,7 @@ class CsvWriter(object):
         encoded into the output encoding.
         '''
         try:
-            self._writer.writerow([v.encode(self._enc) \
+            self._writer.writerow([v.encode(self._enc)
                 if isinstance(v, unicode) else v for v in vals])
         except UnicodeEncodeError as e:
             print(vals)

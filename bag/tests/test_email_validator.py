@@ -4,10 +4,9 @@
 '''Tests the module email_validator.py'''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import unittest
-from bag.email_validator import (DomainValidator,
-    EmailValidator, EmailHarvester)
+from bag.email_validator import DomainValidator, EmailValidator
 
 
 class TestEmailValidator(unittest.TestCase):
@@ -30,8 +29,8 @@ class TestEmailValidator(unittest.TestCase):
         assert not err
         email, err = v.validate('  ha@ha.ha  ')
         assert not err
-        email, err = v.validate("a.a-a+a_a!a#a$a%a&a'a/a=a`a|a~a?a^a{a}" \
-                                 "a*a@special.chars")
+        email, err = v.validate("a.a-a+a_a!a#a$a%a&a'a/a=a`a|a~a?a^a{a}"
+                                "a*a@special.chars")
         assert not err
         email, err = v.validate('user+mailbox@example.com')
         assert not err

@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import colander as c
 import deform as d
 from ... import _
@@ -10,11 +9,11 @@ from ..views import BaseView
 
 
 def create_contact_view(config, BaseView=BaseView, route_name='contact',
-    action='', renderer=None, master_template='aaa.genshi',
-    len_name=dict(min=2, max=200),
-    len_subject=dict(max=256),
-    len_message=dict(max=80 * 500),
-    subject_prefix='[Contact form]', impersonate=False):
+        action='', renderer=None, master_template='aaa.genshi',
+        len_name=dict(min=2, max=200),
+        len_subject=dict(max=256),
+        len_message=dict(max=80 * 500),
+        subject_prefix='[Contact form]', impersonate=False):
     '''Returns a generic view for a contact form page which sends email
     using marrow.mailer.
 

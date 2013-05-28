@@ -63,7 +63,7 @@
     '''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from collections import OrderedDict
 from babel import Locale
 from babel.numbers import format_number, format_currency

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import os
 from pyramid.decorator import reify
 from ...six import *  # for Python 2 and 3 compatibility
@@ -94,7 +94,7 @@ class PluginsManager(object):
         #~ for name, plugin in self.config.registry.all_plugins.iteritems():
             #~ if settings['plugins.' + name].lower() != 'disabled':
                 #~ yield name, plugin
-        return {name: plugin for name, plugin in iteritems(self.all) \
+        return {name: plugin for name, plugin in iteritems(self.all)
             if self.is_enabled(name)
         }
 
@@ -105,7 +105,8 @@ class PluginsManager(object):
         '''Generic method that calls some method in the plugins.'''
         nigulps = self.enabled if only_enabled_plugins else self.all
         for p in nigulps.values():
-            if not hasattr(p, method):  continue
+            if not hasattr(p, method):
+                continue
             getattr(p, method)(*args, **kwargs)
 
     def link_static_dirs(self, destination_dir):

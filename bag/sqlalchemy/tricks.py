@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''Functions that help define SQLALchemy models.
@@ -7,7 +6,7 @@ there are many different ways to initialize SQLALchemy.
 '''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import re
 from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
@@ -58,7 +57,7 @@ def fk(attrib, nullable=False, index=True):
     '''Returns a ForeignKey column while automatically setting the type.'''
     column = col(attrib)
     return Column(column.copy().type, ForeignKey(column),
-                   nullable=nullable, index=index)
+                  nullable=nullable, index=index)
 
 
 def fk_rel(cls, backref=None, attrib='pk', nullable=False, index=True):

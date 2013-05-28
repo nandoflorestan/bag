@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from time import sleep
 import os
 import sys
@@ -88,8 +86,8 @@ class LoadedModulesWatcher(ModuleWatcher):
     def get_loaded_modules_paths():
         '''Returns a generator of the paths of currently loaded modules.'''
         # The builtin modules don't have a __file__ attribute.
-        return (m.__file__ for m in sys.modules.values() \
-                   if m and hasattr(m, '__file__'))
+        return (m.__file__ for m in sys.modules.values()
+                if m and hasattr(m, '__file__'))
 
     @staticmethod
     def reload_module_by_path(path):

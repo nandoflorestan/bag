@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from functools import wraps
 # Instead of wrapper.__doc__ = f.__doc__ and wrapper.__name__ = f.__name__,
 # use functools.wraps.
@@ -35,8 +35,8 @@ def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
                     del cache[popular.pop(0)]
             else:
                 if debug:
-                    print('Hit cache of {}(). Value:\n  {}' \
-                        .format(fn.__name__, key))
+                    print('Hit cache of {}(). Value:\n  {}'.format(
+                        fn.__name__, key))
             return cache[key]
 
         wrapper.cache = cache

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import os
 import stat
 from pyramid.config import Configurator
@@ -35,7 +35,7 @@ view_classes = []
 def subdict(adict, prefix):
     '''Returns a new dict based on keys that start with a prefix.'''
     lprefix = len(prefix)
-    return {key[lprefix:]: val for key, val in adict.items() \
+    return {key[lprefix:]: val for key, val in adict.items()
             if key.startswith(prefix)}
 
 

@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''Functions to make it easier to work with datetimes.'''
 
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 from datetime import datetime, timedelta
 from time import sleep
 

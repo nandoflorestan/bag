@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import unittest
 from bag.six import *
 from bag.web.web_deps import *
@@ -57,7 +56,7 @@ class TestPageDeps(unittest.TestCase):
         deps.css('jquery')
         self.assertEqual(deps.css.urls, ['http://jquery.css'])
         deps.script('alert("Bruhaha");')
-        self.assertEqual(deps.script.tags, '<script type="text/javascript">' \
+        self.assertEqual(deps.script.tags, '<script type="text/javascript">'
             '\nalert("Bruhaha");\n</script>\n')
 
     def test_request2(self):
@@ -103,7 +102,8 @@ class TestPageDeps(unittest.TestCase):
 <link rel="stylesheet" type="text/css" href="http://jquery.css" />
 <link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
 <script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js">\
+</script>
 <script type="text/javascript">
 alert("JQuery UI spam!");
 </script>\n'''.lstrip())
@@ -116,7 +116,8 @@ alert("JQuery UI spam!");
 <link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
 <link rel="stylesheet" type="text/css" href="http://deform.css" />
 <script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-ui-1.8.16.min.js">\
+</script>
 <script type="text/javascript" src="/static/lib/deform.js"></script>
 <script type="text/javascript">
 alert("JQuery UI spam!");

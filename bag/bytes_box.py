@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 import os
 import stat
 import urllib2
@@ -126,8 +125,8 @@ class ImageBox(BytesBox):
         """
         max_size = (int(max_size[0]), int(max_size[1]))
         if self.image.size[0] <= max_size[0] and \
-            self.image.size[1] <= max_size[1]:
-                return self
+                self.image.size[1] <= max_size[1]:
+            return self
         ratioOriginal = float(self.image.size[0]) / self.image.size[1]
         ratioMax = float(max_size[0]) / max_size[1]
         if ratioOriginal > ratioMax:  # if width is the determinant

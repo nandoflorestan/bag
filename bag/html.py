@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import (absolute_import, division, print_function,
-    unicode_literals)
+                        unicode_literals)
 
 
 def encode_xml_char_refs(s):
@@ -54,9 +52,10 @@ def _substitute_entity(match):
         else:
             return match.group()
 
-entity_re = re.compile(r'&(#?)(x?)(\w+);', flags=re.IGNORECASE)
+
 def decode_entities(txt):
     return entity_re.subn(_substitute_entity, txt)[0]
+entity_re = re.compile(r'&(#?)(x?)(\w+);', flags=re.IGNORECASE)
 
 
 def test_entities():
