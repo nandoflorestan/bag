@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import struct
 from hashlib import sha1
-from .six import *  # for Python 2 and 3 compatibility
+from nine import basestring, str
 
 
 class FileIdManager(object):
@@ -53,7 +53,7 @@ class FileIdManager(object):
     def validate_id(self, file_id):
         length = len(file_id)
         if length != self.recordlength:
-            raise RuntimeError("file_id size incorrect: " + unicode(length))
+            raise RuntimeError("file_id size incorrect: " + str(length))
 
     def add_file_id(self, file_id):
         self.validate_id(file_id)

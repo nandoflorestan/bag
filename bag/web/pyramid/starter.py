@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
 import stat
+from nine import str
 from pyramid.config import Configurator
 from pyramid.resource import abspath_from_resource_spec
 from pyramid.response import FileResponse
@@ -146,7 +147,7 @@ class PyramidStarter(object):
             class Sender(object):                 # Provide Ptah with an object
                 def send(self, author, to, msg):  # that has a send() method.
                     from quopri import decodestring
-                    m = mailer.new(to=to, subject=unicode(msg['subject']),
+                    m = mailer.new(to=to, subject=str(msg['subject']),
                         plain=decodestring(msg.get_payload()))
                     mailer.send(m)
             self.config.ptah_init_mailer(Sender())

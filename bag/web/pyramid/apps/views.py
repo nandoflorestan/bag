@@ -12,7 +12,7 @@ from pyramid.i18n import get_localizer
 from pyramid.renderers import get_renderer
 from pyramid.settings import asbool
 from pyramid.url import route_url
-from ....six import *  # for Python 2 and 3 compatibility
+from nine import basestring, str
 from ....text import uncommafy
 
 
@@ -96,6 +96,8 @@ def authenticated(func):
         # str('user') returns a bytestring under Python 2 and a
         # unicode string under Python 3, which is what we need:
         config.set_request_property(get_user, str('user'), reify=True)
+        # Alternatively, use the *nine* library's ``native_str``:
+        config.set_request_property(get_user, native_str('user'), reify=True)
     '''
     def wrapper(self, *a, **kw):
         if self.request.user:

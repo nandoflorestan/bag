@@ -77,7 +77,7 @@ From anywhere in your web app you can use the renderer like this::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from os import path
-from bag.six import basestring
+from nine import basestring
 from paste.deploy.converters import asbool
 from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
@@ -127,7 +127,7 @@ class GenshiTemplateRenderer(object):
 
             def translate(text):
                 return get_localizer(get_current_request()) \
-                       .translate(text, domain=domain)
+                    .translate(text, domain=domain)
 
             def callback(template):
                 Translator(translate).setup(template)

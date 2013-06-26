@@ -23,7 +23,7 @@ setup(
     long_description=long_description,
     zip_safe=False,
     test_suite='bag.tests',
-    install_requires=['six'],
+    install_requires=['nine'],
     keywords=["python", 'pyramid', 'sqlalchemy', 'HTML', 'CSV',
                 'translation', 'i18n', 'internationalization', 'file hash',
                 'encoding', 'codecs', 'text', 'console'],

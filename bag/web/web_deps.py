@@ -249,8 +249,7 @@ http://code.google.com/p/bag/issues/list
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from io import StringIO
-from ..six import *  # for Python 2 and 3 compatibility
+from nine import basestring, iteritems, itervalues, nine
 from ..memoize import memoize
 from ..text import uncommafy
 
@@ -270,15 +269,13 @@ def uniquefy(seq, id_fun=lambda x: x):
     return result
 
 
-@compat23
+@nine
 class Dependency(object):
     def __init__(self, handle, deps='', **kw):
         '''You can store whatever attributes you like by providing keyword
         arguments. The only required argument is a name for this dependency.
         '''
-        assert isinstance(handle, unicode)
-        #~ self.handle = \
-            #~ handle if isinstance(handle, unicode) else unicode(handle)
+        assert isinstance(handle, basestring)
         self.handle = handle
         self.dep_handles = list(uncommafy(deps))
         self.deps = None  # This is only computed on close()
@@ -288,7 +285,7 @@ class Dependency(object):
     def __repr__(self):
         return '{}("{}")'.format(self.__class__.__name__, self.handle)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.handle
 
     def recursive_deps(self):
@@ -339,7 +336,7 @@ class DepsRegistry(object):
         This method can only be called after close().
         '''
         flat = []
-        if isinstance(items, string_types):
+        if isinstance(items, basestring):
             items = (self.items[h] for h in uncommafy(items))
         for item in items:
             flat.extend(item.recursive_deps())
@@ -378,7 +375,7 @@ class WebDepsRegistry(CallableRegistry):
     @memoize(100, keymaker=repr)
     def tags(self, items):
         '''Returns a string containing the HTML script tags.'''
-        return '\n'.join([self.tag_format.format(url) \
+        return '\n'.join([self.tag_format.format(url)
             for url in self.urls(items)])
 
 
@@ -461,15 +458,14 @@ class ScriptComponent(list):
     def output(self, tag=True):
         if not self:
             return '\n'
-        s = StringIO()
+        s = []
         if tag:
-            s.write('<script type="text/javascript">\n')
+            s.append('<script type="text/javascript">')
         for o in self:
-            s.write(o)
-            s.write('\n')
+            s.append(o)
         if tag:
-            s.write('</script>\n')
-        return s.getvalue()
+            s.append('</script>\n')
+        return '\n'.join(s)
 
     @property
     def tags(self):  # Included just to keep a common API
@@ -497,7 +493,7 @@ class PackageComponent(object):
 
     def __call__(self, handles):
         '''Adds one or more package requirements to this page or request.'''
-        if isinstance(handles, string_types):
+        if isinstance(handles, basestring):
             handles = uncommafy(handles)
         for handle in handles:
             package = self._packages.items[handle]
@@ -511,7 +507,7 @@ class PackageComponent(object):
                 self._deps.script(package.script)
 
 
-@compat23
+@nine
 class PageDeps(object):
     '''Represents the dependencies of a page;
     an instance must be used on each request.
@@ -535,7 +531,7 @@ class PageDeps(object):
     def bottom_output(self):
         return self.lib.tags + '\n' + self.script.tags
 
-    def __unicode__(self):
+    def __str__(self):
         return '\n'.join([self.css.tags, self.lib.tags, self.script.tags])
 
     def light_accordion(self, selector='.accordion', h_tag='h3'):

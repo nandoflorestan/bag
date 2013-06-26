@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from six import string_types
+from nine import basestring
 
 
 def setup_log(name=None, directory='logs', backups=3,
@@ -26,9 +26,9 @@ def setup_log(name=None, directory='logs', backups=3,
         error=logging.ERROR,                            # 40
         critical=logging.CRITICAL, fatal=logging.FATAL,  # 50
     )
-    if isinstance(level, string_types):
+    if isinstance(level, basestring):
         level = levels[level.lower()]
-    if isinstance(screen_level, string_types):
+    if isinstance(screen_level, basestring):
         screen_level = levels[screen_level.lower()]
     # Set up logging
     log = logging.getLogger(name)

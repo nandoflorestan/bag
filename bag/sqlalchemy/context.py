@@ -5,7 +5,7 @@ from sqlalchemy import Table, create_engine
 from sqlalchemy.ext.declarative import declarative_base  # , declared_attr
 from sqlalchemy.orm import sessionmaker, scoped_session
 from types import ModuleType
-from ..six import unicode
+from nine import str
 
 __all__ = ('SAContext',)
 
@@ -59,7 +59,7 @@ class SAContext(object):
         self.engine = engine
         self.Session = sessionmaker(bind=engine,
                                     extension=self.session_extensions)
-        self.dburi = unicode(engine.url)
+        self.dburi = str(engine.url)
 
     def create_engine(self, dburi, **k):
         self._set_engine(create_engine(dburi, **k))

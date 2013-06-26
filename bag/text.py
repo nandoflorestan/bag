@@ -5,7 +5,7 @@ import random
 import os
 import re
 from datetime import datetime
-from .six import *  # for Python 2 and 3 compatibility
+from nine import str, range
 
 
 def parse_iso_date(txt):
@@ -51,7 +51,7 @@ def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                                 'abcdefghijklmnopqrstuvwxyz'
                                 '0123456789'):
     '''Returns a random string of some `length`.'''
-    return ''.join((random.choice(chars) for i in xrange(length)))
+    return ''.join((random.choice(chars) for i in range(length)))
 
 
 latin1_map = (('"', '“”'),
@@ -166,7 +166,7 @@ def find_new_title(dir, filename):
 
 
 def keep_digits(txt):
-    return filter(unicode.isdigit, txt)
+    return filter(str.isdigit, txt)
 
 
 def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):

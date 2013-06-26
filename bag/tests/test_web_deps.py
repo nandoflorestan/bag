@@ -2,8 +2,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import unittest
-from bag.six import *
-from bag.web.web_deps import *
+from nine import str, IS_PYTHON2
+from bag.web.web_deps import DepsRegistry, Dependency, WebDeps
 
 
 class TestDepsRegistry(unittest.TestCase):
@@ -11,12 +11,12 @@ class TestDepsRegistry(unittest.TestCase):
         reg = DepsRegistry()
         all = Dependency('montão', deps='n, m, b, a')
 
-        if PY2:
-            self.assertEqual(repr(all), b'Dependency("mont?o")')
+        if IS_PYTHON2:
+            self.assertEqual(repr(all), b'Dependency("mont\xc3\xa3o")')
         else:
             self.assertEqual(repr(all), 'Dependency("montão")')
 
-        self.assertEqual(unicode(all), 'montão')
+        self.assertEqual(str(all), 'montão')
         n = Dependency('n', deps='b, m')
         m = Dependency('m', deps='a')
         a = Dependency('a')
@@ -84,7 +84,7 @@ class TestPageDeps(unittest.TestCase):
         self.assertEqual(deps.script.tags, ALERT_OUT)
         self.assertEqual(deps.top_output, CSS_OUT)
         self.assertEqual(deps.bottom_output, SCRIPTS_OUT + '\n' + ALERT_OUT)
-        self.assertEqual(unicode(deps),
+        self.assertEqual(str(deps),
             '\n'.join([CSS_OUT, SCRIPTS_OUT, ALERT_OUT]))
 
     def test_request3(self):
@@ -98,7 +98,7 @@ class TestPageDeps(unittest.TestCase):
         deps = self.PageDeps()
         deps.package('jquery.ui')
         deps.package('jquery.ui')  # Repeating should have no effect
-        self.assertEqual(unicode(deps), '''
+        self.assertEqual(str(deps), '''
 <link rel="stylesheet" type="text/css" href="http://jquery.css" />
 <link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
 <script type="text/javascript" src="/static/lib/jquery-1.7.1.min.js"></script>
@@ -111,7 +111,7 @@ alert("JQuery UI spam!");
     def test_package2(self):
         deps = self.PageDeps()
         deps.package('deform')
-        self.assertEqual(unicode(deps), '''
+        self.assertEqual(str(deps), '''
 <link rel="stylesheet" type="text/css" href="http://jquery.css" />
 <link rel="stylesheet" type="text/css" href="http://jquery.ui.css" />
 <link rel="stylesheet" type="text/css" href="http://deform.css" />

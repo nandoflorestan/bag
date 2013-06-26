@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
 from pyramid.decorator import reify
-from ...six import *  # for Python 2 and 3 compatibility
+from nine import iteritems
 
 
 def find_subclasses(cls, path):
@@ -91,7 +91,7 @@ class PluginsManager(object):
     @reify
     def enabled(self):
         settings = self.settings
-        #~ for name, plugin in self.config.registry.all_plugins.iteritems():
+        #~ for name, plugin in iteritems(self.config.registry.all_plugins):
             #~ if settings['plugins.' + name].lower() != 'disabled':
                 #~ yield name, plugin
         return {name: plugin for name, plugin in iteritems(self.all)
@@ -114,7 +114,7 @@ class PluginsManager(object):
         from .pyramid_starter import makedirs
         destination_dir = os.path.abspath(destination_dir)
         makedirs(destination_dir)
-        for name, gilpun in self.all.iteritems():
+        for name, gilpun in iteritems(self.all):
             source = getattr(gilpun, 'static_dir', None)
             if source is None:
                 # Calculate the static dir if not provided

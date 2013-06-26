@@ -69,14 +69,13 @@ from babel import Locale
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name, default_locale_negotiator
-from six import iteritems, string_types
-from ...six import compat23  # for Python 2 and 3 compatibility
+from nine import basestring, native_str, iterkeys, iteritems, nine
 from . import _
 
 SETTING_NAME = 'bag.locale.enable'
 
 
-@compat23
+@nine
 class LocaleInfo(object):
     def __init__(self, code, display_name, english_name, title=None,
                  babel_locale=None):
@@ -89,7 +88,7 @@ class LocaleInfo(object):
     def __repr__(self):
         return self.code
 
-    def __unicode__(self):
+    def __str__(self):
         return self.display_name
 
 
@@ -142,9 +141,9 @@ def locale_cookie_headers(locale_code):
     '''Returns HTTP headers setting the cookie that stores the
     Pyramid locale.
     '''
-    # str() calls below are because this module uses unicode literals and
-    # waitress expects bytes in Python 2 and unicode in Python 3.
-    return [(str('Set-Cookie'), str('_LOCALE_={0}; expires='
+    # native_str() calls below are because waitress expects
+    # bytes in Python 2 and unicode in Python 3.
+    return [(native_str('Set-Cookie'), native_str('_LOCALE_={0}; expires='
         'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code)))]
 
 
@@ -174,8 +173,8 @@ def locale_from_browser(request):
     # first = enabled_locales[0]
     # return request.accept_language.best_match(enabled_locales,
     #     default_match=settings.get("pyramid.default_locale_name", first))
-    return request.accept_language.best_match(
-        request.registry.settings[SETTING_NAME].keys())
+    return request.accept_language.best_match(iterkeys(
+        request.registry.settings[SETTING_NAME]))
 
 
 def locale_negotiator(request):
@@ -231,11 +230,11 @@ def sorted_countries(arg, top_entry=True):  # TODO memoized version
     Returns a list of tuples like ``('BR', 'Brazil')``, already sorted,
     ready for inclusion in your web form.
     '''
-    code = arg if isinstance(arg, string_types) else get_locale_name(arg)
+    code = arg if isinstance(arg, basestring) else get_locale_name(arg)
 
     def generator(territories):
         if top_entry:
-            yield (str(''), _("- Choose -"))  # TODO translate somehow
+            yield (native_str(''), _("- Choose -"))  # TODO translate somehow
         for tup in territories:
             if len(tup[0]) == 2:  # Keep only countries
                 yield tup

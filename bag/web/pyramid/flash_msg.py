@@ -39,7 +39,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from cgi import escape
-from ...six import compat23
+from nine import nine
 
 
 def bootstrap_msg(plain=None, rich=None, kind='warning'):
@@ -48,7 +48,7 @@ def bootstrap_msg(plain=None, rich=None, kind='warning'):
         escape(kind), ' alert-block' if rich else '', rich or escape(plain))
 
 
-@compat23
+@nine
 class FlashMessage(object):
     '''A flash message that renders in Twitter Bootstrap 2.1 style.
     To register a message, simply instantiate it.
@@ -79,7 +79,7 @@ class FlashMessage(object):
     def __repr__(self):
         return 'FlashMessage("{}")'.format(self.plain)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.rich or self.plain
 
     @property
