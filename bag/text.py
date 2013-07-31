@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import codecs
 import random
 import os
 import re
 from datetime import datetime
-from nine import str, range
+from nine import basestring, str, range
 
 
 def parse_iso_date(txt):
@@ -201,3 +202,13 @@ def make_title(txt):
     for word in must_be_uppercase:
         txt = txt.replace(word.title(), word)
     return txt
+
+
+def content_of(paths, encoding='utf-8', sep='\n'):
+    if isinstance(paths, basestring):
+        paths = [paths]
+    content = []
+    for path in paths:
+        with codecs.open(path, encoding=encoding) as stream:
+            content.append(stream.read())
+    return sep.join(content)
