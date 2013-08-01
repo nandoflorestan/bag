@@ -1,8 +1,8 @@
 *.py[cod]
+*.tmp
 *.*~
 build/
 dist/
 data/
 *.egg-info
 .coverage
-
