@@ -39,8 +39,9 @@ def bool_input(prompt, default=None):
         return bool_input(prompt)
 
 
-def pick_one_of(alist, prompt='Pick one: '):
+def pick_one_of(options, prompt='Pick one: '):
     '''Lets the user pick an item by number.'''
+    alist = options if isinstance(options, list) else list(options)
     c = 0
     for o in alist:
         c += 1
@@ -51,3 +52,19 @@ def pick_one_of(alist, prompt='Pick one: '):
         except ValueError:
             continue
         return alist[opt - 1]
+
+
+def screen_header(text, decor='=', max=79):
+    '''Returns a header to be displayed on screen, by decorating ``text``.'''
+    text = str(text)
+    available = max - len(text)
+    if available > 3:
+        text = '  ' + text + '  '
+        available -= 4
+    else:
+        return text
+    req_space = len(decor) * 2
+    while available >= req_space:
+        text = decor + text + decor
+        available -= req_space
+    return text
