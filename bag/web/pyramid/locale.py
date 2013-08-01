@@ -64,7 +64,10 @@
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:  # It's time people using Python 2.6 would upgrade already
+    from ordereddict import OrderedDict
 from babel import Locale
 from babel.numbers import format_number, format_currency
 from pyramid.httpexceptions import HTTPFound
@@ -154,7 +157,7 @@ def locale_view(request):
     locale_code = request.matchdict['locale']
     # Ensure this locale code is one of the enabled_locales
     if not locale_code in request.registry.settings[SETTING_NAME]:
-        raise KeyError('Locale not enabled: "{}"'.format(locale_code))
+        raise KeyError('Locale not enabled: "{0}"'.format(locale_code))
     return HTTPFound(location=request.referrer or '/',
         headers=locale_cookie_headers(locale_code))
 

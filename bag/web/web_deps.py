@@ -2,10 +2,6 @@
 
 '''web_deps.py
 
-Copyright © 2012 Nando Florestan
-
-License: BSD
-
 The problem: script and CSS linking in composite pages
 ======================================================
 
@@ -238,12 +234,6 @@ This module, "web_deps", is superior to my previous attempt, called
 * Much better user API.
 * The code is better organized.
 * It has more comprehensive unit tests.
-
-Questions?
-==========
-
-For feature requests and bug reports, please visit
-http://code.google.com/p/bag/issues/list
 '''
 
 
@@ -283,7 +273,7 @@ class Dependency(object):
             setattr(self, k, v)
 
     def __repr__(self):
-        return '{}("{}")'.format(self.__class__.__name__, self.handle)
+        return '{0}("{1}")'.format(self.__class__.__name__, self.handle)
 
     def __str__(self):
         return self.handle
@@ -306,7 +296,7 @@ class DepsRegistry(object):
         '''The arguments must be Dependency instances.'''
         for dep in deps:
             if dep.handle in self.items:
-                raise KeyError('{} already registered.'.format(dep.handle))
+                raise KeyError('{0} already registered.'.format(dep.handle))
             self.items[dep.handle] = dep
 
     def close(self):
@@ -403,9 +393,9 @@ class WebDeps(object):
         by providing a `url_provider` function here.
         '''
         self.lib = WebDepsRegistry(url_provider=url_provider,
-            tag_format='<script type="text/javascript" src="{}"></script>')
+            tag_format='<script type="text/javascript" src="{0}"></script>')
         self.css = WebDepsRegistry(url_provider=url_provider,
-            tag_format='<link rel="stylesheet" type="text/css" href="{}" />')
+            tag_format='<link rel="stylesheet" type="text/css" href="{0}" />')
         self.package = CallableRegistry()
         self._url_provider = url_provider
 

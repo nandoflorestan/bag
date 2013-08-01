@@ -9,6 +9,11 @@ from codecs import open
 with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
+dependencies = ['nine']
+from sys import version
+if version.startswith('2.6'):
+    dependencies.append('ordereddict')
+
 setup(
     url='https://github.com/nandoflorestan/bag',
     name="bag",
@@ -23,7 +28,7 @@ setup(
     long_description=long_description,
     zip_safe=False,
     test_suite='bag.tests',
-    install_requires=['nine'],
+    install_requires=dependencies,
     keywords=["python", 'pyramid', 'sqlalchemy', 'HTML', 'CSV',
                 'translation', 'i18n', 'internationalization', 'file hash',
                 'encoding', 'codecs', 'text', 'console'],
@@ -35,10 +40,13 @@ setup(
         'License :: OSI Approved :: MIT License',
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
+        'Programming Language :: Python :: Implementation :: CPython',
         "Framework :: Pyramid",
         'Topic :: Database',
         "Topic :: Internet :: WWW/HTTP",

@@ -11,4 +11,4 @@ from ..web.pyramid.locale import sorted_countries
 class TestLocale(unittest.TestCase):
     def test_sorted_countries(self):
         tups = sorted_countries('pt')
-        self.assertIn(('ZA', 'África do Sul'), tups)
+        assert ('ZA', 'África do Sul') in tups

@@ -91,7 +91,7 @@ Here is an example using Pyramid and Genshi:
 .. code-block:: html
 
       <script py:if="not locale_code.startswith('en')" type='text/javascript'
-        src="${static_url('static/js/i18n/{}.js'.format(locale_code))}"
+        src="${static_url('static/js/i18n/{0}.js'.format(locale_code))}"
         ></script>
       <script py:if="locale_code.startswith('en')" type='text/javascript'
         src="${static_url('static/js/i18n/transecma.js')}"></script>
@@ -139,7 +139,7 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
              tuples
     :rtype: ``iterator``
     '''
-    # print('Keywords: {}. Options: {}'.format(keywords, options))
+    # print('Keywords: {0}. Options: {1}'.format(keywords, options))
     encoding = options.get('encoding', 'utf-8')
     comments = []
     funcname = message = None

@@ -35,7 +35,7 @@ def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
                     del cache[popular.pop(0)]
             else:
                 if debug:
-                    print('Hit cache of {}(). Value:\n  {}'.format(
+                    print('Hit cache of {0}(). Value:\n  {1}'.format(
                         fn.__name__, key))
             return cache[key]
 

@@ -11,4 +11,4 @@ class ArgumentError(ValueError):
         if len(val) > 43:
             val = val[:40] + '...'
         super(ArgumentError, self).__init__(
-            'Argument "{}" does not accept value "{}"'.format(arg, val))
+            'Argument "{0}" does not accept value "{1}"'.format(arg, val))

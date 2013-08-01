@@ -69,15 +69,15 @@ class FlashMessage(object):
     def __init__(self, request, plain=None, rich=None, kind='warning',
                  allow_duplicate=False):
         assert (plain and not rich) or (rich and not plain)
-        assert kind in self.KINDS, "Unknown kind of alert: \"{}\". " \
-            "Possible kinds are {}".format(kind, self.KINDS)
+        assert kind in self.KINDS, 'Unknown kind of alert: "{0}". ' \
+            "Possible kinds are {1}".format(kind, self.KINDS)
         self.kind = kind
         self.rich = rich
         self.plain = plain
         request.session.flash(self, allow_duplicate=allow_duplicate)
 
     def __repr__(self):
-        return 'FlashMessage("{}")'.format(self.plain)
+        return 'FlashMessage("{0}")'.format(self.plain)
 
     def __str__(self):
         return self.rich or self.plain
