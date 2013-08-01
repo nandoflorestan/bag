@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Functions for interaction at the console.'''
+'''Functions for user interaction at the console.'''
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

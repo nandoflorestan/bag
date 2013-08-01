@@ -11,9 +11,9 @@ https://github.com/nandoflorestan/bag
 Previously, this library was hosted at
 http://code.google.com/p/bag
 
-The library is tested on Python 2.7 and 3.3.
+The library is tested on Python 2.6, 2.7, 3.2 and 3.3.
 
-For documentation on each module, see its own docstrings.
+For documentation on each module, please refer to its own docstrings.
 
 Most important library contents
 ===============================
@@ -57,6 +57,7 @@ Less important library contents
   instantiate it from a number of sources (bytes, files etc.) and then
   copy, resize or write it. The interface is experimental but
   seems to be very convenient.
+* **bag.console** -- Functions for user interaction at the console.
 * **bag.file_watcher** -- Watches a bunch of files and
   when one of them is modified, runs a callback. Also useful for
   reloading Python modules when they are altered.
