@@ -7,17 +7,36 @@ from __future__ import (absolute_import, division, print_function,
 from nine import str, input
 
 
+def ask(prompt='', default=None):
+    if prompt:
+        if default:
+            prompt = prompt + ' [' + default + ']'
+        prompt = prompt + ' '
+    answer = None
+    while not answer:
+        answer = input(prompt)
+        if default and not answer:
+            return default
+    return answer
+
+
 def bool_input(prompt, default=None):
     '''Returns True or False based on the user's choice.'''
-    opt = input(prompt + " (Y/N) ").lower()
+    if default is None:
+        choices = ' (y/n) '
+    elif default:
+        choices = ' (Y/n) '
+    else:
+        choices = ' (y/N) '
+    opt = input(prompt + choices).lower()
     if opt == 'y':
         return True
     elif opt == "n":
         return False
-    elif default is None:  # Invalid answer, let's ask again
-        return bool_input(prompt)
-    else:
+    elif not opt and default is not None:
         return default
+    else:  # Invalid answer, let's ask again
+        return bool_input(prompt)
 
 
 def pick_one_of(alist, prompt='Pick one: '):
@@ -26,5 +45,9 @@ def pick_one_of(alist, prompt='Pick one: '):
     for o in alist:
         c += 1
         print(str(c).rjust(2) + ". " + str(o))
-    opt = int(input(prompt))
-    return alist[opt - 1]
+    while True:
+        try:
+            opt = int(input(prompt))
+        except ValueError:
+            continue
+        return alist[opt - 1]
