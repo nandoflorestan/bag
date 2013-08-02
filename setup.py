@@ -61,5 +61,6 @@ jquery_templates = bag.web.transecma:extract_jquery_templates
 
 [console_scripts]
 po2json = bag.web.transecma:po2json_command
+check_rst = bag.check_rst:command
 ''',
 )

@@ -57,6 +57,7 @@ Less important library contents
   instantiate it from a number of sources (bytes, files etc.) and then
   copy, resize or write it. The interface is experimental but
   seems to be very convenient.
+* **bag.check_rst** -- Verifies reStructuredText content for correctness.
 * **bag.console** -- Functions for user interaction at the console.
 * **bag.file_watcher** -- Watches a bunch of files and
   when one of them is modified, runs a callback. Also useful for
