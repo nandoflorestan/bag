@@ -67,4 +67,7 @@ def screen_header(text, decor='=', max=79):
     while available >= req_space:
         text = decor + text + decor
         available -= req_space
+        if len(text) == available - len(decor):  # Add just one more =
+            text += decor          # in order to fill the whole screen
+            available -= len(decor)
     return text

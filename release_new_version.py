@@ -33,7 +33,7 @@ Releaser(config,
     EnsureGitClean,   # There are no uncommitted changes in tracked files.
     EnsureGitBranch,  # I must be in the branch specified in config
     InteractivelyApproveDistribution,  # Generate sdist, let user verify it
-    InteractivelyEnsureChangesDocumented,     # Did you update CHANGES.rst?
+    # InteractivelyEnsureChangesDocumented,     # Did you update CHANGES.rst?
     # CheckTravis,  # We run this late, so travis-ci has more time to build
 
     # =================  All checks pass. RELEASE!  ===========================
