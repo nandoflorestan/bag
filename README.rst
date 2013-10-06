@@ -26,8 +26,8 @@ Most important library contents
   also a buffered CSV writer for outputting CSV in a web app.
 * **bag.email_validator** -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
-* **bag.file_id_manager** -- Use this to hash your files, store the hashes, and
-  know when you already have some file.
+* **bag.file_existence_manager** -- Tools for finding duplicate files
+  using hashes.
 * **bag.web.transecma** -- Complete solution for
   javascript internationalization. Compatible with jquery templates.
   Includes transecma.js.

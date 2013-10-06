@@ -5,6 +5,10 @@ import struct
 from hashlib import sha1
 from nine import basestring, str
 
+from warnings import warn
+warn('Use bag.file_existence_manager instead of FileIdManager.',
+         DeprecationWarning)
+
 
 class FileIdManager(object):
     """Creates 'file IDs' (hashcodes for file contents), stores these
@@ -14,9 +18,6 @@ class FileIdManager(object):
 
     Only file content and length are considered; file names are
     irrelevant.
-
-    TODO: Separate the storage strategy; try to improve performance by
-    storing IDs in something like gdbm.
     """
     recordlength = 24  # bytes
 
