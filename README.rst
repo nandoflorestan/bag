@@ -26,8 +26,6 @@ Most important library contents
   also a buffered CSV writer for outputting CSV in a web app.
 * **bag.email_validator** -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
-* **bag.file_existence_manager** -- Tools for finding duplicate files
-  using hashes.
 * **bag.web.transecma** -- Complete solution for
   javascript internationalization. Compatible with jquery templates.
   Includes transecma.js.
@@ -59,6 +57,9 @@ Less important library contents
   seems to be very convenient.
 * **bag.check_rst** -- Verifies reStructuredText content for correctness.
 * **bag.console** -- Functions for user interaction at the console.
+* **bag.corrupt_image** -- Read image files and do something if they are corrupt.
+* **bag.file_existence_manager** -- Tools for finding duplicate files
+  using hashes.
 * **bag.file_watcher** -- Watches a bunch of files and
   when one of them is modified, runs a callback. Also useful for
   reloading Python modules when they are altered.
