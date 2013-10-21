@@ -6,8 +6,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from nine import basestring
+
+FORMAT = '%(asctime)s %(levelname)s %(message)s'
 
 
 def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
@@ -58,3 +60,47 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
         log.setLevel(disk_level)
         log.addHandler(h2)
     return log
+
+
+def setup_rotating_logger(logger=None, backups=4, size=250000000,
+                          level=logging.DEBUG, encoding='utf-8',
+                          format=FORMAT, directory='.'):
+    '''You may pass either a name or an existing logger as the first argument.
+    This attaches a RotatingFileHandler to the specified logger.
+    Returns the logger object.
+    '''
+    if isinstance(logger, basestring):
+        filename = '.'.join((logger, encoding, 'log'))
+        logger = logging.getLogger(logger)
+    else:
+        filename = '.'.join((logger.name, encoding, 'log'))
+    hdlr = RotatingFileHandler(os.path.join(directory, filename), maxBytes=size,
+                               backupCount=backups, encoding=encoding)
+    if format:
+        hdlr.setFormatter(logging.Formatter(format))
+    logger.addHandler(hdlr)
+    logger.setLevel(level)
+    return logger
+
+
+def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
+                                when='D', interval=1, utc=True, delay=False,
+                                encoding='utf-8', format=FORMAT,
+                                directory='.'):
+    '''You may pass either a name or an existing logger as the first argument.
+    This attaches a TimedRotatingFileHandler to the specified logger.
+    Returns the logger object.
+    '''
+    if isinstance(logger, basestring):
+        filename = '.'.join((logger, encoding, 'log'))
+        logger = logging.getLogger(logger)
+    else:
+        filename = '.'.join((logger.name, encoding, 'log'))
+    hdlr = TimedRotatingFileHandler(os.path.join(directory, filename),
+        when=when, interval=interval, backupCount=backups, delay=delay,
+        utc=utc, encoding=encoding)
+    if format:
+        hdlr.setFormatter(logging.Formatter(format))
+    logger.addHandler(hdlr)
+    logger.setLevel(level)
+    return logger
