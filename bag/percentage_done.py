@@ -6,6 +6,36 @@ from datetime import datetime, timedelta
 from nine import range
 
 
+class ShowingProgress(object):
+    '''A generator that encapsulates your iterable, printing the progress
+    every so many seconds. Usage::
+
+        p = ShowingProgress(iterable, seconds=7)
+        # Then use p instead of your iterable:
+        for something in p:
+            process(something)
+    '''
+    def __init__(self, iterable, message='Item #{} done. Working...',
+                 seconds=7, finished='Finished!'):
+        self.iterable = iterable
+        self.seconds = timedelta(0, seconds)
+        self.message = message
+        self.finished = finished
+
+    def __iter__(self):
+        utcnow = datetime.utcnow
+        seconds = self.seconds
+        printed = utcnow()
+        for i, o in enumerate(self.iterable, 1):  # Start counting at 1
+            yield o
+
+            if seconds > utcnow() - printed:
+                continue
+            print(self.message.format(i))
+            printed = utcnow()
+        print(self.finished)
+
+
 class PercentageDone(object):
     '''When you are processing a long iterable and it takes minutes,
     you should let the user know that your application is still working.
@@ -90,3 +120,9 @@ def test_percentage():
     for i in range(total):
         d(i)
         sleep(.5)
+
+
+def test_progress():
+    from time import sleep
+    for item in ShowingProgress(range(100), seconds=4):
+        sleep(.237)
