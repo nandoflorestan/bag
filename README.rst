@@ -15,6 +15,8 @@ The library is tested on Python 2.6, 2.7, 3.2 and 3.3.
 
 For documentation on each module, please refer to its own docstrings.
 
+This version was published with `releaser <https://pypi.python.org/pypi/releaser>`_.
+
 Most important library contents
 ===============================
 
@@ -87,4 +89,5 @@ Less important library contents
   -- Convenient SQLALchemy initialization, at last.
 * `bag.sqlalchemy.tricks <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/tricks.py>`_
   -- Various SQLAlchemy gimmicks...
-* **bag.text** -- Functions for working with unicode strings.
+* `bag.text <https://github.com/nandoflorestan/bag/blob/master/bag/text.py>`_
+  -- Functions for working with unicode strings.
