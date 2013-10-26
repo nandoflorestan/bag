@@ -31,6 +31,9 @@ from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
 from pyramid.resource import abspath_from_resource_spec
 
+from warnings import warn
+warn('Kajiki now has kajiki.integration.pyramid!', DeprecationWarning)
+
 
 @implementer(ITemplateRenderer)
 class KajikiTemplateRenderer(object):
