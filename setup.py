@@ -18,7 +18,7 @@ setup(
     url='https://github.com/nandoflorestan/bag',
     name="bag",
     author='Nando Florestan',
-    version='0.3.10dev',
+    version='0.3.10',
     license='MIT',
     packages=find_packages(),
     include_package_data=True,
