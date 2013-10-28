@@ -16,7 +16,7 @@ class ShowingProgress(object):
             process(something)
     '''
     def __init__(self, iterable, message='Item #{} done. Working...',
-                 seconds=6, done='Finished!'):
+                 seconds=6, done='Finished! Total items: {}'):
         self.iterable = iterable
         self.seconds = timedelta(0, seconds)
         self.message = message
@@ -26,14 +26,14 @@ class ShowingProgress(object):
         utcnow = datetime.utcnow
         seconds = self.seconds
         printed = utcnow()
-        for i, o in enumerate(self.iterable, 1):  # Start counting at 1
-            yield i, o
+        for index, o in enumerate(self.iterable, 1):  # Start counting at 1
+            yield index, o
 
             if seconds > utcnow() - printed:
                 continue
-            print(self.message.format(i))
+            print(self.message.format(index))
             printed = utcnow()
-        print(self.done)
+        print(self.done.format(index))
 
 
 class PercentageDone(object):
