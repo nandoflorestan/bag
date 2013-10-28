@@ -37,15 +37,20 @@ class SAContext(object):
         sa2 = sa.clone('sqlite://')
     '''
     __slots__ = ('base', 'dburi', 'engine', 'Session', '_scoped_session',
-        'session_extensions')
+                 'session_extensions')
 
     def __init__(self, base=None, base_class=None, metadata=None,
-            session_extensions=None, zope_transaction=False, *args, **k):
+                 session_extensions=None, zope_transaction=False, *args, **k):
         self.dburi = None
         self.engine = None
         self.Session = None
         self._scoped_session = None
-        self.base = base or declarative_base(cls=base_class, metadata=metadata)
+        if base:
+            self.base = base
+        elif base_class:
+            self.base = declarative_base(cls=base_class, metadata=metadata)
+        else:
+            self.base = declarative_base(metadata=metadata)
         self.session_extensions = session_extensions or []
         if zope_transaction:
             from zope.sqlalchemy import ZopeTransactionExtension
