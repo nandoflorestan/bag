@@ -115,14 +115,11 @@ class ShowingPercentage(PercentageDone):
 
 def test_percentage():
     from time import sleep
-    total = 100
-    d = PercentageDone(total)
-    for i in range(total):
-        d(i)
+    for index, item in ShowingPercentage(range(100), max=100, granularity=4):
         sleep(.5)
 
 
 def test_progress():
     from time import sleep
-    for item in ShowingProgress(range(100), seconds=4):
+    for index, item in ShowingProgress(range(100), seconds=4):
         sleep(.237)
