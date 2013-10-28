@@ -10,30 +10,30 @@ class ShowingProgress(object):
     '''A generator that encapsulates your iterable, printing the progress
     every so many seconds. Usage::
 
-        p = ShowingProgress(iterable, seconds=7)
+        p = ShowingProgress(iterable, seconds=6)
         # Then use p instead of your iterable:
-        for something in p:
+        for index, something in p:
             process(something)
     '''
     def __init__(self, iterable, message='Item #{} done. Working...',
-                 seconds=7, finished='Finished!'):
+                 seconds=6, done='Finished!'):
         self.iterable = iterable
         self.seconds = timedelta(0, seconds)
         self.message = message
-        self.finished = finished
+        self.done = done
 
     def __iter__(self):
         utcnow = datetime.utcnow
         seconds = self.seconds
         printed = utcnow()
         for i, o in enumerate(self.iterable, 1):  # Start counting at 1
-            yield o
+            yield i, o
 
             if seconds > utcnow() - printed:
                 continue
             print(self.message.format(i))
             printed = utcnow()
-        print(self.finished)
+        print(self.done)
 
 
 class PercentageDone(object):
@@ -42,7 +42,7 @@ class PercentageDone(object):
     This class helps do that in the console, without creating too
     much output.
     '''
-    def __init__(self, max, granularity=7):
+    def __init__(self, max, granularity=6):
         '''Parameters:
         *max*: The number of elements that shall be processed.
         *granularity*: how many seconds must elapse between printing
@@ -98,9 +98,9 @@ class ShowingPercentage(PercentageDone):
 
     Usage:
 
-        p = ShowingPercentage(iterable, len(iterable), granularity=7)
+        p = ShowingPercentage(iterable, len(iterable), granularity=6)
         # Then use p instead of your iterable:
-        for something in p:
+        for index, something in p:
             process(something)
     '''
     def __init__(self, iterable, max, **k):
@@ -109,7 +109,7 @@ class ShowingPercentage(PercentageDone):
 
     def __iter__(self):
         for i, o in enumerate(self.iterable):
-            yield o
+            yield i, o
             self.display(i)
 
 
