@@ -33,7 +33,8 @@ class ShowingProgress(object):
                 continue
             print(self.message.format(index))
             printed = utcnow()
-        print(self.done.format(total=index, time=utcnow() - started))
+        if self.done:
+            print(self.done.format(total=index, time=utcnow() - started))
 
 
 class PercentageDone(object):
@@ -68,8 +69,7 @@ class PercentageDone(object):
         if percent > self.current:
             self.current = percent
             self.delta = datetime.utcnow() - self.start
-            self.estimate = timedelta(0,
-                100 * self.delta.seconds / percent)
+            self.estimate = timedelta(0, 100 * self.delta.seconds / percent)
             self.remaining = self.estimate - self.delta
             if self.remaining < timedelta(0):
                 self.remaining = timedelta(0)
