@@ -80,8 +80,8 @@ Less important library contents
   cache, which can take a keymaker function as an argument.
 * **bag.more_codecs** -- Got text in some weird encoding that
   Python doesn't know? OK, use iconv to decode it.
-* `bag.web.nav <https://github.com/nandoflorestan/bag/blob/master/bag/web/nav.py>`_
-  -- A simple navigation menu system for web apps.
+* `bag.web.nav <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/nav.py>`_
+  -- A simple navigation menu system for Pyramid.
 * `bag.show_progress <https://github.com/nandoflorestan/bag/blob/master/bag/show_progress.py>`_
   -- Don't leave your user wondering if your program is hanging;
   print the progress every few seconds.

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''A simple navigation menu system for web apps. Example::
 
     menu = [
@@ -18,21 +19,26 @@ Example template using Mako and bootstrap:
     <ul class="nav nav-pills pull-left">
     % for item in menu:
       % if item.children:
-        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">${item.label}
+        <li class="dropdown"><a class="dropdown-toggle"
+            data-toggle="dropdown">${item.label}
           <b class="caret"></b></a>
           <ul class="dropdown-menu">
             % for subitem in item.children:
-              <li class="${subitem.css_class(request)}"><a href="${subitem.href(request)}">${subitem.label}</a></li>
+              <li class="${subitem.css_class(request)}"><a
+                  href="${subitem.href(request)}">${subitem.label}</a></li>
             % endfor
           </ul>
         </li>
       % else:
-        <li class="${item.css_class(request)}"><a href="${item.href(request)}">${item.label}</a></li>
+        <li class="${item.css_class(request)}"><a
+            href="${item.href(request)}">${item.label}</a></li>
       % endif
     % endfor
     </ul>
 '''
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 from warnings import warn
 
 
