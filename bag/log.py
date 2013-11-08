@@ -6,7 +6,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
 import logging
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from logging.handlers import (RotatingFileHandler, TimedRotatingFileHandler,
+                              WatchedFileHandler)
 from nine import basestring
 
 FORMAT = '%(asctime)s %(levelname)s %(message)s'
@@ -51,11 +52,11 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
                 os.mkdir(path)
             except OSError:
                 pass
-            h2 = RotatingFileHandler(os.path.join(path,
-                name or 'root' + ".log.txt"), encoding=encoding,
+            h2 = RotatingFileHandler(os.path.join(
+                path, name or 'root' + ".log.txt"), encoding=encoding,
                 maxBytes=2 ** 22, backupCount=backups)
         else:
-            h2 = logging.FileHandler(path, mode=file_mode, encoding=encoding)
+            h2 = WatchedFileHandler(path, mode=file_mode, encoding=encoding)
         h2.setLevel(disk_level)
         log.setLevel(disk_level)
         log.addHandler(h2)
@@ -74,11 +75,11 @@ def setup_rotating_logger(logger=None, backups=4, size=250000000,
         logger = logging.getLogger(logger)
     else:
         filename = '.'.join((logger.name, encoding, 'log'))
-    hdlr = RotatingFileHandler(os.path.join(directory, filename), maxBytes=size,
-                               backupCount=backups, encoding=encoding)
+    hr = RotatingFileHandler(os.path.join(directory, filename), maxBytes=size,
+                             backupCount=backups, encoding=encoding)
     if format:
-        hdlr.setFormatter(logging.Formatter(format))
-    logger.addHandler(hdlr)
+        hr.setFormatter(logging.Formatter(format))
+    logger.addHandler(hr)
     logger.setLevel(level)
     return logger
 
@@ -96,11 +97,34 @@ def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
         logger = logging.getLogger(logger)
     else:
         filename = '.'.join((logger.name, encoding, 'log'))
-    hdlr = TimedRotatingFileHandler(os.path.join(directory, filename),
-        when=when, interval=interval, backupCount=backups, delay=delay,
-        utc=utc, encoding=encoding)
+    hr = TimedRotatingFileHandler(
+        os.path.join(directory, filename), utc=utc, encoding=encoding,
+        when=when, interval=interval, backupCount=backups, delay=delay)
     if format:
-        hdlr.setFormatter(logging.Formatter(format))
-    logger.addHandler(hdlr)
+        hr.setFormatter(logging.Formatter(format))
+    logger.addHandler(hr)
+    logger.setLevel(level)
+    return logger
+
+
+def setup_watched_file_handler(logger=None, level=logging.DEBUG, format=FORMAT,
+                               encoding='utf-8', delay=False, directory='.'):
+    '''You may pass either a name or an existing logger as the first argument.
+    This attaches a WatchedFileHandler to the specified logger.
+    Returns the logger object.
+
+    The WatchedFileHandler detects when the log file is moved, so it is
+    compatible with the logrotate daemon.
+    '''
+    if isinstance(logger, basestring):
+        filename = '.'.join((logger, encoding, 'log'))
+        logger = logging.getLogger(logger)
+    else:
+        filename = '.'.join((logger.name, encoding, 'log'))
+    hr = WatchedFileHandler(os.path.join(directory, filename), delay=delay,
+                            encoding=encoding)
+    if format:
+        hr.setFormatter(logging.Formatter(format))
+    logger.addHandler(hr)
     logger.setLevel(level)
     return logger
