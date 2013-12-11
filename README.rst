@@ -54,6 +54,16 @@ If you use the Pyramid web framework
   Though perhaps one might prefer
   `Kajiki <https://pypi.python.org/pypi/Kajiki>`_.
 
+Commands
+========
+
+* `delete_old_branches <https://github.com/nandoflorestan/bag/blob/master/bag/git/delete_old_branches.py>`_
+  -- Deletes git branches that have already been merged onto the current branch.
+  Optionally, filter the branches by age (in days).
+* `reorder_po <https://github.com/nandoflorestan/bag/blob/master/bag/reorder_po.py>`_
+  -- Reorders .po files (usually after transifex messes up the order of the
+  translations in them) so the diff is always readable.
+
 Less important library contents
 ===============================
 

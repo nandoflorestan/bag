@@ -9,7 +9,7 @@ from codecs import open
 with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
-dependencies = ['nine']
+dependencies = ['nine', 'path.py', 'polib', 'argh']
 from sys import version
 if version.startswith('2.6'):
     dependencies.append('ordereddict')
@@ -61,6 +61,7 @@ jquery_templates = bag.web.transecma:extract_jquery_templates
 
 [console_scripts]
 po2json = bag.web.transecma:po2json_command
+reorder_po = bag.reorder_po:command
 check_rst = bag.check_rst:command
 delete_old_branches = bag.git.delete_old_branches:command
 ''',
