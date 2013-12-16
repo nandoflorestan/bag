@@ -4,10 +4,18 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import subprocess
 from sys import platform
+from nine import nine
 
 
+@nine
 class CommandError(Exception):
-    pass
+    def __init__(self, error_message, code, out=''):
+        self.error_message = error_message
+        self.code = code
+        self.out = out
+
+    def __str__(self):
+        return self.error_message + ' (exit code: {})'.format(self.code)
 
 
 def execute(command, input='', shell=True, encoding='utf-8'):
@@ -28,10 +36,11 @@ def execute(command, input='', shell=True, encoding='utf-8'):
     return return_code, normal_output, error_output
 
 
-def checked_execute(command, input='', shell=True, encoding='utf-8'):
+def checked_execute(command, input='', shell=True, encoding='utf-8',
+                    accept_codes=[0]):
     ret, out, err = execute(
         command, input=input, shell=shell, encoding=encoding)
-    if ret == 0:
+    if ret in accept_codes:
         return out
     else:
-        raise CommandError(err)
+        raise CommandError(err, ret, out)

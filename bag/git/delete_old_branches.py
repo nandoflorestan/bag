@@ -13,25 +13,33 @@ from bag.command import checked_execute  # , CommandError
 from bag.console import bool_input
 
 
-def merged_branches(even_remote_ones=False):
-    '''Yields branches that have been merged onto the current branch.'''
-    if even_remote_ones:
+def merged_branches(remote=None):
+    '''Sequence of branches that have been merged onto the current branch.'''
+    if remote:
         command = 'git branch -a --merged'
+        remote = 'remotes/{}/'.format(remote)
     else:
         command = 'git branch --merged'
+    alist = []
     for branch in checked_execute(command).split('\n'):
         # The command also lists the current branch, so we get rid of it
-        if branch.startswith('* '):
+        if branch.startswith('* ') or ' -> ' in branch:
             continue
-        yield Branch(branch.strip())
+        branch = branch.strip()
+        if remote and branch.startswith(remote):
+            branch = branch[len(remote):]
+        alist.append(branch)
+    unique = set(alist)
+    return [Branch(branch, remote) for branch in unique]
 
 
 @nine
 class Branch(object):
-    def __init__(self, name):
+    def __init__(self, name, prefix=''):
         self.name = name
+        self.prefix = prefix or ''
 
-    def __str__(self):
+    def __repr__(self):
         return self.name
 
     @reify
@@ -43,7 +51,7 @@ class Branch(object):
         '''
         line = checked_execute(
             'git show --pretty=format:"%ci" {} | head -n 1'
-            .format(self.name))
+            .format(self.prefix + self.name))
         sdate = line[:10]
         year, month, day = [int(x) for x in sdate.split('-')]
         return date(year, month, day)
@@ -55,7 +63,8 @@ class Branch(object):
         checked_execute('git branch -d {}'.format(self))
 
     def delete_remotely(self, remote):
-        checked_execute('git push {} :{}'.format(remote, self))
+        checked_execute('git push {} :{}'.format(remote, self),
+                        accept_codes=[0, 1])
 
 
 @arg('--dry', action='store_true', help='Dry run: only list the branches')
@@ -67,7 +76,7 @@ class Branch(object):
      help='Do not interactively confirm before deleting branches')
 @arg('-d', '--days', type=int, help='Minimum age in days')
 def delete_old_branches(dry, locally, remote, y, days):
-    for branch in merged_branches(even_remote_ones=remote):
+    for branch in merged_branches(remote):
         if days and not branch.is_older_than_days(days):
             continue
 
@@ -80,10 +89,10 @@ def delete_old_branches(dry, locally, remote, y, days):
 
         if dry:
             continue
-        if locally:
-            branch.delete_locally()
         if remote:
             branch.delete_remotely(remote)
+        if locally:
+            branch.delete_locally()
 
 
 def command():
