@@ -1,18 +1,32 @@
 # -*- coding: utf-8 -*-
 '''A simple navigation menu system for web apps. Example::
 
+    from bag.web.pyramid.nav import Item
+
     menu = [
         Item('Home', route='home'),
         Item('Support', 'support'),
-        Item('Account', 'account'),
         Item('Terms and conditions', static='my_app:static/terms.html'),
-        Item('Account', 'account', children = [
+        Item('Account', 'account', children=[
             Item('Settings', 'settings'),
             Item('Log out', 'logout'),
             ]),
         ]
 
-Example template using Mako and bootstrap:
+A simple Kajiki template using the Pure CSS framework:
+
+.. code-block:: html
+
+    <div class="pure-menu pure-menu-open pure-menu-horizontal">
+      <a href="#" class="pure-menu-heading">My website</a>
+      <ul>
+        <li py:for="item in menu" class="${item.css_class(request)}">
+          <a href="${item.href(request)}">${item.label}</a>
+        </li>
+      </ul>
+    </div>
+
+Another example template using Mako and bootstrap:
 
 .. code-block:: html
 
@@ -44,6 +58,9 @@ from warnings import warn
 
 class Item(object):
     '''Represents a navigation menu item.'''
+    # This constant can be overridden in subclasses:
+    ACTIVE_ITEM_CSS_CLASS = 'active'
+
     def __init__(self, label, route=None, static=None, children=None):
         self.label = label
         self.route = route
@@ -58,10 +75,13 @@ class Item(object):
                 warn('Menu needs an undefined route: ' + self.route)
                 return '#'
         if self.static:
-            return request.static_url(self.static)
+            try:
+                return request.static_url(self.static)
+            except ValueError:
+                warn('Menu needs an undefined static route: ' + self.static)
+                return '#'
         return '#'
 
     def css_class(self, request):
-        if request.path_info == self.href(request):
-            return 'active'
-        return ''
+        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == self.href(
+            request) else ''
