@@ -112,6 +112,23 @@ def pk(tablename):
         primary_key=True, autoincrement=True)
 
 
+def model_property_names(cls, whitelist=[], blacklist=[]):
+    names = (str(n).split('.')[1] for n in cls.__mapper__.iterate_properties)
+    for n in names:
+        if n in blacklist:
+            continue
+        if whitelist and n not in whitelist:
+            continue
+        yield n
+
+
+def serialize_property_value(entity, attrib, convert_date=True):
+    val = getattr(entity, attrib)
+    if convert_date and (isinstance(val, datetime) or isinstance(val, date)):
+        return val.isoformat()
+    return val
+
+
 class MinimalBase(object):
     """Declarative base class that auto-generates __tablename__."""
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')

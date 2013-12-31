@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import pkg_resources
 # Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution(__package__).version
+__version__ = pkg_resources.get_distribution('bag').version
 del pkg_resources
 
 _boolean_states = {'1': True, 'yes': True, 'true': True, 'on': True,
