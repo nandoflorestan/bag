@@ -9,17 +9,20 @@ Usage::
     from tlc.models import Course
     from bag.sqlalchemy.models2yaml import YamlFixture
     y = YamlFixture()
-    y.add_blacklist(Course, ['packages'])  # unwanted properties
+    # Ignore unwanted properties, especially backrefs:
+    y.add_blacklist(Course, ['packages', 'subscriptions', 'disciplines',
+                             'progress'])
     y.convert(session.query(Course).all())
     print(y)
 '''
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from .tricks import model_property_names, serialize_property_value
+from datetime import date, datetime
+from .tricks import model_property_names
 
 
-class YamlWriter(object):
+class YamlWriter(object):  # TODO Probably better to use PyYAML instead.
     def __init__(self):
         self.indentation = 0
         self.lines = []
@@ -41,12 +44,25 @@ class YamlFixture(YamlWriter):
     def __init__(self):
         super(YamlFixture, self).__init__()
         self.blacklists = {}
+        self.references = {}
 
     def add_blacklist(self, cls, props):
         '''Specify that for model class *cls* we should not output values for
         the properties *props*.
         '''
         self.blacklists[cls] = props
+
+    def serialize_property_value(entity, attrib, convert_date=True):
+        val = getattr(entity, attrib)
+        if val is True:
+            return 'true'
+        if val is False:
+            return 'false'
+        if val is None:
+            return 'null'
+        if convert_date and isinstance(val, datetime) or isinstance(val, date):
+            return val.isoformat()
+        return val
 
     def convert(self, models):
         '''Converts a set of model instances to YAML. The results contain
@@ -58,15 +74,15 @@ class YamlFixture(YamlWriter):
             self.add('- model: ' + qualname)
             self.indent()
             if hasattr(model, 'id'):
-                self.add('refname: !!refname "{}"'.format(
-                    cls.__name__ + str(model.id)))
+                ref = cls.__name__ + str(model.id)
+                self.add('refname: !!refname "{}"'.format(ref))
+                # TODO Why am I storing references???
+                self.references[ref] = model
             self.add('fields:')
             self.indent()
             for prop in model_property_names(
                     cls, blacklist=self.blacklists.get(cls)):
                 val = serialize_property_value(model, prop)
-                if val is None:
-                    val = 'null'
                 self.add('{}: {}'.format(prop, val))
             self.dedent()
             self.dedent()
