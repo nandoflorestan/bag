@@ -52,7 +52,7 @@ class YamlFixture(YamlWriter):
         '''
         self.blacklists[cls] = props
 
-    def serialize_property_value(entity, attrib, convert_date=True):
+    def serialize_property_value(self, entity, attrib, convert_date=True):
         val = getattr(entity, attrib)
         if val is True:
             return 'true'
@@ -76,13 +76,12 @@ class YamlFixture(YamlWriter):
             if hasattr(model, 'id'):
                 ref = cls.__name__ + str(model.id)
                 self.add('refname: !!refname "{}"'.format(ref))
-                # TODO Why am I storing references???
                 self.references[ref] = model
             self.add('fields:')
             self.indent()
             for prop in model_property_names(
                     cls, blacklist=self.blacklists.get(cls)):
-                val = serialize_property_value(model, prop)
+                val = self.serialize_property_value(model, prop)
                 self.add('{}: {}'.format(prop, val))
             self.dedent()
             self.dedent()
