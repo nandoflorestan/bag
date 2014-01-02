@@ -11,6 +11,9 @@ import re
 from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import relationship, MapperExtension
+from sqlalchemy.orm.attributes import (
+    CollectionAttributeImpl, ScalarObjectAttributeImpl)
+from sqlalchemy.orm.dynamic import DynamicAttributeImpl
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
@@ -73,7 +76,7 @@ def fk_rel(cls, backref=None, attrib='pk', nullable=False, index=True):
         # these are the default values and they are good.
     '''
     return (fk(getattr(cls, attrib), nullable=nullable, index=index),
-        relationship(cls, backref=backref))
+            relationship(cls, backref=backref))
 
 
 def many_to_many(Model1, Model2, pk1='pk', pk2='pk', metadata=None,
@@ -94,11 +97,12 @@ def many_to_many(Model1, Model2, pk1='pk', pk2='pk', metadata=None,
     type1 = col1.copy().type
     type2 = col2.copy().type
     metadata = metadata or Model1.__table__.metadata
-    association = Table(table1 + '_' + table2, metadata,
+    association = Table(
+        table1 + '_' + table2, metadata,
         Column(table1 + '_id', type1, ForeignKey(table1 + '.' + col1.name),
-            nullable=False, index=True),
+               nullable=False, index=True),
         Column(table2 + '_id', type2, ForeignKey(table2 + '.' + col2.name),
-            nullable=False, index=True),
+               nullable=False, index=True),
     )
     backref = backref or table1 + 's'
     rel = relationship(Model2, secondary=association, backref=backref)
@@ -109,17 +113,25 @@ def pk(tablename):
     # The type must be Integer for Sequences to work, AFAICT.
     # Maybe this problem is in Python only?
     return Column(Integer, Sequence(tablename + '_id_seq'),
-        primary_key=True, autoincrement=True)
+                  primary_key=True, autoincrement=True)
 
 
-def model_property_names(cls, whitelist=None, blacklist=None):
+def model_property_names(cls, whitelist=None, blacklist=None,
+                         include_relationships=True):
     names = (str(n).split('.')[1] for n in cls.__mapper__.iterate_properties)
-    for n in names:
-        if blacklist and n in blacklist:
+    filtered = []
+    for name in names:
+        if blacklist and name in blacklist:
             continue
-        if whitelist and n not in whitelist:
+        if whitelist and name not in whitelist:
             continue
-        yield n
+        if not include_relationships and isinstance(
+                getattr(cls, name).impl, (
+                    CollectionAttributeImpl, DynamicAttributeImpl,
+                    ScalarObjectAttributeImpl)):
+            continue
+        filtered.append(name)
+    return filtered
 
 
 class MinimalBase(object):
