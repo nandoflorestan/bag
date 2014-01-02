@@ -45,6 +45,8 @@ If you use the Pyramid web framework
 * `bag.web.pyramid.locale <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/locale.py>`_
   -- Easily enable and disable locales, let users switch languages,
   and use the browser's languages by default.
+* `bag.web.pyramid.nav <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/nav.py>`_
+  -- Simple web menu system (navigation).
 * **bag.web.pyramid.plugins_manager** -- Make your Pyramid app extensible
   through plugins.
 * **bag.web.pyramid.starter** -- Reusable configurator for
@@ -97,6 +99,7 @@ Less important library contents
   print the progress every few seconds.
 * `bag.sqlalchemy.context <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/context.py>`_
   -- Convenient SQLALchemy initialization, at last.
+* `bag.sqlalchemy.mediovaigel <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/mediovaigel.py>`_ -- Complete solution for database fixtures using SQLAlchemy.
 * `bag.sqlalchemy.tricks <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/tricks.py>`_
   -- Various SQLAlchemy gimmicks...
 * `bag.text <https://github.com/nandoflorestan/bag/blob/master/bag/text.py>`_
