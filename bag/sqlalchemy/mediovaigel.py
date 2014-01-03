@@ -148,7 +148,8 @@ PK = "{pk}"
 
 def load_fixtures(session, fixtures=None, key_val_db=None, **kw):
     from bag.sqlalchemy.mediovaigel import load_fixtures
-    load_fixtures(session, fixtures or the_fixtures(), key_val_db, PK=PK, **kw)
+    load_fixtures(session, fixtures or the_fixtures(), key_val_db=key_val_db,
+                  PK=PK, **kw)
 
 
 def the_fixtures():
@@ -169,8 +170,11 @@ def load_fixtures(session, fixtures, PK='id', key_val_db=None):
             cached_fks[cls] = fks
         for fk_attrib, fk in fks.items():
             # Replace the old FK value with the NEW id stored in mapp
+            old_fk_value = getattr(entity, fk_attrib)
+            if old_fk_value is None:
+                continue
             new_id = mapp[fk.target_fullname.split('.')[0]
-                          + getattr(entity, fk_attrib)]
+                          + str(getattr(entity, fk_attrib))]
             setattr(entity, fk_attrib, new_id)
         session.add(entity)
         session.flush()
