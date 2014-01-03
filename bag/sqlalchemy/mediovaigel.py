@@ -2,6 +2,21 @@
 
 '''Complete solution for database fixtures using SQLAlchemy.
 
+This module is currently broken, but a specification for a correction follows:
+
+This solution features a very important feature: fixtures can be generated
+from an existing database, then applied to other databases.
+
+You can use this as long as your models have a primary key column that is
+consistently named (for instance, it is called "id" in all models).
+
+The foreign key values stored in the fixtures are those of the original
+database (from which the fixtures are generated). A translation is performed
+in the fixture loading process. As fixtures are loaded, their new IDs are
+stored in memory, and then the foreign keys referencing them get the new IDs,
+not the ones written in the fixtures.
+
+TODO: Fix loading bug where it tries to create FKs referencing old IDs
 TODO: Support many-to-many (association tables).
 TODO: Improve load_fixtures() ?
 '''
