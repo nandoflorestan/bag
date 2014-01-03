@@ -134,6 +134,18 @@ def model_property_names(cls, whitelist=None, blacklist=None,
     return filtered
 
 
+def foreign_keys_in(cls):
+    filtered = {}
+    for name in model_property_names(cls, include_relationships=False):
+        a_set = getattr(cls, name).expression.foreign_keys
+        for fk in a_set:
+            # I don't understand why there would ever be more than one item
+            # in this, so:
+            filtered[name] = fk
+            break
+    return filtered
+
+
 class MinimalBase(object):
     """Declarative base class that auto-generates __tablename__."""
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
