@@ -23,7 +23,7 @@ get the new IDs, not the ones written in the fixtures.
 In order to know whether your fixtures can be loaded... you have to actually
 load them onto another database. Sorry.
 
-TODO: Support many-to-many (association tables).
+TODO: Support self-referential entities.
 '''
 
 from __future__ import (absolute_import, division, print_function,
@@ -31,10 +31,19 @@ from __future__ import (absolute_import, division, print_function,
 from codecs import open
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from importlib import import_module
 # from uuid import uuid4
+# from sqlalchemy.schema import Table
+from sqlalchemy import insert, select
 from bag.sqlalchemy.tricks import model_property_names
-from nine import nine, str
-from .tricks import foreign_keys_in
+from nine import nine, str, basestring
+from .tricks import foreign_key_from_col, foreign_keys_in
+
+
+def resolve(resource_spec):
+    module, var = resource_spec.split(':')
+    module = import_module(module)
+    return getattr(module, var)
 
 
 class IndentWriter(object):
@@ -68,7 +77,7 @@ class Mediovaigel(IndentWriter):
         # The order of the lines below matters:
         m.generate_fixtures(Course)
         m.generate_fixtures(Lecture)  # A Lecture belongs to a Course
-        m.generate_fixtures(User, blacklist_props=['id', 'password'])
+        m.generate_fixtures(User, ignore_attribs=['id', 'password'])
         # (...)
         print(m.output())
         m.save_to('fixtures/generated.py')
@@ -85,7 +94,7 @@ class Mediovaigel(IndentWriter):
         # self.refs = {}
         self.indent()
 
-    def _serialize_property_value(self, entity, attrib, val):
+    def _serialize_property_value(self, val):
         '''Returns a str containing the representation, or None.
 
         Override this in subclasses to support other types.
@@ -96,8 +105,7 @@ class Mediovaigel(IndentWriter):
             return repr(val)
 
     def serialize_property_value(self, entity, attrib):
-        val = self._serialize_property_value(
-            entity, attrib, getattr(entity, attrib))
+        val = self._serialize_property_value(getattr(entity, attrib))
         if val:
             return val
         else:
@@ -105,12 +113,30 @@ class Mediovaigel(IndentWriter):
                 'Cannot serialize. Entity: {}. Attrib: {}. Value: {}'.format(
                     entity, attrib, getattr(entity, attrib)))
 
-    def generate_fixtures(self, cls, blacklist_props=['id']):
-        '''``cls`` is the model class. ``blacklist_props`` is a list of the
+    def generate_fixtures(self, o, ignore_attribs=None):
+        '''``o`` can be one of 2 things:
+
+        * a model class; or
+        * a string containing a resource spec pointing to a Table instance,
+          for example: "my.models.book:book_tag"
+
+        ``ignore_attribs`` is a list of the
+        properties for this class that should not be passed to the constructor
+        when instantiating an entity.
+        '''
+        if isinstance(o, basestring):
+            return self._process_table(
+                o, ignore_attribs or [self.pk])
+        else:
+            return self._process_class(
+                o, ignore_attribs or [self.pk])
+
+    def _process_class(self, cls, ignore_attribs):
+        '''``cls`` is the model class. ``ignore_attribs`` is a list of the
         properties for this class that should not be passed when instantiating
         an entity.
         '''
-        attribs = model_property_names(cls, blacklist=blacklist_props,
+        attribs = model_property_names(cls, blacklist=ignore_attribs,
                                        include_relationships=False)
         assert len(attribs) > 0
 
@@ -134,6 +160,24 @@ class Mediovaigel(IndentWriter):
             self.dedent()
             self.add('))')
             # self.add('session.add({})\n'.format(ref))
+
+    def _process_table(self, resource_spec, ignore_attribs):
+        '''Intended for association tables.'''
+        table = resolve(resource_spec)
+        cols = list(enumerate(table.c.keys()))
+        for row in self.sas.execute(select([table])).fetchall():
+            self.add("yield [")
+            self.indent()
+
+            self.add("'{}',".format(resource_spec))
+            for index, colname in cols:
+                if colname in ignore_attribs:
+                    continue
+                self.add("{},".format(
+                    self._serialize_property_value(row[index])))
+
+            self.dedent()
+            self.add(']')
 
     def output(self, encoding='utf-8'):
         '''Returns the final Python code with the fixture functions.'''
@@ -169,36 +213,66 @@ def the_fixtures():
 """
 
 
-def load_fixtures(session, fixtures, PK='id', key_val_db=None):
-    mapp = key_val_db or {}  # maps original IDs to new IDs
-    cached_fks = {}  # stores the foreign keys dict for each model class
-    for index, tup in enumerate(fixtures):
-        original_id, entity = tup
+class load_fixtures(object):
+    def __init__(self, session, fixtures, PK='id', key_val_db=None):
+        self.sas = session
+        self.PK = PK
+        self.mapp = key_val_db or {}  # maps original IDs to new IDs
+        # This stores the foreign keys dict for each model class:
+        self.cached_fks = {}
+
+        for index, sequence in enumerate(fixtures):
+            if index % 500 == 0:
+                print(index)
+            if isinstance(sequence, list):
+                self._load_row(sequence)
+            else:
+                self._load_entity(*sequence)
+
+        print('Total: {} fixtures loaded. Committing...'.format(index + 1))
+        self.sas.commit()
+
+    def _load_entity(self, original_id, entity):
         cls = type(entity)
         key = cls.__tablename__ + str(original_id)
-        fks = cached_fks.get(cls)
+        fks = self.cached_fks.get(cls)
         if fks is None:
             fks = foreign_keys_in(cls)
-            cached_fks[cls] = fks
+            self.cached_fks[cls] = fks
         for fk_attrib, fk in fks.items():
             # Replace the old FK value with the NEW id stored in mapp
             old_fk_value = getattr(entity, fk_attrib)
             if old_fk_value is None:
                 continue
             try:
-                new_id = mapp[fk.target_fullname.split('.')[0]
-                              + str(getattr(entity, fk_attrib))]
+                new_id = self._get_new_id(fk, old_fk_value)
             except KeyError:
-                print('Was loading {} #{} and BOOM!'.format(cls.__name__,
-                                                            original_id))
+                print('Was loading {} #{} and BOOM!'.format(
+                    cls.__name__, original_id))
                 raise
             setattr(entity, fk_attrib, new_id)
-        session.add(entity)
-        session.flush()
-        assert mapp.get(key) is None
+        self.sas.add(entity)
+        self.sas.flush()
+        assert self.mapp.get(key) is None
         # Store the new id for this entity so we can look it up in the future:
-        mapp[key] = getattr(entity, PK)  # 'course42': 37
-        if index % 500 == 0:
-            print(index)
-    print('Total: {} fixtures loaded. Committing...'.format(index + 1))
-    session.commit()
+        self.mapp[key] = getattr(entity, self.PK)  # 'course42': 37
+
+    def _load_row(self, values):
+        table = resolve(values.pop(0))  # TODO Cache
+        cols = list(enumerate(table.c.keys()))  # TODO Cache
+        for index, col in cols:
+            fk = foreign_key_from_col(table.c[col])
+            if fk:
+                # Replace the old FK value with the NEW id stored in mapp
+                old_fk_value = values[index]
+                if old_fk_value is None:
+                    continue
+                values[index] = self._get_new_id(fk, old_fk_value)
+        self.sas.execute(insert(table, values=values))
+
+    def _get_new_id(self, fk, old_id):
+        '''Given a ForeignKey object and its value in the old database,
+        looks up the cache and returns the value for the new database.
+        '''
+        table_name = fk.target_fullname.split('.')[0]
+        return self.mapp[table_name + str(old_id)]

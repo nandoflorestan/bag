@@ -134,6 +134,12 @@ def model_property_names(cls, whitelist=None, blacklist=None,
     return filtered
 
 
+def foreign_key_from_col(col):
+    # I don't know how there would ever be more than one item in this, so:
+    for fk in col.foreign_keys:  # foreign_keys is, strangely, a set
+        return fk
+
+
 def foreign_keys_in(cls):
     filtered = {}
     for name in model_property_names(cls, include_relationships=False):
