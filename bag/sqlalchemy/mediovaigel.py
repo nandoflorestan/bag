@@ -150,6 +150,7 @@ class Mediovaigel(IndentWriter):
         attribs = model_property_names(cls, blacklist=ignore_attribs,
                                        include_relationships=False)
         assert len(attribs) > 0
+        attribs = sorted(attribs)
 
         self.imports.append('from {} import {}'.format(
             cls.__module__, cls.__name__))
