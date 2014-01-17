@@ -25,7 +25,7 @@ def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
 
         @wraps(fn)
         def wrapper(*a, **kw):
-            key = keymaker((a, kw))
+            key = keymaker(*a, **kw)
             try:
                 popular.append(popular.pop(popular.index(key)))
             except ValueError:

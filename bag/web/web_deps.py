@@ -312,7 +312,7 @@ class DepsRegistry(object):
                 'Cannot admit() because registry is already closed.')
         self.admit = admit
 
-    @memoize(100, keymaker=repr)
+    @memoize(100, keymaker=lambda self, items: repr((self, items)))
     def summon(self, items):
         '''The parameter `items` can be either a comma-delimited string of
         dependency names, or a list of actual Dependency objects.
@@ -355,18 +355,18 @@ class WebDepsRegistry(CallableRegistry):
         self.url_provider = url_provider
         self.tag_format = tag_format
 
-    @memoize(100, keymaker=repr)
+    @memoize(100, keymaker=lambda self, items: repr((self, items)))
     def urls(self, items):
         '''Recommended for use in your templating language. Returns a list of
         the URLs for the dependencies required by this page.
         '''
         return [self.url_provider(o) for o in self.summon(items)]
 
-    @memoize(100, keymaker=repr)
+    @memoize(100, keymaker=lambda self, items: repr((self, items)))
     def tags(self, items):
         '''Returns a string containing the HTML script tags.'''
         return '\n'.join([self.tag_format.format(url)
-            for url in self.urls(items)])
+                          for url in self.urls(items)])
 
 
 class WebDeps(object):
