@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from functools import wraps
 from sqlalchemy import Table, create_engine
 from sqlalchemy.ext.declarative import declarative_base  # , declared_attr
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -121,6 +122,58 @@ class SAContext(object):
         if k:
             o.create_engine(**k)
         return o
+
+    def subtransaction(self, fn):
+        '''Decorator that encloses the decorated function in a subtransaction.
+
+        Your system must use our ``ss`` scoped session and it
+        does not need to call ``commit()`` on the session.
+        '''
+        @wraps(fn)
+        def wrapper(*a, **kw):
+            self.ss.begin(subtransactions=True)
+            try:
+                fn(*a, **kw)
+            except:
+                self.ss.rollback()
+                raise
+            else:
+                self.ss.commit()
+        return wrapper
+
+    def transaction(self, fn):
+        '''Decorator that encloses the decorated function in a transaction.
+
+        Your system must use our ``ss`` scoped session and it
+        does not need to call ``commit()`` on the session.
+        '''
+        @wraps(fn)
+        def wrapper(*a, **kw):
+            try:
+                fn(*a, **kw)
+            except:
+                self.ss.rollback()
+                raise
+            else:
+                self.ss.commit()
+        return wrapper
+
+    def transient(self, fn):
+        '''Decorator that encloses the decorated function in a subtransaction
+        which is always rewinded. It is recommended that you apply this
+        decorator to each of your automated tests; then you only need to
+        create the tables once, instead of once per test,
+        because nothing gets persisted. This should make tests faster.
+        '''
+        @wraps(fn)
+        def wrapper(*a, **kw):
+            self.ss.begin(subtransactions=True)
+            self.ss.begin(subtransactions=True)
+            try:
+                fn(*a, **kw)  # I assume fn consumes the inner subtransaction.
+            finally:
+                self.ss.rollback()  # Revert the outer subtransaction.
+        return wrapper
 
 
 """
