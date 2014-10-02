@@ -7,7 +7,23 @@ from functools import wraps
 # use functools.wraps.
 
 
-def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
+class DictCache(object):
+
+    def __init__(self):
+        self._cache = dict()
+
+    def get(self, key):
+        return self._cache.get(key)
+
+    def set(self, key, value, *args, **kwargs):
+        self._cache[key] = value
+
+    def delete(self, key):
+        if key in self._cache:
+            del self._cache[key]
+
+
+def memoize(limit=None, keymaker=None, cache_type=DictCache, debug=False):
     '''memoize decorator with a lru cache.
     When full, the cache discards the least recently used value.
     You can pass cache_type=WeakValueDictionary (not tested).
@@ -29,15 +45,15 @@ def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
             try:
                 popular.append(popular.pop(popular.index(key)))
             except ValueError:
-                cache[key] = fn(*a, **kw)
+                cache.set(key, fn(*a, **kw))
                 popular.append(key)
                 if limit is not None and len(popular) > limit:
-                    del cache[popular.pop(0)]
+                    cache.delete(popular.pop(0))
             else:
                 if debug:
                     print('Hit cache of {0}(). Value:\n  {1}'.format(
                         fn.__name__, key))
-            return cache[key]
+            return cache.get(key)
 
         wrapper.cache = cache
         wrapper.popular = popular
