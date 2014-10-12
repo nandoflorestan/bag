@@ -74,6 +74,10 @@ class IndentWriter(object):
     def __str__(self):
         return '\n'.join(self.lines)
 
+# TODO Save memory by yielding lines instead of adding them to a list
+# TODO Provide a saving_to(file, generator, encoding='utf-8')
+# TODO Ability to register callbacks to be run after loading each instance.
+
 
 @nine
 class Mediovaigel(IndentWriter):
@@ -84,7 +88,7 @@ class Mediovaigel(IndentWriter):
 
         from bag.sqlalchemy.mediovaigel import Mediovaigel
         from my.models import Course, Lecture, User, db
-        m = Mediovaigel(db.session)
+        m = Mediovaigel(Session)  # pass a session factory, not instance
         # The order of the lines below matters:
         m.generate_fixtures(Course)
         m.generate_fixtures(Lecture)  # A Lecture belongs to a Course
@@ -93,13 +97,15 @@ class Mediovaigel(IndentWriter):
         print(m.output())
         m.save_to('fixtures/generated.py')
     '''
-    def __init__(self, db_session, pk_property_name='id'):
-        '''The parameter ``db_session`` must be a SQLAlchemy session instance.
+
+    def __init__(self, session_factory, pk_property_name='id'):
+        '''The parameter ``session_factory`` must be a SQLAlchemy
+        session maker callable and not a session instance.
         ``pk_property_name`` must be the name of the primary key column
         consistently used in your models.
         '''
         super(Mediovaigel, self).__init__()
-        self.sas = db_session
+        self.session_factory = session_factory
         self.pk = pk_property_name
         self.imports = ['import datetime', 'from decimal import Decimal']
         # self.refs = {}
@@ -147,6 +153,7 @@ class Mediovaigel(IndentWriter):
         properties for this class that should not be passed when instantiating
         an entity.
         '''
+        sas = self.session_factory()
         attribs = model_property_names(cls, blacklist=ignore_attribs,
                                        include_relationships=False)
         assert len(attribs) > 0
@@ -154,7 +161,7 @@ class Mediovaigel(IndentWriter):
 
         self.imports.append('from {} import {}'.format(
             cls.__module__, cls.__name__))
-        for entity in self.sas.query(cls).yield_per(50):
+        for entity in sas.query(cls).yield_per(50):
             # if hasattr(entity, 'id'):
             #     ref = cls.__name__ + str(entity.id)
             # else:  # If there is no id, we generate our own random id:
@@ -172,12 +179,14 @@ class Mediovaigel(IndentWriter):
             self.dedent()
             self.add('))')
             # self.add('session.add({})\n'.format(ref))
+        sas.close()
 
     def _process_table(self, resource_spec, ignore_attribs):
         '''Intended for association tables.'''
+        sas = self.session_factory()
         table = resolve(resource_spec)
         cols = list(enumerate(table.c.keys()))
-        for row in self.sas.execute(select([table])).fetchall():
+        for row in sas.execute(select([table])).fetchall():
             self.add("yield [")
             self.indent()
 
@@ -190,6 +199,7 @@ class Mediovaigel(IndentWriter):
 
             self.dedent()
             self.add(']')
+        sas.close()
 
     def output(self, encoding='utf-8'):
         '''Returns the final Python code with the fixture functions.'''

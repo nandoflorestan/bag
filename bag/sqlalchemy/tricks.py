@@ -264,7 +264,7 @@ class AddressBase(object):
     province = Column('province', Unicode(40), default='')
     country_code = Column('country_code', Unicode(2), default='')
     postal_code = Column('postal_code',  Unicode(16), default='',
-        doc='Zip code')
+                         doc='Zip code')
     # kind = Column(Unicode(1), default='',
     #     doc="c for commercial, r for residential")
     # charge = Column(Boolean, default=False,
@@ -298,4 +298,4 @@ class EmailParts(object):
 
     def gravatar_image(self, default='mm', size=80, cacheable=True):
         return gravatar_image(self.email, default=default, size=size,
-            cacheable=cacheable)
+                              cacheable=cacheable)

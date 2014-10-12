@@ -9,7 +9,7 @@ from codecs import open
 with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
-dependencies = ['nine', 'path.py', 'polib', 'argh']
+dependencies = ['nine>0.3.3', 'path.py', 'polib', 'argh']
 from sys import version
 if version.startswith('2.6'):
     dependencies.append('ordereddict')
