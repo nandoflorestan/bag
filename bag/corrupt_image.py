@@ -29,12 +29,14 @@ def corrupt_images(directory='.', files='*.jpg'):
 
         Example usage::
 
-            path('./images/corrupt/').makedirs()
+            target = Path('./images/corrupt/')
+            target.mkdir()
             for img in corrupt_images('./images/', files='*.png'):
-                # Do something with *img*, which is a path.py object:
-                img.move('./images/corrupt/')
+                # Do something with *img*, which is a Path object:
+                img.rename(target / img.name)  # move it
         '''
-    from path import path  # easy_install -UZ path.py
-    for p in path(directory).files(files):
+    from pathlib import Path
+    directory = Path(directory)
+    for p in directory.glob(files):
         if not is_valid_image(p):
             yield p
