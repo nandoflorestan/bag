@@ -10,6 +10,7 @@ from nine import str
 
 class GdbmStorageStrategy(object):
     '''Stores file hashes and file paths in a GNU DBM file.'''
+
     def __init__(self, path='./file_hashes.gdbm', mode='c', sync='s'):
         from dbm.gnu import open
         self.d = open(path, mode + sync)
@@ -20,6 +21,7 @@ class GdbmStorageStrategy(object):
 
 class TransientStrategy(object):
     '''Stores file hashes and paths in memory only.'''
+
     def __init__(self):
         self.d = {}
 
@@ -38,6 +40,7 @@ class FileExistenceManager(object):
         When checking for existence, only file content is considered;
         file names are irrelevant.
         '''
+
     def __init__(self, store, consider_bytes=4096):
         '''If ``consider_bytes`` is a truish integer, configures the system
         to ignore the remainder of each file. ``store`` must be a storage
@@ -112,18 +115,18 @@ def find_dups(directory='.', files='*.jpg', callbacks=[]):
         ``existing`` and ``dup`` are paths and ``m`` is the
         FileExistenceManager instance.
         '''
-    from path import path  # easy_install -UZ path.py
+    from pathlib import Path
     store = GdbmStorageStrategy()
     m = FileExistenceManager(store)
     dups = {}
-    for p in path(directory).files(files):
+    for p in Path(directory).glob(files):
         with open(str(p), 'rb') as stream:
             existing = m.try_add_file(stream, str(p))
         if existing:
             existing = existing.decode('utf-8')
             dups[str(p)] = existing
             for function in callbacks:
-                function(path(existing), p, m)
+                function(Path(existing), p, m)
     m.close()
     return dups
 
@@ -137,20 +140,21 @@ class KeepLarger(object):
     '''A callback that keeps the larger file. The smaller file is
     moved to a "dups" subdirectory.
     '''
+
     def __init__(self, dups_dir=None):
         self.dups_dir = dups_dir
 
     def __call__(self, existing, dup, m):
         if self.dups_dir is None:
             self.dups_dir = dup.parent / 'dups'
-        if dup.size > existing.size:
+        if dup.stat().st_size > existing.stat().st_size:
             # Keep *dup* since it is the larger file
-            existing.move(self.dups_dir)  # Move the old file
+            existing.rename(self.dups_dir / dup.name)  # Move the old file
             with open(dup, 'rb') as stream:  # Update the database
                 m.add_or_replace_file(stream, str(dup))
         else:
             # Move *dup* since it is the shorter file
-            dup.move(self.dups_dir)
+            dup.rename(self.dups_dir / dup.name)
 
     @property
     def dups_dir(self):
@@ -160,4 +164,7 @@ class KeepLarger(object):
     def dups_dir(self, directory):
         self._dups_dir = directory
         if directory:
-            directory.makedirs()
+            try:
+                directory.mkdir(parents=True)
+            except OSError:
+                pass

@@ -14,19 +14,20 @@ the diff will be readable and the version history will make sense.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from argh import ArghParser, arg  # easy_install argh
-from path import path as pathpy  # easy_install -UZ path.py
+from nine import str
+from pathlib import Path
 from polib import pofile  # easy_install -UZ polib
 
 
 @arg('path', help='.po file to be sorted, or a directory containing .po files')
 @arg('-e', '--encoding', default='utf-8', help='.po file encoding')
 def reorder_po(path, encoding='utf-8'):
-    p = pathpy(path)
-    if p.isdir():
-        for path in p.walkfiles('*.po'):
+    p = Path(path)
+    if p.is_dir():
+        for path in p.glob('**.po'):
             _reorder_one(str(path), encoding=encoding)
     else:
-        _reorder_one(path, encoding='utf-8')
+        _reorder_one(str(path), encoding=encoding)
 
 
 def _reorder_one(path, encoding='utf-8'):

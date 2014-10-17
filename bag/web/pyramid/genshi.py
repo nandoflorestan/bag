@@ -135,7 +135,8 @@ class GenshiTemplateRenderer(object):
             callback = None
 
         from genshi.template import TemplateLoader
-        self.loader = TemplateLoader(paths, callback=callback,
+        self.loader = TemplateLoader(
+            paths, callback=callback,
             auto_reload=asbool(settings.get('pyramid.reload_templates')),
             max_cache_size=int(settings.get('genshi.max_cache_size', 100)))
         self.strip_whitespace = settings.get('genshi.strip_whitespace', True)

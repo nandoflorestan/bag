@@ -9,9 +9,11 @@ from codecs import open
 with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
-dependencies = ['nine>0.3.3', 'path.py', 'polib', 'argh']
-from sys import version
-if version.startswith('2.6'):
+dependencies = ['nine>=0.3.4', 'polib', 'argh']
+from sys import version_info
+if version_info[:2] < (3, 4):
+    dependencies.append('pathlib')
+if version_info[:2] == (2, 6):
     dependencies.append('ordereddict')
 
 setup(
@@ -46,6 +48,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         'Programming Language :: Python :: Implementation :: CPython',
         "Framework :: Pyramid",
         'Topic :: Database',

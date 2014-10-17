@@ -11,7 +11,7 @@ https://github.com/nandoflorestan/bag
 Previously, this library was hosted at
 http://code.google.com/p/bag
 
-The library is tested on Python 2.6, 2.7, 3.2 and 3.3.
+The library is tested on Python 2.6, 2.7, 3.3 and 3.4.
 
 For documentation on each module, please refer to its own docstrings.
 
