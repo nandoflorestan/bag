@@ -8,15 +8,26 @@ from datetime import datetime, timedelta
 from time import sleep
 
 
+def parse_iso_datetime(text):
+    if len(text) == 10:
+        return datetime.strptime(text, '%Y-%m-%d')
+    if len(text) == 16:
+        return datetime.strptime(text, '%Y-%m-%d %H:%M')
+    if len(text) == 19:
+        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S')
+    else:
+        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S.%f')
+
+
 def simplify_datetime(val, granularity='minute'):
     '''Notice this throws away any tzinfo.'''
+    if granularity == 'hour':
+        return datetime(val.year, val.month, val.day, val.hour)
     if granularity == 'minute':
         return datetime(val.year, val.month, val.day, val.hour, val.minute)
     if granularity == 'second':
-        return datetime(val.year, val.month, val.day, val.hour, val.minute,
-            val.second)
-    if granularity == 'hour':
-        return datetime(val.year, val.month, val.day, val.hour)
+        return datetime(
+            val.year, val.month, val.day, val.hour, val.minute, val.second)
 
 
 def timed_call(seconds, function, repetitions=-1, *a, **kw):
