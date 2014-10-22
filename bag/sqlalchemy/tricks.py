@@ -10,7 +10,7 @@ from __future__ import (absolute_import, division, print_function,
 import re
 from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
-from sqlalchemy.orm import relationship, MapperExtension
+from sqlalchemy.orm import relationship, MapperExtension, backref as _backref
 from sqlalchemy.orm.attributes import (
     CollectionAttributeImpl, ScalarObjectAttributeImpl)
 from sqlalchemy.orm.dynamic import DynamicAttributeImpl
@@ -63,23 +63,28 @@ def fk(attrib, nullable=False, index=True):
                   nullable=nullable, index=index)
 
 
-def fk_rel(cls, backref=None, attrib='pk', nullable=False, index=True):
+def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True, cascade=CASC):
     '''Returns a ForeignKey column and a relationship,
     while automatically setting the type of the foreign key.
 
     Usage::
 
-        # A relationship in an Address model:
-        person_id, person = fk_rel(Person, 'addresses',
-            nullable=False, index=True)
-        # *nullable* and *index* are usually ommited, because
-        # these are the default values and they are good.
+        # A relationship in an Address model pointing to a parent Person:
+        person_id, person = fk_rel(Person, backref='addresses',
+            nullable=False, index=True, cascade=False)
+
+    A backref is created only if you provide its name in the argument.
+    ``nullable`` and ``index`` are usually ommited, because these are the
+    default values and they are good. ``cascade`` is 'all, delete-orphan' by
+    default, but you can set it to False. You may also pass an ``attrib``
+    which is the column name for the foreign key.
     '''
     return (fk(getattr(cls, attrib), nullable=nullable, index=index),
-            relationship(cls, backref=backref))
+            relationship(cls, backref=_backref(backref, cascade=cascade))
+            if backref else relationship(cls))
 
 
-def many_to_many(Model1, Model2, pk1='pk', pk2='pk', metadata=None,
+def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
                  backref=None):
     '''Easily set up a many-to-many relationship between 2 existing models.
 
