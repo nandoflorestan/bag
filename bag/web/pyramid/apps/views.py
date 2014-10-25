@@ -18,6 +18,7 @@ from ....text import uncommafy
 
 class BaseView(object):
     '''Base class for views.'''
+
     def __init__(self, request):
         self.request = request
 
@@ -99,6 +100,7 @@ def authenticated(func):
         # Alternatively, use the *nine* library's ``native_str``:
         config.set_request_property(get_user, native_str('user'), reify=True)
     '''
+
     def wrapper(self, *a, **kw):
         if self.request.user:
             return func(self, *a, **kw)

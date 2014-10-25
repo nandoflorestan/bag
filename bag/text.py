@@ -66,7 +66,7 @@ latin1_map = (('"', '“”'),
               ('Z',   '\u017d'),
               ('z',   '\u017e'),
               ('EUR', '\u20ac'),
-             )  # chars that ISO-8859-1 does not support
+              )  # chars that ISO-8859-1 does not support
 
 ascii_map = [('a', 'áàâãäå\u0101'),
              ('e', 'éèêẽë'),
@@ -86,7 +86,7 @@ ascii_map = [('a', 'áàâãäå\u0101'),
              ('ss', "ß"),
              ('ae', "æ"),
              ('oe', 'œ'),
-            ]
+             ]
 ascii_map.extend(latin1_map)
 
 
@@ -186,11 +186,13 @@ def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
     return best
 
 
-must_be_lowercase = [' ' + s + ' ' for s in
+must_be_lowercase = [
+    ' ' + s + ' ' for s in
     'De Do Da Dos Das Em No Na Nos Nas E Para Por Com Sem Sobre '
     'O A Os As Um Uma Uns Umas Num Numa Nuns Numas Dum Duma Duns Dumas '
     'Que À Às Ao Aos Of The And For To With Without In On'.split()]
-must_be_uppercase = [' ' + s + ' ' for s in
+must_be_uppercase = [
+    ' ' + s + ' ' for s in
     'CD DVD MP3 I II III IV V VII VIII IX X SP RG CPF OAB CREA'
     'CRM SAP PHP LINQ VBA XML'.split()]
 

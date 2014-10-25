@@ -28,8 +28,8 @@ import codecs
 from docutils.parsers.rst import Parser  # easy_install -UZ docutils
 from docutils import utils
 # from docutils.readers.standalone import Reader
-from docutils.transforms import (frontmatter, misc, references, universal,
-    writer_aux)
+from docutils.transforms import (
+    frontmatter, misc, references, universal, writer_aux)
 
 # TODO: I don't know if the order of these transforms makes any sense.
 check_transforms = [

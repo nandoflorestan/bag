@@ -28,6 +28,7 @@ class FileWatcher(PausingLooper):
     for alterations and calls a function when any of them changes.
     That *callback* function gets, as an argument, the changed file path.
     '''
+
     def __init__(self, files, callback, seconds=1.3):
         self.callback = callback
         self.pause_duration = seconds
@@ -36,8 +37,8 @@ class FileWatcher(PausingLooper):
 
     def filter(self, files):
         '''Massages the sequence of file paths received in the constructor.
-        (Useful for subclassing.)
-        This implementation just discards empty strings and returns a generator.
+        (Useful for subclassing.) This implementation just discards
+        empty strings and returns a generator.
         '''
         return (f for f in files if f)
 
@@ -69,6 +70,7 @@ class ModuleWatcher(FileWatcher):
     If your purpose is to reload Python modules when they change,
     it is probably better to use the FoundModuleWatcher class.
     '''
+
     def filter(self, files):
         '''Filters .pyc files, but keeps them as .py. Returns a generator.'''
         files = super(ModuleWatcher, self).filter(files)

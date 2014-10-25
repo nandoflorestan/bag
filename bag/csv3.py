@@ -54,8 +54,8 @@ def setup_reader(stream, required_headers=[], **k):
             msg = _('The CSV file is missing the required header: ')
         else:
             msg = _('The CSV file is missing the required headers: ')
-        raise KeyError(msg +
-            ', '.join(['"{}"'.format(h) for h in missing_headers]))
+        raise KeyError(
+            msg + ', '.join(['"{}"'.format(h) for h in missing_headers]))
 
     class CsvRow(object):
         __slots__ = headers

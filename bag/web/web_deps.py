@@ -392,9 +392,11 @@ class WebDeps(object):
         instance variable of resources. If needed, you can change this
         by providing a `url_provider` function here.
         '''
-        self.lib = WebDepsRegistry(url_provider=url_provider,
+        self.lib = WebDepsRegistry(
+            url_provider=url_provider,
             tag_format='<script type="text/javascript" src="{0}"></script>')
-        self.css = WebDepsRegistry(url_provider=url_provider,
+        self.css = WebDepsRegistry(
+            url_provider=url_provider,
             tag_format='<link rel="stylesheet" type="text/css" href="{0}" />')
         self.package = CallableRegistry()
         self._url_provider = url_provider
@@ -477,6 +479,7 @@ class PackageComponent(object):
         deps.package('deform')
 
     '''
+
     def __init__(self, packages, deps):
         self._packages = packages
         self._deps = deps
@@ -503,6 +506,7 @@ class PageDeps(object):
     an instance must be used on each request.
     Makes it easy to declare dependencies and provides the HTML tag soup.
     '''
+
     def __init__(self, libs, styles, packages):
         '''The constructor is called by
         the factory returned by WebDeps.close(), not by you.
@@ -592,6 +596,6 @@ $(function() {
         a different tag is returned. You can configure either tag by
         changing the PageDeps.favicon_props dictionary.
         '''
-        return '<link rel="{rel}" {typ} href="{url}" sizes="{sizes}" />' \
-            .format(**self.favicon_props['ie' if self.is_ie(request) \
-                else 'normal'])
+        s = '<link rel="{rel}" {typ} href="{url}" sizes="{sizes}" />'.format(
+            **self.favicon_props['ie' if self.is_ie(request) else 'normal'])
+        return s

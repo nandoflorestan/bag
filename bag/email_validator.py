@@ -276,12 +276,12 @@ class EmailValidator(DomainValidator):
         domain, err = self.validate_domain(domain)
         if err:
             return (email,
-                "The e-mail has a problem to the right of the @: %s" % err)
+                    "The e-mail has a problem to the right of the @: %s" % err)
         # Validate the local part
         local, err = self.validate_local_part(local)
         if err:
             return (email,
-                "The email has a problem to the left of the @: %s" % err)
+                    "The email has a problem to the left of the @: %s" % err)
         # It is valid
         return local + '@' + domain, ''
 

@@ -109,7 +109,8 @@ def find_dups(directory='.', files='*.jpg', callbacks=[]):
 
         Example usage::
 
-            d = find_dups('some/directory', callbacks=[print_dups, KeepLarger()])
+            d = find_dups('some/directory',
+                          callbacks=[print_dups, KeepLarger()])
 
         The signature for writing callbacks is (existing, dup, m), where
         ``existing`` and ``dup`` are paths and ``m`` is the

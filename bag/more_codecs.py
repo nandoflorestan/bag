@@ -419,7 +419,7 @@ def _iconv_factory(codec_name):
 if __name__ == '__main__':
     interesting_codecs = discover_interesting_codecs()
     print("Here are the %i codecs that Python does not know, but iconv does:"
-        % len(interesting_codecs))
+          % len(interesting_codecs))
     print(interesting_codecs)
     # Now register the codecs and test
     codecs.register(_iconv_factory)

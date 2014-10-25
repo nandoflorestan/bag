@@ -7,7 +7,7 @@ from nine import basestring, str
 
 from warnings import warn
 warn('Use bag.file_existence_manager instead of FileIdManager.',
-         DeprecationWarning)
+     DeprecationWarning)
 
 
 class FileIdManager(object):

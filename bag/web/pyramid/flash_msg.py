@@ -45,7 +45,8 @@ from nine import nine
 def bootstrap_msg(plain=None, rich=None, kind='warning'):
     return '<div class="alert alert-{0}{1}"><button type="button" ' \
         'class="close" data-dismiss="alert">×</button>{2}</div>\n'.format(
-        escape(kind), ' alert-block' if rich else '', rich or escape(plain))
+            escape(kind), ' alert-block' if rich else '', rich or escape(plain)
+            )
 
 
 @nine
@@ -90,7 +91,7 @@ class FlashMessage(object):
 def render_flash_messages(request):
     msgs = request.session.pop_flash()  # Pops from the empty string queue
     return ''.join([m.html if isinstance(m, FlashMessage)
-        else bootstrap_msg(m) for m in msgs])
+                    else bootstrap_msg(m) for m in msgs])
 
 
 def render_flash_messages_from_queues(request):

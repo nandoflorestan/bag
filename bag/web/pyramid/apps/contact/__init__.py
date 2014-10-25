@@ -8,7 +8,8 @@ from ...starter import register_view_class
 from ..views import BaseView
 
 
-def create_contact_view(config, BaseView=BaseView, route_name='contact',
+def create_contact_view(
+        config, BaseView=BaseView, route_name='contact',
         action='', renderer=None, master_template='aaa.genshi',
         len_name=dict(min=2, max=200),
         len_subject=dict(max=256),
@@ -39,16 +40,19 @@ def create_contact_view(config, BaseView=BaseView, route_name='contact',
         @staticmethod
         def declare_routes(config, prefix=''):
             config.add_route(route_name, prefix + 'contact')
-            config.add_view(route_name=route_name, view=ContactView,
+            config.add_view(
+                route_name=route_name, view=ContactView,
                 renderer=renderer, request_method='GET', attr='get')
-            config.add_view(route_name=route_name, view=ContactView,
+            config.add_view(
+                route_name=route_name, view=ContactView,
                 renderer=renderer, request_method='POST', attr='post')
 
         def __init__(self, request):
             self.request = request
 
         def _get_form(self):
-            return d.Form(self.ContactSchema(), buttons=(_('Send email'),),
+            return d.Form(
+                self.ContactSchema(), buttons=(_('Send email'),),
                 action=action, formid='contact-form')
 
         def _template_context(self, contact_form=None):
@@ -95,16 +99,20 @@ def create_contact_view(config, BaseView=BaseView, route_name='contact',
             return dict(email_sent=True, master_template=master_template)
 
         class ContactSchema(c.MappingSchema):
-            name = c.SchemaNode(c.Str(), title=_('Name'),
+            name = c.SchemaNode(
+                c.Str(), title=_('Name'),
                 widget=d.widget.TextInputWidget(size=60, maxlength=160))
-            email = c.SchemaNode(c.Str(), title=_('Email'),
+            email = c.SchemaNode(
+                c.Str(), title=_('Email'),
                 validator=c.Email(),
                 widget=d.widget.TextInputWidget(size=50, maxlength=160,
-                    type='email'))
-            subject = c.SchemaNode(c.Str(), title=_('Subject'),
+                                                type='email'))
+            subject = c.SchemaNode(
+                c.Str(), title=_('Subject'),
                 widget=d.widget.TextInputWidget(size=60, maxlength=160))
-            message = c.SchemaNode(c.Str(), title=_('Message'),
-                    widget=d.widget.TextAreaWidget(cols=60, rows=12))
+            message = c.SchemaNode(
+                c.Str(), title=_('Message'),
+                widget=d.widget.TextAreaWidget(cols=60, rows=12))
             if len_name:
                 name.widget.maxlength = len_name.get('max')
                 name.validator = c.Length(**len_name)

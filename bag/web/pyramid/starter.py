@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import stat
 from nine import str
-from pyramid.config import Configurator
 from pyramid.resource import abspath_from_resource_spec
 from pyramid.response import FileResponse
 from ...log import setup_log
@@ -102,12 +101,12 @@ class PyramidStarter(object):
             from importlib import import_module
             try:
                 module = import_module(self.package_name + '.models')
-            except ImportError as e:
+            except ImportError:
                 self.log.warn('Could not find the models module.')
             else:
                 try:
                     initialize_sql = module.initialize_sql
-                except AttributeError as e:
+                except AttributeError:
                     self.log.warn('initialize_sql() does not exist.')
         if initialize_sql:
             self.log.info('initialize_sql()')
@@ -135,7 +134,7 @@ class PyramidStarter(object):
 
         After this you can access registry.mailer to send messages.
         '''
-        from marrow.mailer import Mailer, Message
+        from marrow.mailer import Mailer
         import atexit
         options = subdict(self.settings, 'marrow.mailer.')
         mailer = self.config.registry.mailer = Mailer(options)
@@ -147,7 +146,8 @@ class PyramidStarter(object):
             class Sender(object):                 # Provide Ptah with an object
                 def send(self, author, to, msg):  # that has a send() method.
                     from quopri import decodestring
-                    m = mailer.new(to=to, subject=str(msg['subject']),
+                    m = mailer.new(
+                        to=to, subject=str(msg['subject']),
                         plain=decodestring(msg.get_payload()))
                     mailer.send(m)
             self.config.ptah_init_mailer(Sender())
@@ -171,8 +171,8 @@ class PyramidStarter(object):
         '''Reads robots.txt into memory, then sets up a view that serves it.'''
         from mimetypes import guess_type
         path = abspath_from_resource_spec(
-            self.settings.get('robots', '{}:{}'
-                .format(self.package_name, path)))
+            self.settings.get('robots', '{}:{}'.format(
+                self.package_name, path)))
         content_type = guess_type(path)[0]
         import codecs
         with codecs.open(path, 'r', encoding='utf-8') as f:
@@ -214,7 +214,7 @@ class PyramidStarter(object):
                 translate(text, domain=package_name, mapping=mapping)
             event['plur'] = lambda singular, plural, n, mapping=None: \
                 pluralize(singular, plural, n,
-                domain=package_name, mapping=mapping)
+                          domain=package_name, mapping=mapping)
 
         self.config.add_subscriber(fn or template_globals,
                                    interfaces.IBeforeRender)
@@ -279,7 +279,7 @@ def all_routes(config):
 
 def all_views(registry):
     return set([o['introspectable']['callable']
-        for o in registry.introspector.get_category('views')])
+                for o in registry.introspector.get_category('views')])
 
 
 def all_view_classes(registry):
@@ -288,13 +288,15 @@ def all_view_classes(registry):
     return [o for o in all_views(registry) if isinstance(o, type)]
 
 
-def authentication_policy(settings, include_ip=True, timeout=60 * 60 * 32,
+def authentication_policy(
+        settings, include_ip=True, timeout=60 * 60 * 32,
         reissue_time=60, groupfinder=lambda userid, request: []):
     '''Returns an authentication policy object for configuration.'''
     try:
         secret = settings['cookie_salt']
-    except KeyError as e:
+    except KeyError:
         raise KeyError('Your config file is missing a cookie_salt.')
     from pyramid.authentication import AuthTktAuthenticationPolicy
-    return AuthTktAuthenticationPolicy(secret, callback=groupfinder,
+    return AuthTktAuthenticationPolicy(
+        secret, callback=groupfinder,
         include_ip=include_ip, timeout=timeout, reissue_time=reissue_time)

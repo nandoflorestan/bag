@@ -90,13 +90,12 @@ class PluginsManager(object):
 
     @reify
     def enabled(self):
-        settings = self.settings
-        #~ for name, plugin in iteritems(self.config.registry.all_plugins):
-            #~ if settings['plugins.' + name].lower() != 'disabled':
-                #~ yield name, plugin
+        # settings = self.settings
+        # for name, plugin in iteritems(self.config.registry.all_plugins):
+            # if settings['plugins.' + name].lower() != 'disabled':
+                # yield name, plugin
         return {name: plugin for name, plugin in iteritems(self.all)
-            if self.is_enabled(name)
-        }
+                if self.is_enabled(name)}
 
     def is_enabled(self, name):
         return self.settings.get('plugins.' + name, '').lower() != 'disabled'

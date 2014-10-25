@@ -113,12 +113,13 @@ class LocaleDict(OrderedDict):
     * human-readable and translatable language names such as "English", and
     * titles such as "Change to English", written in THAT language.
     '''
+
     def add(self, code, display_name=None, english_name=None, title=None):
         babel_locale = Locale(*code.split("_"))
-        self[code] = LocaleInfo(code,
+        self[code] = LocaleInfo(
+            code, title=title or locale_titles.get(code),
             display_name=display_name or babel_locale.display_name,
             english_name=english_name or babel_locale.english_name,
-            title=title or locale_titles.get(code),
             babel_locale=babel_locale)
 
 
@@ -146,7 +147,8 @@ def locale_cookie_headers(locale_code):
     '''
     # native_str() calls below are because waitress expects
     # bytes in Python 2 and unicode in Python 3.
-    return [(native_str('Set-Cookie'), native_str('_LOCALE_={0}; expires='
+    return [(native_str('Set-Cookie'), native_str(
+        '_LOCALE_={0}; expires='
         'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code)))]
 
 
@@ -158,7 +160,8 @@ def locale_view(request):
     # Ensure this locale code is one of the enabled_locales
     if not locale_code in request.registry.settings[SETTING_NAME]:
         raise KeyError('Locale not enabled: "{0}"'.format(locale_code))
-    return HTTPFound(location=request.referrer or '/',
+    return HTTPFound(
+        location=request.referrer or '/',
         headers=locale_cookie_headers(locale_code))
 
 
@@ -217,11 +220,13 @@ def includeme(config):
 
 class BaseLocalizedView(object):
     '''A mixin class for your application's base view class.'''
+
     def format_number(self, n):
         return format_number(n, locale=get_locale_name(self.request))
 
     def format_currency(self, n, currency=None, format=None):
-        return format_currency(n, format=format,
+        return format_currency(
+            n, format=format,
             currency=currency or getattr(self, 'default_currency', 'USD'),
             locale=get_locale_name(self.request))
 
@@ -242,7 +247,7 @@ def sorted_countries(arg, top_entry=True):  # TODO memoized version
             if len(tup[0]) == 2:  # Keep only countries
                 yield tup
     return sorted(generator(iteritems(Locale(code).territories)),
-        key=lambda x: x[1])
+                  key=lambda x: x[1])
 
 
 # Colander and Deform section

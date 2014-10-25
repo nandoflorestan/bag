@@ -10,6 +10,7 @@ import csv
 
 class CsvWriter(object):
     '''A CSV writer that encapsulates a stream and supports encodings.'''
+
     def __init__(self, file, encoding='utf8', delimiter=',',
                  quoting=csv.QUOTE_MINIMAL, lineterminator='\r\n'):
         self._file = file
@@ -34,8 +35,9 @@ class CsvWriter(object):
         encoded into the output encoding.
         '''
         try:
-            self._writer.writerow([v.encode(self._enc)
-                if isinstance(v, unicode) else v for v in vals])
+            self._writer.writerow([
+                v.encode(self._enc) if isinstance(v, unicode)
+                else v for v in vals])
         except UnicodeEncodeError as e:
             print(vals)
             raise e
@@ -93,6 +95,7 @@ class UnicodeDictReader(object):
 
     Apparently, in Python 3 we don't need this class anymore.
     '''
+
     def __iter__(self):
         return self
 
