@@ -17,6 +17,7 @@ from sqlalchemy.orm.dynamic import DynamicAttributeImpl
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
+from bag import resolve
 from ..web import gravatar_image
 
 # http://docs.sqlalchemy.org/en/latest/orm/session.html#cascades
@@ -119,6 +120,25 @@ def pk(tablename):
     # Maybe this problem is in Python only?
     return Column(Integer, Sequence(tablename + '_id_seq'),
                   primary_key=True, autoincrement=True)
+
+
+def is_model_class(val):
+    return hasattr(val, '__base__') and hasattr(val, '__table__')
+
+
+def models_and_tables_in(arg):
+    '''``arg`` may be a resource spec, a module or a dictionary.
+
+    Returns 2 lists containing the model classes and tables in it::
+
+        models, tables = models_and_tables_in(globals())
+    '''
+    if not isinstance(arg, dict):
+        arg = resolve(arg)  # ensure arg is a python module
+        arg = arg.__dict__
+    models = [o for o in arg.values() if is_model_class(o)]
+    tables = [o for o in arg.values() if isinstance(o, Table)]
+    return models, tables
 
 
 def model_property_names(cls, whitelist=None, blacklist=None,
