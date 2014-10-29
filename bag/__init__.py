@@ -28,3 +28,8 @@ def resolve(resource_spec):
     module, var = resource_spec.split(':')  # arg is assumed to be a string
     module = import_module(module)
     return getattr(module, var)
+
+
+def first(iterable):
+    for o in iterable:
+        return o
