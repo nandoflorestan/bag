@@ -6,6 +6,7 @@ import random
 import os
 import re
 from datetime import datetime
+from pathlib import Path
 from nine import basestring, str, range
 
 
@@ -207,7 +208,9 @@ def make_title(txt):
 
 
 def content_of(paths, encoding='utf-8', sep='\n'):
-    if isinstance(paths, basestring):
+    if isinstance(paths, Path):
+        paths = [str(paths)]
+    elif isinstance(paths, basestring):
         paths = [paths]
     content = []
     for path in paths:
