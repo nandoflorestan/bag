@@ -64,10 +64,6 @@ class BaseRootResource(object):
             return self._make_descendant(self.factories[name], name)
         raise KeyError(name)
 
-    # TODO Remove these eventually. It's better to use the functions.
-    ancestor = ancestor
-    ancestor_model = ancestor_model
-
 
 @nine
 class BaseResource(BaseRootResource):
