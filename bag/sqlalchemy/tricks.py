@@ -57,14 +57,15 @@ def length(attrib):
     return _get_length(col(attrib))
 
 
-def fk(attrib, nullable=False, index=True):
+def fk(attrib, nullable=False, index=True, primary_key=False, doc=None):
     '''Returns a ForeignKey column while automatically setting the type.'''
     column = col(attrib)
-    return Column(column.copy().type, ForeignKey(column),
-                  nullable=nullable, index=index)
+    return Column(column.copy().type, ForeignKey(column), doc=doc,
+                  nullable=nullable, index=index, primary_key=primary_key)
 
 
-def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True, cascade=CASC):
+def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True,
+           primary_key=False, cascade=CASC, doc=None):
     '''Returns a ForeignKey column and a relationship,
     while automatically setting the type of the foreign key.
 
@@ -80,7 +81,8 @@ def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True, cascade=C
     default, but you can set it to False. You may also pass an ``attrib``
     which is the column name for the foreign key.
     '''
-    return (fk(getattr(cls, attrib), nullable=nullable, index=index),
+    return (fk(getattr(cls, attrib), nullable=nullable, index=index,
+               primary_key=primary_key, doc=doc),
             relationship(cls, backref=_backref(backref, cascade=cascade))
             if backref else relationship(cls))
 
