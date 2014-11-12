@@ -7,6 +7,7 @@ there are many different ways to initialize SQLALchemy.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from decimal import Decimal
 import re
 from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
@@ -192,23 +193,26 @@ class MinimalBase(object):
         return name[0].lower() + \
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
 
-    def to_dict(self, blacklist=None, convert_date=False):  # TODO Whitelist
-        """Dumps the properties of the object into a dict for use in json."""
+    def to_dict(self, blacklist=None, whitelist=None, for_json=True):
+        '''Dumps the properties of the object into a dict.'''
         props = {}
-        for key in self.__dict__:
-            if key in (blacklist or self.blacklist) or key.startswith('__') \
-                    or key.startswith('_sa_'):
+        blacklist = self.blacklist if blacklist is None else blacklist
+        keys = whitelist or self.whitelist or (
+            key for key in self.__dict__.keys()
+            if not key.startswith('__') and not key.startswith('_sa_'))
+        for key in keys:
+            if key in blacklist:
                 continue
             obj = getattr(self, key)
-            if isinstance(obj, datetime) or isinstance(obj, date):
-                if convert_date:
-                    props[key] = obj.isoformat()
-                else:
-                    props[key] = obj
+            if for_json and isinstance(obj, datetime) or isinstance(obj, date):
+                props[key] = obj.isoformat()
+            elif for_json and isinstance(obj, Decimal):
+                props[key] = float(str(obj))
             else:
                 props[key] = obj
         return props
     blacklist = ['password']
+    whitelist = None
 
     @classmethod
     def get_or_create(cls, session, **filters):
