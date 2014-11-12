@@ -23,7 +23,7 @@ def treated_routes(config, base_path='/'):
               'activate': '/activate/{user_id}/{code}'}
         '''
     adict = {}
-    for route in config.get_routes_mapper().get_routes():
+    for route in config.get_routes_mapper().routes.values():
         name = route.name.rstrip('/')
         pattern = route.pattern.strip('/')  # remove the slash from both sides
         if pattern.endswith("/*subpath"):
