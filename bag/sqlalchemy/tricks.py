@@ -214,6 +214,33 @@ class MinimalBase(object):
     blacklist = ['password']
     whitelist = None
 
+    def update(self, adict, transient=False):
+        '''Applies the information in the provided dictionary to this
+            model's properties, optionally checking that the keys exist.
+            '''
+        for k, v in adict.items():
+            if not transient:
+                assert hasattr(type(self), k), \
+                    "Model {} does not have a '{}' attribute.".format(
+                        type(self).__name__, k)
+            setattr(self, k, v)
+        return self
+
+    def update_from_schema(self, schema, adict):
+        '''Validates the information in the dictionary ``adict`` against
+            a Colander ``schema``. If validation fails, returns a tuple
+            containing the Colander error dict and False.
+            If happy, returns the updated model and True.
+            '''
+        try:
+            clean = schema.deserialize(adict)
+        except Exception as e:
+            if hasattr(e, 'as_dict') and callable(e.as_dict):
+                return e.as_dict(), False
+            raise
+        self.update(clean)
+        return self, True
+
     @classmethod
     def get_or_create(cls, session, **filters):
         '''Returns a tuple (object, is_new). *is_new* is True if the
