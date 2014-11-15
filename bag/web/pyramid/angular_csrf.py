@@ -43,7 +43,7 @@
     Second choice: the csrf() decorator
     ===================================
 
-    Decorate your view with @csrf and it will raise HTTPUnauthorized when
+    Decorate your view with @csrf and it will raise HTTPForbidden when
     the token is missing, which seems better. Usage::
 
         from bag.web.pyramid.angular_csrf import csrf
@@ -68,7 +68,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from functools import wraps
 from pyramid.events import NewResponse
-from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.httpexceptions import HTTPForbidden
 
 COOKIE_NAME = 'XSRF-TOKEN'
 HEADER_NAME = 'X-XSRF-Token'  # different from Pyramid's default 'X-CSRF-Token'
@@ -108,7 +108,7 @@ def csrf(fn):
         if token == request.session.get_csrf_token():
             return fn(context, request)
         else:
-            raise HTTPUnauthorized('Invalid CSRF token.')
+            raise HTTPForbidden('Invalid CSRF token.')
     return wrapper
 
 
