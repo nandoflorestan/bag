@@ -232,11 +232,14 @@ class MinimalBase(object):
             containing the Colander error dict and False.
             If happy, returns the updated model and True.
             '''
+        schema._model_instance = self  # makes some validations easier
         try:
             clean = schema.deserialize(adict)
         except Exception as e:
-            if hasattr(e, 'as_dict') and callable(e.as_dict):
-                return e.as_dict(), False
+            if hasattr(e, 'asdict') and callable(e.asdict):
+                adict = e.asdict()
+                adict['error_type'] = 'Invalid'
+                return adict, False
             raise
         self.update(clean)
         return self, True
