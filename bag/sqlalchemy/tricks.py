@@ -61,8 +61,9 @@ def length(attrib):
 def fk(attrib, nullable=False, index=True, primary_key=False, doc=None):
     '''Returns a ForeignKey column while automatically setting the type.'''
     column = col(attrib)
-    return Column(column.copy().type, ForeignKey(column), doc=doc,
-                  nullable=nullable, index=index, primary_key=primary_key)
+    return Column(column.copy().type, ForeignKey(
+        column, ondelete=None if nullable else 'CASCADE',  # vs 'SET NULL'
+        ), doc=doc, index=index, primary_key=primary_key, nullable=nullable)
 
 
 def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True,
@@ -78,13 +79,18 @@ def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True,
 
     A backref is created only if you provide its name in the argument.
     ``nullable`` and ``index`` are usually ommited, because these are the
-    default values and they are good. ``cascade`` is 'all, delete-orphan' by
-    default, but you can set it to False. You may also pass an ``attrib``
+    default values and they are good. ``cascade`` is "all, delete-orphan" by
+    default, but you can set it to False, which translates to
+    "save-update, merge". You may also pass an ``attrib``
     which is the column name for the foreign key.
     '''
+    if cascade is None:
+        cascade = CASC if nullable else False
     return (fk(getattr(cls, attrib), nullable=nullable, index=index,
                primary_key=primary_key, doc=doc),
-            relationship(cls, backref=_backref(backref, cascade=cascade))
+            relationship(cls, backref=_backref(
+                backref, cascade=cascade,
+                passive_deletes=False if nullable else True))
             if backref else relationship(cls))
 
 
