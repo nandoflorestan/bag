@@ -69,6 +69,7 @@ from __future__ import (absolute_import, division, print_function,
 from functools import wraps
 from pyramid.events import NewResponse
 from pyramid.httpexceptions import HTTPForbidden
+from . import _
 
 COOKIE_NAME = 'XSRF-TOKEN'
 HEADER_NAME = 'X-XSRF-Token'  # different from Pyramid's default 'X-CSRF-Token'
@@ -108,7 +109,8 @@ def csrf(fn):
         if token == request.session.get_csrf_token():
             return fn(context, request)
         else:
-            raise HTTPForbidden('Invalid CSRF token.')
+            raise HTTPForbidden(_(
+                'Invalid CSRF token. Please try reloading the page.'))
     return wrapper
 
 
