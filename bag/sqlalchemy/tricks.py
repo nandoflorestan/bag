@@ -234,21 +234,13 @@ class MinimalBase(object):
 
     def update_from_schema(self, schema, adict):
         '''Validates the information in the dictionary ``adict`` against
-            a Colander ``schema``. If validation fails, returns a tuple
-            containing the Colander error dict and False.
-            If happy, returns the updated model and True.
+            a Colander ``schema``. If validation fails, colander.Invalid
+            is raised. If happy, returns the updated model instance.
             '''
         schema._model_instance = self  # makes some validations easier
-        try:
-            clean = schema.deserialize(adict)
-        except Exception as e:
-            if hasattr(e, 'asdict') and callable(e.asdict):
-                adict = e.asdict()
-                adict['error_type'] = 'Invalid'
-                return adict, False
-            raise
+        clean = schema.deserialize(adict)  # May raise colander.Invalid
         self.update(clean)
-        return self, True
+        return self
 
     @classmethod
     def query(cls, sas, *predicates, **filters):
