@@ -75,14 +75,15 @@ COOKIE_NAME = 'XSRF-TOKEN'
 HEADER_NAME = 'X-XSRF-Token'  # different from Pyramid's default 'X-CSRF-Token'
 
 
-def on_GET_request_setup_csrf_cookie(event):
+def on_GET_request_setup_csrf_cookie(ev):
     '''If this is the first GET request, we set the CSRF token in a
         JavaScript readable session cookie called XSRF-TOKEN.
         Angular will pick it up for subsequent AJAX requests.
         '''
-    if event.request.method == 'GET':
-        event.response.set_cookie(
-            COOKIE_NAME, event.request.session.get_csrf_token())
+    if ev.request.method == 'GET':  # and not 'static' in ev.request.path:
+        token = ev.request.session.get_csrf_token()
+        if ev.request.cookies.get('XSRF-TOKEN') != token:
+            ev.response.set_cookie(COOKIE_NAME, token)
 
 
 # Option 1 is not working  :(
@@ -106,7 +107,9 @@ def csrf(fn):
     @wraps(fn)
     def wrapper(context, request):
         token = request.headers.get(HEADER_NAME)
-        if token == request.session.get_csrf_token():
+        session_token = request.session.get_csrf_token()
+        # print(token, session_token)
+        if token == session_token:
             return fn(context, request)
         else:
             raise HTTPForbidden(_(
