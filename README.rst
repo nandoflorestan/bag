@@ -41,7 +41,10 @@ Most important library contents
 If you use the Pyramid web framework
 ====================================
 
-* **bag.web.pyramid.flash_msg** -- Advanced flash messages scheme for Pyramid.
+* `bag.web.pyramid.angular_csrf <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/angular_csrf.py>`_
+  -- Make Pyramid play ball with AngularJS to achieve CSRF protection.
+* `bag.web.pyramid.flash_msg <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/flash_msg.py>`_
+  -- Advanced flash messages scheme for Pyramid.
 * `bag.web.pyramid.locale <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/locale.py>`_
   -- Easily enable and disable locales, let users switch languages,
   and use the browser's languages by default.
@@ -49,8 +52,10 @@ If you use the Pyramid web framework
   -- Simple web menu system (navigation).
 * **bag.web.pyramid.plugins_manager** -- Make your Pyramid app extensible
   through plugins.
-* **bag.web.pyramid.starter** -- Reusable configurator for
-  starting up Pyramid web applications.
+* `bag.web.pyramid.resources <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/resources.py>`_
+  -- Functions and base resources for context objects (Pyramid traversal).
+* `bag.web.pyramid.routes <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/routes.py>`_
+  -- Make Pyramid routes and the route_path() function available to JS in the client.
 * `bag.web.pyramid.genshi <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/genshi.py>`_
   -- Use the Genshi templating language with the Pyramid web framework.
   Though perhaps one might prefer
