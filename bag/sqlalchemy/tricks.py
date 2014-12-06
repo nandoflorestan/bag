@@ -19,6 +19,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
 from bag import resolve
+from nine import basestring
 from ..web import gravatar_image
 
 # http://docs.sqlalchemy.org/en/latest/orm/session.html#cascades
@@ -214,6 +215,9 @@ class MinimalBase(object):
                 props[key] = obj.isoformat()
             elif for_json and isinstance(obj, Decimal):
                 props[key] = float(str(obj))
+            elif for_json and not isinstance(obj, (
+                    basestring, int, float, list, dict, bool, type(None))):
+                continue
             else:
                 props[key] = obj
         return props
