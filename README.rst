@@ -97,15 +97,13 @@ Less important library contents
   cache, which can take a keymaker function as an argument.
 * **bag.more_codecs** -- Got text in some weird encoding that
   Python doesn't know? OK, use iconv to decode it.
-* `bag.web.nav <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/nav.py>`_
-  -- A simple navigation menu system for Pyramid.
 * `bag.show_progress <https://github.com/nandoflorestan/bag/blob/master/bag/show_progress.py>`_
   -- Don't leave your user wondering if your program is hanging;
   print the progress every few seconds.
 * `bag.sqlalchemy.context <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/context.py>`_
-  -- Convenient SQLALchemy initialization, at last.
+  -- Convenient SQLAlchemy initialization, at last.
 * `bag.sqlalchemy.mediovaigel <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/mediovaigel.py>`_ -- Complete solution for database fixtures using SQLAlchemy.
 * `bag.sqlalchemy.tricks <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/tricks.py>`_
-  -- Various SQLAlchemy gimmicks...
+  -- Various SQLAlchemy gimmicks, including a great base model class.
 * `bag.text <https://github.com/nandoflorestan/bag/blob/master/bag/text.py>`_
   -- Functions for working with unicode strings.
