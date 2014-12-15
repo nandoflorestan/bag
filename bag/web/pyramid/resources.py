@@ -1,38 +1,122 @@
 # -*- coding: utf-8 -*-
 
+'''Construction kit for Pyramid resource classes. Example usage::
+
+        from bag.web.pyramid.resources import (
+            BaseRootResource, BaseResource, IntResource,
+            ancestor, ancestor_model, model_property)
+        from pyramid.decorator import reify
+        from pyramid.security import (Allow, Deny, Everyone, Authenticated,
+                                      ALL_PERMISSIONS)
+        from .models import User, Address
+
+
+        class RootResource(BaseRootResource):
+            __acl__ = [
+                (Allow, 'group:admin', ALL_PERMISSIONS),
+                (Allow, Authenticated, ('view_dashboard', 'edit_users')),
+                (Deny, Everyone, ALL_PERMISSIONS),
+            ]
+            factories = {}  # a static registry of Resource classes
+
+
+        class UserResource(IntResource):  # /users/1/
+            factories = {}  # a static registry of Resource classes
+
+            @reify
+            def model(self):
+                return sas.query(User).get(self.__name__)
+
+            @reify
+            def __acl__(self):
+                user_id = self._request.authenticated_userid
+                return [(Allow, user_id, self.model.get_permissions(user_id))]
+
+
+        class UsersResource(BaseResource):  # /users/
+            contains_cls = UserResource
+
+            @reify
+            def models(self):
+                return sas.query(User)
+
+        RootResource.factories['users'] = UsersResource
+
+
+        class AddressResource(IntResource):  # /users/1/addresses/1
+            factories = {}  # a static registry of Resource classes
+            model = model_property(sas, Address, user=User)
+
+
+        class AddressesResource(BaseResource):  # /users/1/addresses
+            contains_cls = AddressResource
+
+            @reify
+            def models(self):
+                return ancestor_model(self, User).addresses
+
+        UserResource.factories['addresses'] = AddressesResource
+    '''
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from nine import nine, str
 from bag import first
+from nine import nine, str
+from pyramid.decorator import reify
+from pyramid.httpexceptions import HTTPNotFound
 
 
-def ancestor_finder(resource, predicate, include_self=True):
+def ancestor_finder(resource, predicate, include_self=False):
     '''Generator that climbs the tree yielding resources for which
         ``predicate(current_resource)`` returns True.
         '''
-    resource = resource if include_self else resource.__parent__
+    resource = resource if include_self else getattr(
+        resource, '__parent__', None)
     while resource is not None:
         if predicate(resource):
             yield resource
         resource = getattr(resource, '__parent__', None)
 
 
-def ancestor(resource, cls, include_self=True):
+def ancestor(resource, cls, include_self=False):
+    '''Returns the first ancestor of ``resource`` that is of type ``cls``.'''
     def predicate(resource):
         return isinstance(resource, cls)
     return first(ancestor_finder(resource, predicate, include_self))
 
 
-def ancestor_model(resource, cls, include_self=True):
-    '''Returns a model instance found in ancestor.model, or None.'''
+def ancestor_model(resource, cls, include_self=False):
+    '''Returns a model instance of type ``cls`` found in the ``model``
+        attribute of the ancestors of ``resource``, or None.
+        '''
     def predicate(resource):
         return hasattr(resource, 'model') and isinstance(resource.model, cls)
     o = first(ancestor_finder(resource, predicate, include_self))
-    return o.model if o else o
+    return o.model if o else None
 
 
 def find_root(resource):
     return ancestor(resource, type(None))
+
+
+def model_property(sas, model_cls, **ancestors):
+    '''If you are using SQLAlchemy, this function returns a model property
+        that checks some ancestor ID(s) against its foreign key(s).
+        Example usage::
+
+            class AddressResource(BaseResource):
+                model = model_property(sas, Address, user=User)
+        '''
+
+    def wrapped(self):
+        o = sas.query(model_cls).get(self.__name__)
+        if o is None:
+            raise HTTPNotFound()
+        for key, cls in ancestors:
+            if not getattr(o, key) is ancestor_model(self, cls):
+                raise HTTPNotFound()
+        return o
+    return reify(wrapped)
 
 
 @nine
@@ -71,8 +155,8 @@ class BaseResource(BaseRootResource):
 
         Subclasses may define a static ``factories`` dict, used to
         map URL elements to other resource classes or factories.
-        This is mainly useful for the root resource which usually
-        forks into several separate trees.
+        This is useful for any resource whose children fork into
+        separate trees.
 
         Subclasses may also represent collections, such as /books/.
         These subclasses must define a ``contains_cls`` attribute,

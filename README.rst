@@ -1,5 +1,6 @@
+===========
 bag library
-~~~~~~~~~~~
+===========
 
 Functions and classes for many purposes,
 that I use all the time in multiple programs.
