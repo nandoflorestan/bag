@@ -67,30 +67,31 @@ def fk(attrib, nullable=False, index=True, primary_key=False, doc=None):
         ), doc=doc, index=index, primary_key=primary_key, nullable=nullable)
 
 
-def fk_rel(cls, backref=None, attrib='id', nullable=False, index=True,
-           primary_key=False, cascade=CASC, doc=None):
+def fk_rel(cls, attrib='id', nullable=False, index=True, doc=None,
+           primary_key=False, backref=None, cascade=CASC, order_by=None):
     '''Returns a ForeignKey column and a relationship,
-    while automatically setting the type of the foreign key.
+        while automatically setting the type of the foreign key.
 
-    Usage::
+        Usage::
 
-        # A relationship in an Address model pointing to a parent Person:
-        person_id, person = fk_rel(Person, backref='addresses',
-            nullable=False, index=True, cascade=False)
+            # A relationship in an Address model pointing to a parent Person:
+            person_id, person = fk_rel(Person, nullable=False,
+                index=True, backref='addresses', cascade=False)
 
-    A backref is created only if you provide its name in the argument.
-    ``nullable`` and ``index`` are usually ommited, because these are the
-    default values and they are good. ``cascade`` is "all, delete-orphan" by
-    default, but you can set it to False, which translates to
-    "save-update, merge". You may also pass an ``attrib``
-    which is the column name for the foreign key.
-    '''
+        A backref is created only if you provide its name in the argument.
+        ``nullable`` and ``index`` are usually ommited, because these are the
+        default values and they are good. ``cascade`` is "all, delete-orphan" by
+        default, but you can set it to False, which translates to
+        "save-update, merge". If provided, ``order_by`` is used on the backref.
+        You may also pass an ``attrib`` which is the column name for
+        the foreign key.
+        '''
     if cascade is None:
         cascade = CASC if nullable else False
     return (fk(getattr(cls, attrib), nullable=nullable, index=index,
                primary_key=primary_key, doc=doc),
             relationship(cls, backref=_backref(
-                backref, cascade=cascade,
+                backref, cascade=cascade, order_by=order_by,
                 passive_deletes=False if nullable else True))
             if backref else relationship(cls))
 
