@@ -112,7 +112,7 @@ def model_property(sas, model_cls, **ancestors):
         o = sas.query(model_cls).get(self.__name__)
         if o is None:
             raise HTTPNotFound()
-        for key, cls in ancestors:
+        for key, cls in ancestors.items():
             if not getattr(o, key) is ancestor_model(self, cls):
                 raise HTTPNotFound()
         return o
