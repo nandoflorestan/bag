@@ -182,7 +182,7 @@ class BaseResource(BaseRootResource):
     def __repr__(self):
         alist = []
         for element in reversed(list(ancestor_finder(
-                self, lambda resource: True))):
+                self, lambda resource: True, include_self=True))):
             alist.append(str(element))
         return ' / '.join(alist)
 

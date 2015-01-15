@@ -80,8 +80,8 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, doc=None,
 
         A backref is created only if you provide its name in the argument.
         ``nullable`` and ``index`` are usually ommited, because these are the
-        default values and they are good. ``cascade`` is "all, delete-orphan" by
-        default, but you can set it to False, which translates to
+        default values and they are good. ``cascade`` is "all, delete-orphan"
+        by default, but you can set it to False, which translates to
         "save-update, merge". If provided, ``order_by`` is used on the backref.
         You may also pass an ``attrib`` which is the column name for
         the foreign key.
