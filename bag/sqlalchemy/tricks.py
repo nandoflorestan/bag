@@ -188,6 +188,12 @@ def foreign_keys_in(cls):
     return filtered
 
 
+def models_from_ids(sas, cls, ids):
+    '''Generator that, given a sequence of IDs, yields model instances.'''
+    for id in ids:
+        yield sas.query(cls).get(id)
+
+
 class MinimalBase(object):
     """Declarative base class that auto-generates __tablename__."""
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
