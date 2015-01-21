@@ -6,6 +6,17 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from datetime import datetime, timedelta
 from time import sleep
+from pytz import timezone
+utc = timezone('utc')
+
+
+def now_with_tz():
+    return utc.localize(datetime.utcnow())
+
+
+def naive(dt):
+    return datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,
+                    dt.second, dt.microsecond)
 
 
 def parse_iso_datetime(text):
