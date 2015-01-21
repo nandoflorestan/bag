@@ -4,7 +4,9 @@
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import json
 from datetime import datetime, timedelta
+from decimal import Decimal
 from time import sleep
 from pytz import timezone
 utc = timezone('utc')
@@ -62,3 +64,39 @@ def timed_call(seconds, function, repetitions=-1, *a, **kw):
         took = datetime.utcnow() - started
         if turn != repetitions and took < period:
             sleep((period - took).total_seconds())
+
+
+class DJSONEncoder(json.JSONEncoder):
+    '''Example usage::
+
+            DJSONEncoder().encode([datetime.datetime.now()])
+            '["2015-01-21T14:42:28"]'
+        '''
+
+    def default(self, obj):
+        if hasattr(obj, 'isoformat'):
+            return obj.isoformat()
+        elif isinstance(obj, Decimal):
+            return float(str(obj))
+        else:
+            return super(DJSONEncoder, self).default(obj)
+
+
+def dumps(value):
+    return json.dumps(value, cls=DJSONEncoder)
+
+
+def djson_renderer_factory(info):
+    '''Pyramid renderer. Install like this::
+
+       config.add_renderer('djson', 'bag.time.djson_renderer_factory')
+    '''
+    def _render(value, system):
+        request = system.get('request')
+        if request is not None:
+            response = request.response
+            ct = response.content_type
+            if ct == response.default_content_type:
+                response.content_type = 'application/json'
+        return dumps(value)
+    return _render
