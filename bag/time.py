@@ -22,14 +22,26 @@ def naive(dt):
 
 
 def parse_iso_datetime(text):
-    if len(text) == 10:
-        return datetime.strptime(text, '%Y-%m-%d')
-    if len(text) == 16:
-        return datetime.strptime(text, '%Y-%m-%d %H:%M')
-    if len(text) == 19:
-        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S')
+    '''Converts the given string to a naive (no tzinfo) datetime.'''
+    text = text.strip()
+    if 'T' in text:
+        sep = 'T'
+    elif ' ' in text:
+        sep = ' '
     else:
-        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S.%f')
+        sep = None
+    DATE_FMT = "%Y-%m-%d"
+    if sep is None:
+        return datetime.strptime(text, DATE_FMT)
+    elif len(text) == 16:
+        return datetime.strptime(text, DATE_FMT + sep + '%H:%M')
+    elif len(text) == 19:
+        return datetime.strptime(text, DATE_FMT + sep + '%H:%M:%S')
+    else:
+        TIME_FMT = "%H:%M:%S.%f"
+        suffix = 'Z' if text.endswith('Z') else ''
+        fmt = DATE_FMT + sep + TIME_FMT + suffix
+        return datetime.strptime(text, fmt)
 
 
 def simplify_datetime(val, granularity='minute'):
