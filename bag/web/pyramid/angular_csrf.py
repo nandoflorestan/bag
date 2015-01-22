@@ -83,7 +83,7 @@ def on_GET_request_setup_csrf_cookie(ev):
     if ev.request.method == 'GET':  # and not 'static' in ev.request.path:
         token = ev.request.session.get_csrf_token()
         if ev.request.cookies.get('XSRF-TOKEN') != token:
-            ev.response.set_cookie(COOKIE_NAME, token)
+            ev.response.set_cookie(COOKIE_NAME, token, overwrite=True)
 
 
 # Option 1 is not working  :(
