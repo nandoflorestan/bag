@@ -43,7 +43,7 @@ from decimal import Decimal
 from pprint import pprint
 # from uuid import uuid4
 from sqlalchemy import insert, select
-from nine import nine, str, basestring
+from nine import nine, str, basestring, IS_PYTHON2
 
 from bag import resolve
 from .tricks import model_property_names, foreign_key_from_col, foreign_keys_in
@@ -71,6 +71,12 @@ class IndentWriter(object):
 # TODO Save memory by yielding lines instead of adding them to a list
 # TODO Provide a saving_to(file, generator, encoding='utf-8')
 # TODO Ability to register callbacks to be run after loading each instance.
+
+
+REPRESENTABLE = (int, basestring, float, Decimal,
+                 date, datetime, timedelta)
+if IS_PYTHON2:
+    REPRESENTABLE + (long,)
 
 
 @nine
@@ -110,9 +116,7 @@ class Mediovaigel(IndentWriter):
 
         Override this in subclasses to support other types.
         '''
-        if val is None or isinstance(val, (
-                int, long, basestring, float, Decimal,
-                date, datetime, timedelta)):
+        if val is None or isinstance(val, REPRESENTABLE):
             return repr(val)
 
     def serialize_property_value(self, entity, attrib):
