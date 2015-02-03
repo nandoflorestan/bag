@@ -33,3 +33,10 @@ def resolve(resource_spec):
 def first(iterable):
     for o in iterable:
         return o
+
+
+def dict_subset(adict, predicate):
+    '''Given a dictionary and a predicate function, returns another dictionary
+        that contains only a subset of the keys in the original.
+        '''
+    return {k: v for k, v in adict.items() if predicate(k, v)}
