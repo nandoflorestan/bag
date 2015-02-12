@@ -37,9 +37,9 @@ def routes_as_json(config, base_path='/'):
     return dumps(treated_routes(config, base_path=base_path))
 
 
-def write_routes_js_file(config, settings, file_path, base_path='/'):
+def write_routes_js_file(config, file_path, base_path='/'):
     routes = routes_as_json(config, base_path=base_path)
-    prefix = settings.get('scheme_domain_port')
+    prefix = config.registry.settings.get('scheme_domain_port')
     if prefix:
         prefix = '"' + prefix + '"'
     else:
