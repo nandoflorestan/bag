@@ -54,3 +54,19 @@ class Problem(Exception):
 
     def __str__(self):
         return self.kw['error_msg']
+
+
+class Unprocessable(Exception):
+    '''Exception that mimics Colander's Invalid, because both have an
+        ``asdict()`` method. However, this one can be instantiated
+        without a schema. Example usage::
+
+            if not data.get('user_email'):
+                raise Unprocessable(user_email='This field is required.')
+        '''
+
+    def __init__(self, **adict):
+        self.adict = adict
+
+    def asdict(self):
+        return self.adict
