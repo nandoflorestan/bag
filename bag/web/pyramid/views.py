@@ -5,25 +5,29 @@ from __future__ import (absolute_import, division, print_function,
 from functools import wraps
 from json import dumps
 from bag.web.exceptions import Problem
-from pyramid.httpexceptions import HTTPBadRequest, HTTPError
-from pyramid.response import Response
+from pyramid.httpexceptions import HTTPError
 
 
 def get_json_or_raise(request, expect=None):
-    '''If the json cannot be decoded, this is a bad request, so raise 400
-        instead of 500.
+    '''If the incoming json cannot be decoded, this is a bad request,
+        so raise 400 instead of 500.
 
-        The decoded json may be of a number of types. You can validate the
-        type, passing an ``expect`` argument. If the json decodes
+        The json body, when decoded, may become one of a number of types
+        (usually dict or list). You can validate the type by passing
+        an ``expect`` argument. If the json decodes
         to the wrong type, also raise 400 instead of 500.
         '''
     try:
         payload = request.json_body
     except ValueError as e:
-        raise HTTPBadRequest(detail=str(e))
+        raise Problem('The server could not decode the request!',
+                      http_code=400, error_debug=str(e))
     if expect is not None and not isinstance(payload, expect):
-        raise HTTPBadRequest(
-            detail='Expected {}, got {}'.format(expect, type(payload)))
+        raise Problem(
+            'The server found unexpected content in the decoded request!',
+            http_code=400,
+            error_debug='Expected {}, got {}'.format(expect, type(payload)),
+            )
     return payload
 
 
@@ -42,7 +46,8 @@ def ajax_view(view_function):
         try:
             o = view_function(context, request)
             # If *o* is a model instance, convert it to a dict.
-            return o if isinstance(o, (Response, dict)) else o.to_dict()
+            return o.to_dict() if hasattr(o, 'to_dict') else o
+            # return o if isinstance(o, (Response, dict)) else o.to_dict()
         except Problem as e:
             comment = 'Problem found in action layer'
             http_code = e.http_code

@@ -14,6 +14,14 @@ class Problem(Exception):
 
         Very useful when coupled with the
         `ajax_view decorator <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/views.py>`_.
+
+        When developing a user interface of any kind, it is great when all the
+        webservices respect a standardized interface for returning errors.
+        This class uses these fields:
+
+        - error_msg: the string to be displayed to the end user
+        - error_type: a sort of title; usually the HTTP error title
+        - error_debug: should NOT be shown to end users; for devs only
         '''
 
     HTTP = {  # http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -31,10 +39,11 @@ class Problem(Exception):
         500: 'Internal server error',
         }
 
-    def __init__(self, msg, http_code=500, error_type=None, **kw):
+    def __init__(self, msg, http_code=500, error_type=None, error_debug=None, **kw):
         self.http_code = int(http_code)
         kw['error_type'] = error_type or self.HTTP[self.http_code]
         kw['error_msg'] = msg
+        kw['error_debug'] = error_debug
         self.kw = kw
 
     def to_dict(self):
