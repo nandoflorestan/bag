@@ -9,11 +9,12 @@ from nine import nine
 class Problem(Exception):
     '''Service (or "action") layers should be independent of web frameworks;
         however, often I feel I want the service layer to determine the
-        HTTP code of a web service, instead of the controller layer.
-        So I raise this exception in the service layer.
+        HTTP code returned by a web service, instead of the controller layer.
+        So I raise this exception in the service layer and capture it in the
+        controller layer.
 
         Very useful when coupled with the
-        `ajax_view decorator <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/views.py>`_.
+        `ajax_view decorator <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/views.py>`_, which does the capture part.
 
         When developing a user interface of any kind, it is great when all the
         webservices respect a standardized interface for returning errors.
