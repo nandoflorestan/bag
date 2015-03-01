@@ -64,7 +64,7 @@ def ajax_view(view_function):
             status_int=http_code,
             content_type='application/json',
             body=dumps(error_dict),
-            detail=error_dict['error_msg'],  # could be shown to end users
+            detail=error_dict.get('error_msg'),  # could be shown to end users
             comment=comment,  # not displayed to end users
             )
     return wrapper
