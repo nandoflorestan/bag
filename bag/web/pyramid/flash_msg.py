@@ -3,9 +3,9 @@
 '''Advanced flash messages scheme for Pyramid.
 
     Some developers have been using the queues of flash messages to separate
-    them by level (error, warning, info or success) in code such as this::
+    them by level (danger, warning, info or success) in code such as this::
 
-        request.session.flash(str(e), 'error')
+        request.session.flash(str(e), 'danger')
 
     The problem with this is that messages won't appear in the order in which
     they were created. Because each queue is processed separately in the
@@ -15,7 +15,8 @@
     flash messages as bootstrap alerts *in a single queue* like this::
 
         from bag.web.pyramid.flash_msg import FlashMessage
-        FlashMessage(request,
+        FlashMessage(
+            request,
             "You can enqueue a message simply by instantiating FlashMessage.",
             kind='warning')
 
@@ -39,22 +40,35 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from cgi import escape
-from nine import nine
+from nine import nine, basestring
 
 
-def bootstrap_msg(plain=None, rich=None, kind='warning'):
-    return '<div class="alert alert-{0}{1}"><button type="button" ' \
-        'class="close" data-dismiss="alert">×</button>{2}</div>\n'.format(
-            escape(kind), ' alert-block' if rich else '', rich or escape(plain)
+def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
+    '''Renders a bootstrap alert message, optionally with a close button.
+        Provide either ``plain`` or ``rich`` content. The parameter ``v``
+        can be 3 or 2 depending on your bootstrap version (default 3).
+        '''
+    # In bootstrap 3, the old "error" class becomes "danger":
+    if kind == 'danger' and v == 2:
+        kind = 'error'
+
+    return '<div class="alert alert-{kind}{cls} fade in">{close}' \
+        '{body}</div>\n'.format(
+            kind=escape(kind),
+            cls=' alert-block' if rich else '',
+            close='<button type="button" class="close" data-dismiss="alert" '
+                  'aria-label="Close"><span aria-hidden="true">×</span>'
+                  '</button>' if close else '',
+            body=rich or escape(plain),
             )
 
 
 @nine
 class FlashMessage(object):
-    '''A flash message that renders in Twitter Bootstrap 2.1 style.
+    '''A flash message that renders in Twitter Bootstrap style.
     To register a message, simply instantiate it.
     '''
-    __slots__ = ('kind', 'plain', 'rich')
+    __slots__ = ('kind', 'plain', 'rich', 'close')
 
     def __getstate__(self):
         '''Because we are using __slots__, pickling needs this method.'''
@@ -65,16 +79,19 @@ class FlashMessage(object):
         for s in self.__slots__:
             setattr(self, s, state.get(s))
 
-    KINDS = set(['error', 'warning', 'info', 'success'])
+    KINDS = set(['danger', 'warning', 'info', 'success'])
 
     def __init__(self, request, plain=None, rich=None, kind='warning',
-                 allow_duplicate=False):
+                 close=True, allow_duplicate=False):
         assert (plain and not rich) or (rich and not plain)
+        if kind == 'error':
+            kind = 'danger'
         assert kind in self.KINDS, 'Unknown kind of alert: "{0}". ' \
             "Possible kinds are {1}".format(kind, self.KINDS)
         self.kind = kind
         self.rich = rich
         self.plain = plain
+        self.close = close
         request.session.flash(self, allow_duplicate=allow_duplicate)
 
     def __repr__(self):
@@ -85,13 +102,14 @@ class FlashMessage(object):
 
     @property
     def html(self):
-        return bootstrap_msg(self.plain, self.rich, self.kind)
+        return bootstrap_alert(
+            self.plain, self.rich, kind=self.kind, close=self.close)
 
 
 def render_flash_messages(request):
-    msgs = request.session.pop_flash()  # Pops from the empty string queue
-    return ''.join([m.html if isinstance(m, FlashMessage)
-                    else bootstrap_msg(m) for m in msgs])
+    msgs = request.session.pop_flash()  # Pops from the '' queue
+    return ''.join((bootstrap_alert(m) if isinstance(m, basestring) else m.html
+                    for m in msgs))
 
 
 def render_flash_messages_from_queues(request):
@@ -107,7 +125,7 @@ def render_flash_messages_from_queues(request):
     for q in QUEUES:
         for m in request.session.pop_flash(q):
             html = m.html if isinstance(m, FlashMessage) \
-                else bootstrap_msg(m, q)
+                else bootstrap_alert(m, q)
             msgs.append(html)
     return ''.join(msgs)
 

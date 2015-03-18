@@ -23,7 +23,8 @@ config = dict(
 
 # You can customize your release process below.
 # Comment out any steps you don't desire and add your own steps.
-Releaser(config,
+Releaser(
+    config,
     Shell('python setup.py test'),  # First of all ensure tests pass
     CheckRstFiles,  # Documentation: recursively verify ALL .rst files, or:
     # CheckRstFiles('README.rst', 'CHANGES.rst', 'LICENSE.rst'),  # just a few.
