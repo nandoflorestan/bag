@@ -10,26 +10,55 @@ from pyramid.httpexceptions import HTTPError
 from pyramid.response import Response
 
 
-def get_json_or_raise(request, expect=None):
+def get_json_or_raise(request, expect=None, dict_has=None):
     '''If the incoming json cannot be decoded, this is a bad request,
         so raise 400 instead of 500.
+
+        Usage examples::
+
+            get_json_or_raise(request)
+            get_json_or_raise(request, expect=list)
+            get_json_or_raise(request, dict_has=[('email', str), ('age', int)])
+            get_json_or_raise(request, dict_has=[('amount', (int, float))])
 
         The json body, when decoded, may become one of a number of types
         (usually dict or list). You can validate the type by passing
         an ``expect`` argument. If the json decodes
         to the wrong type, also raise 400 instead of 500.
+
+        You may also ensure that a decoded dictionary contains some
+        required keys by passing as the ``dict_has`` argument a sequence of
+        2-tuples where each elemaint contains 1) the required key names and
+        2) the accepted value type(s). 400 is raised if a key is missing.
         '''
     try:
         payload = request.json_body
     except ValueError as e:
-        raise Problem('The server could not decode the request!',
+        raise Problem('The server could not decode the request as JSON!',
                       http_code=400, error_debug=str(e))
     if expect is not None and not isinstance(payload, expect):
         raise Problem(
             'The server found unexpected content in the decoded request!',
             http_code=400,
-            error_debug='Expected {}, got {}'.format(expect, type(payload)),
-            )
+            error_debug='Expected {}, got {}'.format(
+                expect, type(payload).__name__))
+    if dict_has:
+        if not isinstance(payload, dict):
+            raise Problem(
+                'The JSON request decodes to a {} instead of a dictionary.'
+                .format(type(payload).__name__),
+                http_code=400,
+                error_debug=payload)
+        for key, typ in dict_has:
+            if key not in payload:
+                raise Problem('The request must contain a "{}" variable.'
+                              .format(key),  http_code=400)
+            if not isinstance(payload[key], typ):
+                raise Problem(
+                    'The value of the "{}" variable is of type {}, but '
+                    'should be {}.'.format(
+                        key,  type(payload[key]).__name__,  typ.__name__),
+                    http_code=400)
     return payload
 
 
