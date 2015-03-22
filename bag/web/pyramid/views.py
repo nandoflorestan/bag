@@ -4,8 +4,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from functools import wraps
 from json import dumps
+from nine import basestring
 from bag.web.exceptions import Problem
 from pyramid.httpexceptions import HTTPError
+from pyramid.response import Response
 
 
 def get_json_or_raise(request, expect=None):
@@ -65,6 +67,43 @@ def ajax_view(view_function):
             content_type='application/json',
             body=dumps(error_dict),
             detail=error_dict.get('error_msg'),  # could be shown to end users
+            comment=comment,  # not displayed to end users
+            )
+    return wrapper
+
+
+def xeditable_view(view_function):
+    '''Decorator for AJAX views that need to be friendly towards x-editable,
+        the famous edit-in-place component for AngularJS. x-editable likes
+        us to return either an error string or "204 No content".
+        '''
+    @wraps(view_function)
+    def wrapper(context, request):
+        try:
+            o = view_function(context, request)
+        except Problem as e:
+            comment = 'Problem found in action layer'
+            http_code = e.http_code
+            error_msg = e.to_dict().get('error_msg')
+        except Exception as e:
+            if hasattr(e, 'asdict') and callable(e.asdict):
+                comment = 'Colander validation error'
+                http_code = 422  # Unprocessable Entity
+                error_msg = e.asdict().get('error_msg')
+            else:
+                raise  # Let this view-raised exception pass through
+        else:
+            if o is None:
+                return Response(status_int=204)  # No content
+            elif isinstance(o, basestring):
+                comment = 'View returned error msg as a string'
+                http_code = 400
+                error_msg = o
+            else:
+                return o
+        raise HTTPError(
+            status_int=http_code, content_type='text/plain', body=error_msg,
+            detail=error_msg,  # could be shown to end users
             comment=comment,  # not displayed to end users
             )
     return wrapper
