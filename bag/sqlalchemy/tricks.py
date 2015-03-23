@@ -22,7 +22,7 @@ from bag import resolve
 from nine import basestring
 from ..web import gravatar_image
 
-# http://docs.sqlalchemy.org/en/latest/orm/session.html#cascades
+# http://docs.sqlalchemy.org/en/latest/orm/cascades.html
 CASC = 'all, delete-orphan'
 
 
@@ -59,16 +59,22 @@ def length(attrib):
     return _get_length(col(attrib))
 
 
-def fk(attrib, nullable=False, index=True, primary_key=False, doc=None):
+def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
+       ondelete='CASCADE'):
     '''Returns a ForeignKey column while automatically setting the type.'''
+    assert ondelete in (
+        'CASCADE',   # Creates ON DELETE CASCADE
+        'SET NULL',  # Creates ON DELETE SET NULL
+        None,        # Creates ON DELETE NO ACTION, with more runtime errors
+        )
     column = col(attrib)
-    return Column(column.copy().type, ForeignKey(
-        column, ondelete=None if nullable else 'CASCADE',  # vs 'SET NULL'
-        ), doc=doc, index=index, primary_key=primary_key, nullable=nullable)
+    return Column(
+        column.copy().type, ForeignKey(column, ondelete=ondelete),
+        doc=doc, index=index, primary_key=primary_key, nullable=nullable)
 
 
-def fk_rel(cls, attrib='id', nullable=False, index=True, doc=None,
-           primary_key=False, backref=None, cascade=CASC, order_by=None):
+def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
+           doc=None, ondelete='CASCADE', backref=None, order_by=None):
     '''Returns a ForeignKey column and a relationship,
         while automatically setting the type of the foreign key.
 
@@ -76,23 +82,30 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, doc=None,
 
             # A relationship in an Address model pointing to a parent Person:
             person_id, person = fk_rel(Person, nullable=False,
-                index=True, backref='addresses', cascade=False)
+                index=True, backref='addresses', ondelete='CASCADE')
 
         A backref is created only if you provide its name in the argument.
         ``nullable`` and ``index`` are usually ommited, because these are the
-        default values and they are good. ``cascade`` is "all, delete-orphan"
-        by default, but you can set it to False, which translates to
-        "save-update, merge". If provided, ``order_by`` is used on the backref.
+        default values and they are good.
+        ``ondelete`` is "CASCADE" by default, but you can set it to "SET NULL",
+        or None which translates to "NO ACTION" (less interesting).
+        If provided, ``order_by`` is used on the backref.
         You may also pass an ``attrib`` which is the column name for
         the foreign key.
         '''
-    if cascade is None:
-        cascade = CASC if nullable else False
+    # http://docs.sqlalchemy.org/en/latest/orm/collections.html#passive-deletes
+    if ondelete == 'CASCADE':
+        cascade = CASC
+        passive_deletes = True
+    else:
+        cascade = False  # meaning "save-update, merge"
+        passive_deletes = False
+
     return (fk(getattr(cls, attrib), nullable=nullable, index=index,
-               primary_key=primary_key, doc=doc),
+               primary_key=primary_key, doc=doc, ondelete=ondelete),
             relationship(cls, backref=_backref(
-                backref, cascade=cascade, order_by=order_by,
-                passive_deletes=False if nullable else True))
+                backref, cascade=cascade, passive_deletes=passive_deletes,
+                order_by=order_by))
             if backref else relationship(cls))
 
 
