@@ -1,0 +1,52 @@
+{# jinja2 macros to more easily create Bootstrap 3 widgets #}
+
+
+{% macro bsalert(kind='info', close=True, icon=None) -%}
+	{# Bootstrap alert. Usage:
+		{% call bsalert('warning', close=False, icon='alert') %}
+			NOBODY expects the Spanish Inquisition!!!
+		{% endcall %}
+		#}
+	<div class="alert alert-{$ kind $} {% if close %}alert-dismissible{% endif %}" role="alert">
+		{% if close %}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{% endif %}
+		{% if icon %}<span class="glyphicon glyphicon-{$ icon $}" aria-hidden="true"></span>{% endif %}
+		<span class="sr-only">{$ kind $}:</span>
+		{$ caller() $}
+	</div>
+{%- endmacro %}
+
+
+{% macro noscript(icon='exclamation-sign') -%}
+	{# Usage:  {$ noscript() $}  #}
+	<noscript>
+		{% call bsalert('danger', close=False, icon=icon) %}
+			To use this web application, you must <strong>enable JavaScript and reload the page</strong>.
+		{% endcall %}
+	</noscript>
+{%- endmacro %}
+
+
+{% macro nav_entry(label, url, classes='', icon=None) -%}
+	<li class="{$ classes $}"><a href="{$ url $}">{% if icon %}<span class="glyphicon glyphicon-{$ icon $}"></span>{% endif %}&nbsp; {$ label $}</a></li>
+{%- endmacro %}
+
+
+{% macro bsfield(label=None, id=None, type='text', group_class='', input_class='', icon_right=None, help=None) -%}
+	{# Generic form field #}
+	<div class="form-group">
+		{% if label %}
+			<label {% if id %}for="{$ id $}"{% endif %}>{$ label $}</label>
+		{% endif %}
+		{% if icon_right or group_class %}<div class="input-group {$ group_class $}">{% endif %}
+			<input type="{$ type $}" class="form-control {$ input_class $}"
+				{% if id %}  id="{$ id $}" {% endif %}
+				{% for k, v in kwargs.items() %}
+					{% if v %} {$ k $}="{$ v $}" {% endif %}
+				{% endfor %}
+				/>{% if icon_right %}<span class="input-group-addon"><span class="glyphicon glyphicon-{$ icon_right $}"></span></span>{% endif %}
+		{% if icon_right or group_class %}</div>{% endif %}
+		{% if help %}
+			<p class="help-block">{$ help $}</p>
+		{% endif %}
+	</div>
+{%- endmacro %}
