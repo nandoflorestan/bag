@@ -23,11 +23,24 @@ def asbool(thing):
 
 
 def resolve(resource_spec):
+    '''Returns the variable referred to in a string such as
+        ``my.python.module:some_variable``.
+        '''
     if isinstance(resource_spec, ModuleType):  # arg is a python module
         return resource_spec
     module, var = resource_spec.split(':')  # arg is assumed to be a string
     module = import_module(module)
     return getattr(module, var)
+
+
+def resolve_path(resource_spec):
+    '''Returns the path referred to in a string such as
+        ``my.python.module:some/subdirectory``, as a pathlib.Path object.
+        '''
+    from pathlib import Path
+    module, var = resource_spec.split(':')  # arg is assumed to be a string
+    module = import_module(module)
+    return Path(module.__path__[0], var)
 
 
 def first(iterable):
