@@ -42,13 +42,18 @@ def decoding(stream, encoding='utf8'):
 
 
 def setup_reader(stream, required_headers=[], **k):
+    '''``required_headers`` should be in python variable format:
+        lower case and with underlines.
+        '''
     c = csv.reader(stream, **k)
-    readline = lambda: c.__next__()
+
+    def readline():
+        return c.__next__()
     # Read the first row to get the column names (headers)
     # Try to turn readable names into variable names, too
     headers = [h.strip().replace(' ', '_').replace('-', '_').lower()
                for h in readline()]
-    missing_headers = [h for h in required_headers if not h in headers]
+    missing_headers = [h for h in required_headers if h not in headers]
     if missing_headers:
         if len(missing_headers) == 1:
             msg = _('The CSV file is missing the required header: ')
