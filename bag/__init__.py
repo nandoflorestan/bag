@@ -36,6 +36,8 @@ def resolve(resource_spec):
 def resolve_path(resource_spec):
     '''Returns the path referred to in a string such as
         ``my.python.module:some/subdirectory``, as a pathlib.Path object.
+
+        Similar: from pyramid.resource import abspath_from_asset_spec
         '''
     from pathlib import Path
     module, var = resource_spec.split(':')  # arg is assumed to be a string
