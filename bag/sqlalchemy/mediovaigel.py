@@ -76,7 +76,7 @@ class IndentWriter(object):
 REPRESENTABLE = (int, basestring, float, Decimal,
                  date, datetime, timedelta)
 if IS_PYTHON2:
-    REPRESENTABLE + (long,)
+    REPRESENTABLE = REPRESENTABLE + (long, )
 
 
 @nine
