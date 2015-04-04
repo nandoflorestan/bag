@@ -296,7 +296,8 @@ class MinimalBase(object):
     def count(cls, session, **filters):
         return session.query(cls).filter_by(**filters).count()
 
-    def update_association(self, sas, cls, field, ids, filters={}):
+    def update_association(self, sas, cls, field, ids, filters={},
+                           synchronize_session=False):
         '''When you have a many-to-many relationship, there is an association
             table between 2 main tables. The problem of setting the data in
             this case is a recurring one and it is solved here.
@@ -331,8 +332,8 @@ class MinimalBase(object):
         desired_ids = frozenset(ids)
         to_remove = existing_ids - desired_ids
         if to_remove:
-            sas.query(cls).filter_by(**filters).filter(
-                getattr(cls, field).in_(to_remove)).delete()
+            sas.query(cls).filter_by(**filters).filter(getattr(cls, field).in_(
+                to_remove)).delete(synchronize_session=synchronize_session)
 
         # Create desired associations that do not yet exist
         to_create = desired_ids - existing_ids
