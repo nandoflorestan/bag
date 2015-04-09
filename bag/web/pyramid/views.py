@@ -103,7 +103,8 @@ def maybe_raise_unprocessable(e, **info):
     if hasattr(e, 'asdict') and callable(e.asdict):
         error_dict = e.asdict()
         error_dict['error_type'] = 'Invalid'
-        error_dict.extend(info)
+        for k, v in info.items():
+            error_dict[k] = v
         raise HTTPError(
             status_int=422,  # Unprocessable Entity
             content_type='application/json',
