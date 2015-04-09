@@ -84,13 +84,8 @@ def ajax_view(view_function):
             http_code = e.http_code
             error_dict = e.to_dict()
         except Exception as e:
-            if hasattr(e, 'asdict') and callable(e.asdict):
-                comment = 'Colander validation error'
-                http_code = 422  # Unprocessable Entity
-                error_dict = e.asdict()
-                error_dict['error_type'] = 'Invalid'
-            else:
-                raise  # Let this view-raised exception pass through
+            maybe_raise_unprocessable(e)
+            raise  # or let this view-raised exception pass through
         raise HTTPError(
             status_int=http_code,
             content_type='application/json',
@@ -99,6 +94,23 @@ def ajax_view(view_function):
             comment=comment,  # not displayed to end users
             )
     return wrapper
+
+
+def maybe_raise_unprocessable(e, **info):
+    '''If the provided exception looks like a validation error, raise
+        422 Unprocessable Entity, optionally with additional info.
+        '''
+    if hasattr(e, 'asdict') and callable(e.asdict):
+        error_dict = e.asdict()
+        error_dict['error_type'] = 'Invalid'
+        error_dict.extend(info)
+        raise HTTPError(
+            status_int=422,  # Unprocessable Entity
+            content_type='application/json',
+            body=dumps(error_dict),
+            detail=error_dict.get('error_msg'),  # could be shown to end users
+            comment='Colander validation error',  # not displayed to end users
+            )
 
 
 def xeditable_view(view_function):
