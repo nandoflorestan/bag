@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division, print_function,
 from functools import wraps
 from json import dumps
 from nine import basestring
+from bag import first
 from bag.web.exceptions import Problem
 from pyramid.httpexceptions import HTTPError
 from pyramid.response import Response
@@ -131,7 +132,7 @@ def xeditable_view(view_function):
             if hasattr(e, 'asdict') and callable(e.asdict):
                 comment = 'Colander validation error'
                 http_code = 422  # Unprocessable Entity
-                error_msg = e.asdict().get('error_msg')
+                error_msg = first(e.asdict().values())
             else:
                 raise  # Let this view-raised exception pass through
         else:
