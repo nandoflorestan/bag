@@ -52,7 +52,7 @@ class PyramidStarter(object):
         self.package_name = config.package.__name__
         self.require_python_version()
         self.config = config
-        if not 'app.name' in self.settings:
+        if 'app.name' not in self.settings:
             raise KeyError(
                 'Your configuration files are missing an "app.name" setting.')
         # Add self to config so other applications can find it

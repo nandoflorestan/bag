@@ -150,3 +150,38 @@ def xeditable_view(view_function):
             comment=comment,  # not displayed to end users
             )
     return wrapper
+
+
+def serve_preloaded(config, route_name, route_path, payload, encoding=None, content_type=None):
+    '''Reads a file (such as robots.txt or favicon.ini) into memory,
+        then sets up a view that serves it.  Usage::
+
+            from bag.web.pyramid.views import serve_preloaded
+            serve_preloaded(
+                config,
+                route_name='robots',
+                route_path='robots.txt',
+                payload='my_package:static/robots.txt',
+                encoding='utf-8')
+        '''
+    from pyramid.resource import abspath_from_resource_spec
+    from pyramid.response import Response
+
+    path = abspath_from_resource_spec(payload)
+
+    if not content_type:
+        from mimetypes import guess_type
+        content_type = guess_type(path)[0]
+
+    if encoding:
+        import codecs
+        stream = codecs.open(path, 'r', encoding='utf-8')
+    else:
+        stream = open(path, 'rb')
+    content = stream.read()
+    stream.close()
+
+    def preloaded_view(request):
+        return Response(content_type=content_type, app_iter=content)
+    config.add_route(route_name, route_path)
+    config.add_view(preloaded_view, route_name=route_name)
