@@ -163,7 +163,15 @@ def serve_preloaded(config, route_name, route_path, payload, encoding=None, cont
                 route_path='robots.txt',
                 payload='my_package:static/robots.txt',
                 encoding='utf-8')
+            serve_preloaded(
+                config,
+                route_name='favicon',
+                route_path='favicon.ico',
+                payload='my_package:static/favicon.ico',
+                content_type='image/x-icon',
+                )
         '''
+    from os.path import getmtime, getsize
     from pyramid.resource import abspath_from_resource_spec
     from pyramid.response import Response
 
@@ -171,17 +179,24 @@ def serve_preloaded(config, route_name, route_path, payload, encoding=None, cont
 
     if not content_type:
         from mimetypes import guess_type
-        content_type = guess_type(path)[0]
+        content_type = guess_type(path)[0] or 'application/octet-stream'
 
     if encoding:
         import codecs
         stream = codecs.open(path, 'r', encoding='utf-8')
     else:
         stream = open(path, 'rb')
-    content = stream.read()
+
+    kwargs = dict(
+        content_type=content_type,
+        body=stream.read(),
+        last_modified=getmtime(path),
+        content_length=getsize(path),
+        )
     stream.close()
 
-    def preloaded_view(request):
-        return Response(content_type=content_type, app_iter=content)
+    def preloaded_view(request):  # This closure is the view handler
+        return Response(**kwargs)
+
     config.add_route(route_name, route_path)
     config.add_view(preloaded_view, route_name=route_name)
