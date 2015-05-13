@@ -20,24 +20,40 @@ def merged_branches(remote=None):
         remote = 'remotes/{}/'.format(remote)
     else:
         command = 'git branch --merged'
-    alist = []
-    for branch in checked_execute(command).split('\n'):
+    adict = {}
+    for name in checked_execute(command).split('\n'):
         # The command also lists the current branch, so we get rid of it
-        if branch.startswith('* ') or ' -> ' in branch:
+        if name.startswith('* ') or ' -> ' in name:
             continue
-        branch = branch.strip()
-        if remote and branch.startswith(remote):
-            branch = branch[len(remote):]
-        alist.append(branch)
-    unique = set(alist)
-    return [Branch(branch, remote) for branch in unique]
+        name = name.strip()
+
+        if remote and name.startswith(remote):
+            name = name[len(remote):]
+            is_remote = True
+            is_local = False
+        else:
+            is_remote = False
+            is_local = True
+
+        branch = adict.get(name)
+        if branch is None:
+            adict[name] = Branch(
+                name, prefix=remote, is_local=is_local, is_remote=is_remote)
+        else:
+            branch.is_local = branch.is_local or is_local
+            branch.is_remote = branch.is_remote or is_remote
+
+    return sorted(adict.values(), key=lambda x: x.name)
 
 
 @nine
 class Branch(object):
-    def __init__(self, name, prefix=''):
+    def __init__(self, name, prefix='', is_local=False, is_remote=False):
+        assert is_local or is_remote
         self.name = name
         self.prefix = prefix or ''
+        self.is_local = is_local
+        self.is_remote = is_remote
 
     def __repr__(self):
         return self.name
@@ -49,9 +65,10 @@ class Branch(object):
 
             git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" BRANCH | head -n 1
         '''
+        branch_name = self.name if self.is_local else self.prefix + self.name
         line = checked_execute(
             'git show --pretty=format:"%ci" {} | head -n 1'
-            .format(self.prefix + self.name))
+            .format(branch_name))
         sdate = line[:10]
         year, month, day = [int(x) for x in sdate.split('-')]
         return date(year, month, day)
@@ -60,11 +77,13 @@ class Branch(object):
         return timedelta(int(age)) < date.today() - self.merge_date
 
     def delete_locally(self):
-        checked_execute('git branch -d {}'.format(self))
+        if self.is_local:
+            checked_execute('git branch -d {}'.format(self))
 
     def delete_remotely(self, remote):
-        checked_execute('git push {} :{}'.format(remote, self),
-                        accept_codes=[0, 1])
+        if self.is_remote:
+            checked_execute('git push {} :{}'.format(remote, self),
+                            accept_codes=[0, 1])
 
 
 @arg('--dry', action='store_true', help='Dry run: only list the branches')
@@ -74,10 +93,11 @@ class Branch(object):
      help='Delete the branches on the remote REMOTE')
 @arg('-y', action='store_true',
      help='Do not interactively confirm before deleting branches')
-@arg('-d', '--days', type=int, help='Minimum age in days')
-def delete_old_branches(dry, locally, remote, y, days):
+@arg('days', type=int, help='Minimum age in days')
+def delete_old_branches(days, dry=False, locally=False, remote=None, y=False):
     for branch in merged_branches(remote):
-        if days and not branch.is_older_than_days(days):
+        if branch.name == 'master' or (
+                days and not branch.is_older_than_days(days)):
             continue
 
         if y:
