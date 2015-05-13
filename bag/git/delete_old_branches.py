@@ -96,7 +96,7 @@ class Branch(object):
 @arg('days', type=int, help='Minimum age in days')
 def delete_old_branches(days, dry=False, locally=False, remote=None, y=False):
     for branch in merged_branches(remote):
-        if branch.name == 'master' or (
+        if branch.name in ('master', 'develop') or (
                 days and not branch.is_older_than_days(days)):
             continue
 
