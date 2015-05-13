@@ -69,7 +69,8 @@ try:
 except ImportError:  # It's time people using Python 2.6 would upgrade already
     from ordereddict import OrderedDict
 from babel import Locale
-from babel.numbers import format_number, format_currency
+from babel.numbers import (
+    format_number as as_number, format_currency as as_currency)
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import get_locale_name, default_locale_negotiator
 from nine import basestring, native_str, iterkeys, iteritems, nine
@@ -197,12 +198,9 @@ def add_template_globals(event):
     '''Makes the following variables readily available in template context:
 
     * *enabled_locales*: OrderedDict containing the enabled locales
-    * *locale_code*: a string containing the locale of the current request,
-        which you can use to set the xml:lang attribute on your <html> tag.
     '''
     event['enabled_locales'] = \
         event['request'].registry.settings[SETTING_NAME]
-    event['locale_code'] = get_locale_name(event['request'])
 
 
 def includeme(config):
@@ -222,13 +220,18 @@ class BaseLocalizedView(object):
     '''A mixin class for your application's base view class.'''
 
     def format_number(self, n):
-        return format_number(n, locale=get_locale_name(self.request))
+        return as_number(n, locale=self.request.locale_name)
 
     def format_currency(self, n, currency=None, format=None):
-        return format_currency(
+        return as_currency(
             n, format=format,
             currency=currency or getattr(self, 'default_currency', 'USD'),
-            locale=get_locale_name(self.request))
+            locale=self.request.locale_name)
+
+
+def format_currency(request, n, currency='USD', format=None):
+    return as_currency(
+        n, format=format, currency=currency, locale=request.locale_name)
 
 
 def sorted_countries(arg, top_entry=True):  # TODO memoized version
