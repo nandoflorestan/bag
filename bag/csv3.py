@@ -136,7 +136,7 @@ def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
     writer = csv.writer(buf)
     if headers:
         writer.writerow(headers)
-    for i, row in enumerate(rows()):
+    for i, row in enumerate(rows):
         writer.writerow(row)
         if i % buffer_rows == 0:
             yield buf.getvalue().encode(encoding)
