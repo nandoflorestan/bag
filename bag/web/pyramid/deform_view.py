@@ -45,7 +45,7 @@ class BaseDeformView(object):
     Example usage::
 
         from pyramid_deform import CSRFSchema
-        from deform_bootstrap_extra.pyramid.views import BaseDeformView
+        from bag.web.pyramid.deform_view import BaseDeformView
 
         class InvitationView(BaseDeformView):
             formid = 'invitation_form'
