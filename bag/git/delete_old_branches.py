@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Removes git branches that have been merged onto the current branch.'''
+'''Removes git branches that have been merged onto the current branch.
+
+Don't forget to do a "git fetch --all --prune" on other machines
+after deleting remote branches. Other machines may still have
+obsolete tracking branches (see them with "git branch -a").
+'''
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
