@@ -6,10 +6,8 @@ See the bag.csv2 module if you use Python 2.
 
 from codecs import BOM_UTF8, BOM_UTF16
 import csv
-try:
-    from .web.pyramid import _
-except ImportError:
-    _ = str  # and i18n is disabled.
+from . import (
+    get_corresponding_variable_names, raise_if_missing_required_headers)
 
 
 def decoding(stream, encoding='utf8'):
@@ -26,14 +24,17 @@ def decoding(stream, encoding='utf8'):
     http://en.wikipedia.org/wiki/Byte_order_mark
     '''
     line = stream.readline()
+
     # Python is buggy, it removes other BOMs but not the UTF8 one.
     if line:
         if line.startswith(BOM_UTF8):
-            line = line[3:]
+            line = line[len(BOM_UTF8):]
             encoding = 'utf8'
         elif line.startswith(BOM_UTF16):
             encoding = 'utf16'
+
     yield line.decode(encoding)
+
     while True:  # eventually, StopIteration is raised by *stream*
         line = stream.readline()
         if not line:
@@ -42,37 +43,23 @@ def decoding(stream, encoding='utf8'):
 
 
 def setup_reader(stream, required_headers=[], **k):
-    '''``required_headers`` should be in python variable format:
-        lower case and with underlines.
-        '''
     c = csv.reader(stream, **k)
 
     def readline():
         return c.__next__()
-    # Read the first row to get the column names (headers)
-    # Try to turn readable names into variable names, too
-    headers = [h.strip().replace(' ', '_').replace('-', '_').lower()
-               for h in readline()]
-    missing_headers = [h for h in required_headers if h not in headers]
-    if missing_headers:
-        if len(missing_headers) == 1:
-            msg = _('The CSV file is missing the required header: ')
-        else:
-            msg = _('The CSV file is missing the required headers: ')
-        raise KeyError(
-            msg + ', '.join(['"{}"'.format(h) for h in missing_headers]))
+
+    headers = readline()
+    raise_if_missing_required_headers(headers, required_headers)
+    vars = get_corresponding_variable_names(headers, required_headers)
 
     class CsvRow(object):
-        __slots__ = headers
+        __slots__ = vars
 
         def __init__(self, vals):
-            for i, h in enumerate(headers):
+            for i, h in enumerate(vars):
                 setattr(self, h, vals[i].strip())
-                #~ try:
-                    #~ setattr(self, h, vals[i].strip())
-                #~ except WHAT:
-                    #~ setattr(self, h, '')
-    return c, readline, headers, CsvRow
+
+    return c, readline, vars, CsvRow
 
 
 def csv_with_headers_reader(stream, required_headers=[], **k):
@@ -105,9 +92,10 @@ def decoding_csv_with_headers(bytestream, encoding='utf8', **k):
 
 class DecodingCsvWithHeaders(object):
     '''The advantage of using the class instead of the generator is that
-    any errors related to the headers happen when the class is
-    instantiated, so they can be catched separately.
-    '''
+        any errors related to the headers happen when the class is
+        instantiated, so they can be catched separately.
+        '''
+
     def __init__(self, stream, encoding=None, **k):
         if encoding:
             stream = decoding(stream, encoding)

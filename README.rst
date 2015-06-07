@@ -25,11 +25,9 @@ Most important library contents
 
 - `bag.csv2 <https://github.com/nandoflorestan/bag/blob/master/bag/csv2.py>`_
   -- The infamous csv Python module does not support unicode; problem solved.
-- `bag.csv3 <https://github.com/nandoflorestan/bag/blob/master/bag/csv3.py>`_
-  -- In web apps, uploaded files come as byte streams,
-  so we provide a decoding generator. If you'd like the order of the
-  CSV columns not to matter, there is a header-based reader. There is
-  also a buffered CSV writer for outputting CSV in a web app.
+- `bag.spreadsheet <https://github.com/nandoflorestan/bag/blob/master/bag/spreadsheet>`_
+  -- Import CSV and Excel spreadsheets based on headers on the first row.
+  There is also a buffered CSV writer for outputting CSV in a web app.
 - `bag.email_validator <https://github.com/nandoflorestan/bag/blob/master/bag/email_validator.py>`_
   -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
