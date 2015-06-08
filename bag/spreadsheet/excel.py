@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 from zipfile import BadZipFile
 from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from openpyxl import load_workbook  # easy_install -UZ openpyxl
+from openpyxl.utils.exceptions import InvalidFileException
 from bag.web.exceptions import Problem
 try:
     from bag.web.pyramid import _
@@ -39,10 +40,10 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
         '''
     try:
         wb = load_workbook(stream, data_only=True)
-    except BadZipFile as e:
+    except (BadZipFile, InvalidFileException) as e:
         raise Problem(
             _('That is not an XLSX file.'), http_code=400,
-            error_type='Unable to read the XLSX file', error_debug=str(e))
+            error_type=_('Unable to read the XLSX file'), error_debug=str(e))
 
     # Grab either the worksheet named "Assets", or simply the first one
     if worksheet_name and worksheet_name in wb:
