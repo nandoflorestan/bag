@@ -38,8 +38,7 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
                 print(o.full_name, o.e_mail, o.gender)
         '''
     try:
-        wb = load_workbook(
-            stream, read_only=True, use_iterators=True, data_only=True)
+        wb = load_workbook(stream, data_only=True)
     except BadZipFile as e:
         raise Problem(
             _('That is not an XLSX file.'), http_code=400,
@@ -70,7 +69,10 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
                     self.__cells = cells
 
                 def __getattr__(self, attr):
-                    return self.__cells[index_of_var[attr]].strip()
+                    content = self.__cells[index_of_var[attr]].value
+                    return content.strip()
+                    # return content.strip() if isinstance(content, str) \
+                    #     else content
 
         else:
             yield SpreadsheetRow(row)

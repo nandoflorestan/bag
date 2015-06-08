@@ -16,7 +16,7 @@ def raise_if_missing_required_headers(headers, required_headers=[], case_sensiti
         ``headers``.
         '''
     if not case_sensitive:
-        headers = [h.lower() for h in headers]
+        headers = [h.lower() if h else None for h in headers]
         missing_headers = [h for h in required_headers
                            if h.lower() not in headers]
     else:
@@ -41,10 +41,13 @@ def get_corresponding_variable_names(headers, required_headers, case_sensitive=F
         are the result of string conversion.
         '''
     if not case_sensitive:
-        headers = [h.lower() for h in headers]
+        headers = [h.lower() if h else None for h in headers]
         required_headers = [h.lower() for h in required_headers]
     vars = []
     for header in headers:
+        if header is None:
+            vars.append(None)
+            continue
         var = None
         if hasattr(required_headers, 'get'):
             var = required_headers.get(header.strip())
