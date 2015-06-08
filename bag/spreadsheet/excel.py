@@ -70,9 +70,7 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
 
                 def __getattr__(self, attr):
                     content = self.__cells[index_of_var[attr]].value
-                    return content.strip()
-                    # return content.strip() if isinstance(content, str) \
-                    #     else content
+                    return content
 
         else:
             yield SpreadsheetRow(row)
