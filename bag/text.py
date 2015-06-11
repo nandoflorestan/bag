@@ -209,7 +209,12 @@ def make_title(txt):
 
 def capitalize(txt):
     '''Alter ONLY the first character to make it upper case.'''
-    return txt[0].upper() + txt[1:] if txt else txt
+    if txt in (None, ''):
+        return txt
+    val = txt[0].upper()
+    if len(txt) > 1:
+        val += txt[1:]
+    return val
 
 
 def content_of(paths, encoding='utf-8', sep='\n'):
