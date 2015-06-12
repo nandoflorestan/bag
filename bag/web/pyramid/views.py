@@ -36,11 +36,10 @@ def get_json_or_raise(request, expect=None, dict_has=None):
         payload = request.json_body
     except ValueError as e:
         raise Problem('The server could not decode the request as JSON!',
-                      http_code=400, error_debug=str(e))
+                      error_debug=str(e))
     if expect is not None and not isinstance(payload, expect):
         raise Problem(
             'The server found unexpected content in the decoded request!',
-            http_code=400,
             error_debug='Expected {}, got {}'.format(
                 expect, type(payload).__name__))
     if dict_has:
@@ -48,18 +47,16 @@ def get_json_or_raise(request, expect=None, dict_has=None):
             raise Problem(
                 'The JSON request decodes to a {} instead of a dictionary.'
                 .format(type(payload).__name__),
-                http_code=400,
                 error_debug=payload)
         for key, typ in dict_has:
             if key not in payload:
                 raise Problem('The request must contain a "{}" variable.'
-                              .format(key),  http_code=400)
+                              .format(key))
             if not isinstance(payload[key], typ):
                 raise Problem(
                     'The value of the "{}" variable is of type {}, but '
                     'should be {}.'.format(
-                        key,  type(payload[key]).__name__,  typ.__name__),
-                    http_code=400)
+                        key,  type(payload[key]).__name__,  typ.__name__))
     return payload
 
 
@@ -68,7 +65,9 @@ def ajax_view(view_function):
         into an error JSON response that contains:
 
         - "error_msg": the string to be displayed to end users
-        - "error_type": a sort of title of the error
+        - "error_title": the string to be displayed as a header
+        - "validation": a dictionary of validation errors where keys are
+          field names and values are the respective errors
         - possibly other variables, too
 
         The transaction is not committed because we **raise** HTTPError.
@@ -76,76 +75,75 @@ def ajax_view(view_function):
     @wraps(view_function)
     def wrapper(context, request):
         try:
-            o = view_function(context, request)
-            # If *o* is a model instance, convert it to a dict.
-            return o.to_dict() if hasattr(o, 'to_dict') else o
-            # return o if isinstance(o, (Response, dict)) else o.to_dict()
+            val = view_function(context, request)
         except Problem as e:
-            comment = 'Problem found in action layer'
-            http_code = e.http_code
-            error_dict = e.to_dict()
+            adict = e.to_dict()
+            raise HTTPError(
+                status_int=e.status_int,
+                content_type='application/json',
+                body=dumps(adict),
+                detail=e.error_msg,  # could be shown to end users
+                comment=e.error_debug,  # not displayed to end users
+                )
         except Exception as e:
             maybe_raise_unprocessable(e)
             raise  # or let this view-raised exception pass through
-        raise HTTPError(
-            status_int=http_code,
-            content_type='application/json',
-            body=dumps(error_dict),
-            detail=error_dict.get('error_msg'),  # could be shown to end users
-            comment=comment,  # not displayed to end users
-            )
+        else:
+            # If *val* is a model instance, convert it to a dict.
+            return val.to_dict() if hasattr(val, 'to_dict') else val
     return wrapper
 
 
-def maybe_raise_unprocessable(e, **info):
+def maybe_raise_unprocessable(e, **adict):
     '''If the provided exception looks like a validation error, raise
-        422 Unprocessable Entity, optionally with additional info.
+        422 Unprocessable Entity, optionally with additional information.
         '''
     if hasattr(e, 'asdict') and callable(e.asdict):
-        error_dict = e.asdict()
-        error_dict['error_type'] = 'Invalid'
-        for k, v in info.items():
-            error_dict[k] = v
+        adict['invalid'] = e.asdict()
+        adict.setdefault('error_title', 'Invalid')
         raise HTTPError(
             status_int=422,  # Unprocessable Entity
             content_type='application/json',
-            body=dumps(error_dict),
-            detail=error_dict.get('error_msg'),  # could be shown to end users
-            comment='Colander validation error',  # not displayed to end users
+            body=dumps(adict),
+            detail=e.error_msg,  # could be shown to end users
+            comment='Form validation error',  # not displayed to end users
             )
 
 
 def xeditable_view(view_function):
     '''Decorator for AJAX views that need to be friendly towards x-editable,
         the famous edit-in-place component for AngularJS. x-editable likes
+        text/plain instead of JSON responses; so it likes
         us to return either an error string or "204 No content".
         '''
     @wraps(view_function)
     def wrapper(context, request):
         try:
-            o = view_function(context, request)
+            val = view_function(context, request)
         except Problem as e:
             comment = 'Problem found in action layer'
-            http_code = e.http_code
-            error_msg = e.to_dict().get('error_msg')
+            status_int = e.status_int
+            error_msg = e.error_msg
         except Exception as e:
             if hasattr(e, 'asdict') and callable(e.asdict):
-                comment = 'Colander validation error'
-                http_code = 422  # Unprocessable Entity
+                comment = 'Form validation error'
+                status_int = 422  # Unprocessable Entity
                 error_msg = first(e.asdict().values())
             else:
                 raise  # Let this view-raised exception pass through
         else:
-            if o is None:
+            if val is None:
                 return Response(status_int=204)  # No content
-            elif isinstance(o, basestring):
+            elif isinstance(val, basestring):
                 comment = 'View returned error msg as a string'
-                http_code = 400
-                error_msg = o
+                status_int = 400
+                error_msg = val
             else:
-                return o
+                return val
         raise HTTPError(
-            status_int=http_code, content_type='text/plain', body=error_msg,
+            status_int=status_int,
+            content_type='text/plain',
+            body=error_msg,
             detail=error_msg,  # could be shown to end users
             comment=comment,  # not displayed to end users
             )

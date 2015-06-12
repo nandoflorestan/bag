@@ -18,10 +18,10 @@ class Problem(Exception):
 
         When developing a user interface of any kind, it is great when all the
         webservices respect a standardized interface for returning errors.
-        This class uses these fields:
+        This class outputs these fields by convention:
 
         - error_msg: the string to be displayed to the end user
-        - error_type: a sort of title; usually the HTTP error title
+        - error_title: by default the HTTP error title
         - error_debug: should NOT be shown to end users; for devs only
         '''
 
@@ -40,9 +40,11 @@ class Problem(Exception):
         500: 'Internal server error',
         }
 
-    def __init__(self, error_msg, http_code=500, error_type=None, error_debug=None, **kw):
-        self.http_code = int(http_code)
-        kw['error_type'] = error_type or self.HTTP[self.http_code]
+    def __init__(self, error_msg, status_int=400, error_title=None, error_debug=None, **kw):
+        self.status_int = int(status_int)
+        assert str(self.status_int)[0] in ('4', '5')
+
+        kw['error_title'] = error_title or self.HTTP[self.status_int]
         kw['error_msg'] = error_msg
         kw['error_debug'] = error_debug
         self.kw = kw
@@ -50,11 +52,23 @@ class Problem(Exception):
     def to_dict(self):
         return self.kw
 
+    @property
+    def error_msg(self):
+        return self.kw['error_msg']
+
+    @property
+    def error_title(self):
+        return self.kw['error_title']
+
+    @property
+    def error_debug(self):
+        return self.kw['error_debug']
+
     def __repr__(self):
-        return '<{} {}>'.format(type(self).__name__, self.kw)
+        return '<{} {}>'.format(type(self).__name__, self.error_msg)
 
     def __str__(self):
-        return self.kw['error_msg']
+        return self.error_msg
 
 
 class Unprocessable(Exception):

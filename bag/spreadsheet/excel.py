@@ -42,8 +42,8 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
         wb = load_workbook(stream, data_only=True)
     except (BadZipFile, InvalidFileException) as e:
         raise Problem(
-            _('That is not an XLSX file.'), http_code=400,
-            error_type=_('Unable to read the XLSX file'), error_debug=str(e))
+            _('That is not an XLSX file.'),
+            error_title=_('Unable to read the XLSX file'), error_debug=str(e))
 
     # Grab either the worksheet named "Assets", or simply the first one
     if worksheet_name and worksheet_name in wb:
