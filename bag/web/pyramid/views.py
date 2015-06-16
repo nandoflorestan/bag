@@ -10,6 +10,11 @@ from bag.web.exceptions import Problem
 from pyramid.httpexceptions import HTTPError
 from pyramid.response import Response
 
+try:
+    from bag.web.pyramid import _
+except ImportError:
+    _ = str  # and i18n is disabled.
+
 
 def get_json_or_raise(request, expect=None, dict_has=None):
     '''If the incoming json cannot be decoded, this is a bad request,
@@ -99,14 +104,18 @@ def maybe_raise_unprocessable(e, **adict):
         422 Unprocessable Entity, optionally with additional information.
         '''
     if hasattr(e, 'asdict') and callable(e.asdict):
+        error_msg = getattr(
+            e, 'error_msg', _('Please correct error(s) in the form.'))
         adict['invalid'] = e.asdict()
         adict.setdefault('error_title', 'Invalid')
+        adict.setdefault('error_msg', error_msg)
         raise HTTPError(
             status_int=422,  # Unprocessable Entity
             content_type='application/json',
             body=dumps(adict),
-            detail=e.error_msg,  # could be shown to end users
-            comment='Form validation error',  # not displayed to end users
+            detail=error_msg,  # could be shown to end users
+            # *comment* is not displayed to end users:
+            comment=str(e) or 'Form validation error',
             )
 
 
