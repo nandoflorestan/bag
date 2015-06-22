@@ -24,14 +24,25 @@ class Page(object):
             /cities/:city/streets/:street
         '''
 
-    def __init__(self, name, url_templ, doc=None, section=None, **kw):
+    def __init__(self, name, url_templ, fn=None, permission=None,
+                 section='Miscellaneous', **kw):
         assert isinstance(name, basestring)
         assert name
         assert isinstance(url_templ, basestring)
         assert url_templ
         self.name = name
         self.url_templ = url_templ
+
+        # In Python source the doc will contain extra indentation
+        doc = fn.__doc__ if fn else None
+        if doc:
+            alist = []
+            for line in doc.split('\n'):
+                alist.append(line[8:] if line.startswith(' ' * 8) else line)
+            doc = '\n'.join(alist)
         self.doc = doc  # description of the page or HTTP operation
+
+        self.permission = permission
         self.section = section  # of the documentation
         for k, v in kw.items():
             setattr(self, k, v)
@@ -87,11 +98,11 @@ class Burla(object):
         self._page_class = page_class
         self._op_class = op_class
 
-    def add_page(self, name, **kw):
+    def _add_page(self, name, **kw):
         assert name not in self.map
         self.map[name] = self._page_class(name, **kw)
 
-    def add_op(self, name, **kw):
+    def _add_op(self, name, **kw):
         assert name not in self.map
         self.map[name] = self._op_class(name, **kw)
 
@@ -104,18 +115,18 @@ class Burla(object):
     #     op = self.map[name]
     #     return {'url': op.url(**kw), 'request_method': op.request_method}
 
-    def op(self, name, **kw):
+    def add_op(self, name, **kw):
         '''Decorator for view handlers that registers an operation with Burla.
             '''
         def wrapper(view_handler):
-            self.add_op(name, fn=view_handler, **kw)
+            self._add_op(name, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
-    def page(self, name, **kw):
+    def add_page(self, name, **kw):
         '''Decorator for view handlers that registers a page with Burla.'''
         def wrapper(view_handler):
-            self.add_page(name, fn=view_handler, **kw)
+            self._add_page(name, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
@@ -137,8 +148,9 @@ class Burla(object):
             }
 
     def gen_documentation(self, title=None, prefix=None, suffix=None):
-        '''Generates documentation from 'section', 'name' and 'doc' attributes
-            of the registered Operation instances, in reStructuredText.
+        '''Generates documentation from 'section', 'name', 'doc' and
+            'permission' attributes of the registered Operation instances,
+            in reStructuredText.
             '''
         # Organize the operations inside their respective sections first
         sections = {}
@@ -173,8 +185,20 @@ class Burla(object):
                     yield op.name
                     yield '-' * len(op.name)
                     yield ''
+                if op.url_templ:
+                    yield '::\n'
+                    if op.request_method:
+                        url_line = op.request_method + ' ' + op.url_templ
+                    else:
+                        url_line = op.url_templ
+                    yield '    ' + url_line
+                    yield ''
                 if op.doc:
                     yield op.doc
+                    yield ''
+                if op.permission:
+                    yield 'This method requires that the user have the ' \
+                        '"{}" permission.'.format(op.permission)
                     yield ''
 
         if suffix:
