@@ -103,7 +103,8 @@ class Burla(object):
         self.map[name] = self._page_class(name, **kw)
 
     def _add_op(self, name, **kw):
-        assert name not in self.map
+        assert name not in self.map, 'Operation already registered: {}'.format(
+            name)
         self.map[name] = self._op_class(name, **kw)
 
     def url(self, name, **kw):
