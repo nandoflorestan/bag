@@ -7,7 +7,6 @@ from __future__ import (absolute_import, division, print_function,
 from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from bag.web.burla import Burla, DOC_TITLE
 from pyramid.response import Response
-from pyramid.view import view_config
 
 
 class PyramidBurla(Burla):
@@ -24,7 +23,8 @@ class PyramidBurla(Burla):
                 request_method=kw['request_method'],
                 permission=kw.get('permission'),
                 )
-            return view_config(**kw)(view_handler)
+            self.config.add_view(view=view_handler, **kw)
+            return view_handler
         return wrapper
 
     def page(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
@@ -35,10 +35,11 @@ class PyramidBurla(Burla):
             self._add_page(
                 name=op_name,
                 url_templ=url_templ,
-                permission=kw.get('permission'),
                 section=section,
                 fn=view_handler,
+                permission=kw.get('permission'),
                 )
+            self.config.add_view(view=view_handler, **kw)
             return view_handler
         return wrapper
 
@@ -49,26 +50,23 @@ js_content = None  # populated lazily
 
 def add_http_operations_list_url(config, url='/http_operations'):
     NAME = 'List operations'
+    config.add_route(NAME, url)
 
-    @ops.op(
-        op_name=NAME, url_templ=url, request_method='GET',
-        section='Infrastructure')
+    @ops.op(NAME, section='Infrastructure', url_templ=url,
+            request_method='GET', route_name=NAME, renderer='json')
     def list_http_operations(context, request):
         '''Returns objects containing the available application pages and
             HTTP API operations in JSON format.
             '''
         return ops.to_dict()
 
-    config.add_route(NAME, url)
-    config.add_view(
-        view=list_http_operations, route_name=NAME, renderer='json')
-
 
 def add_view_for_javascript_file(config, url='/burla'):
     NAME = 'Burla JS module'
+    config.add_route(NAME, url)
 
-    @ops.op(
-        NAME, url_templ=url, request_method='GET', section='Infrastructure')
+    @ops.op(NAME, section='Infrastructure', url_templ=url,
+            request_method='GET', route_name=NAME, renderer='string')
     def javascript_burla_file(context, request):
         '''Javascript file that contains the available pages and HTTP API
             operations as well as functions to generate corresponding URLs.
@@ -79,14 +77,13 @@ def add_view_for_javascript_file(config, url='/burla'):
             js_content = ops.get_javascript_code()
         return js_content
 
-    config.add_route(NAME, url)
-    config.add_view(javascript_burla_file, route_name=NAME, renderer='string')
-
 
 def add_view_for_documentation(config, url='/api_docs', title=None, prefix=None, suffix=None):
     from docutils.core import publish_string
+    config.add_route(DOC_TITLE, url)
 
-    @ops.page(DOC_TITLE, url_templ=url, section='Infrastructure')
+    @ops.page(DOC_TITLE, section='Infrastructure', url_templ=url,
+              route_name=DOC_TITLE)
     def api_documentation_view(context, request):
         '''Displays all available HTTP API methods.'''
         content = publish_string(
@@ -96,11 +93,10 @@ def add_view_for_documentation(config, url='/api_docs', title=None, prefix=None,
             writer_name='html')
         return Response(body=content)
 
-    config.add_route(DOC_TITLE, url)
-    config.add_view(api_documentation_view, route_name=DOC_TITLE)
-
 
 def includeme(config):
+    ops.config = config
+
     # The request object will be able to generate URLs
     config.add_request_method(ops.url, 'burl')
 
