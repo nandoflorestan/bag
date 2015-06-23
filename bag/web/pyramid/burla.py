@@ -91,7 +91,7 @@ def add_view_for_documentation(config, url='/api_docs', title=None, prefix=None,
         '''Displays all available HTTP API methods.'''
         content = publish_string(
             '\n'.join(ops.gen_documentation(
-                title=None, prefix=None, suffix=None)),
+                title=title, prefix=prefix, suffix=suffix)),
             settings_overrides={'output_encoding': 'unicode'},
             writer_name='html')
         return Response(body=content)
