@@ -57,7 +57,7 @@ class Page(object):
     def url(self, **kw):
         astr = self.url_templ
         for param in self.params:
-            astr = self.url_templ.replace(':' + param, str(kw[param]))
+            astr = astr.replace(':' + param, str(kw[param]))
         return astr
 
     def to_dict(self):
