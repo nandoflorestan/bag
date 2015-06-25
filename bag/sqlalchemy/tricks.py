@@ -19,6 +19,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
 from bag import resolve
+from bag.web.exceptions import Problem
 from nine import basestring
 from ..web import gravatar_image
 
@@ -431,6 +432,10 @@ class EmailParts(object):
     @email.setter
     def email(self, val):
         self.email_local, self.email_domain = val.split('@')
+        if not self.email_local:
+            raise Problem('Missing the local part of the email address.')
+        if not self.email_domain:
+            raise Problem('Missing the domain part of the email address.')
 
     def gravatar_image(self, default='mm', size=80, cacheable=True):
         return gravatar_image(self.email, default=default, size=size,
