@@ -57,11 +57,14 @@ class Page(object):
     def url(self, **kw):
         astr = self.url_templ
         for param in self.params:
-            astr = self.url_templ.replace(':' + param, kw[param])
+            astr = self.url_templ.replace(':' + param, str(kw[param]))
         return astr
 
     def to_dict(self):
-        return {'url_templ': self.url_templ}
+        return {
+            'url_templ': self.url_templ,
+            'permission': getattr(self, 'permission', None),
+            }
 
     is_page = True
     is_operation = not is_page
@@ -76,10 +79,9 @@ class Operation(Page):
         self.request_method = request_method
 
     def to_dict(self):
-        return {
-            'url_templ': self.url_templ,
-            'request_method': self.request_method,
-            }
+        adict = super(Operation, self).to_dict()
+        adict['request_method'] = self.request_method
+        return adict
 
     is_page = False
     is_operation = not is_page
@@ -99,12 +101,11 @@ class Burla(object):
         self._op_class = op_class
 
     def _add_page(self, name, **kw):
-        assert name not in self.map
+        assert name not in self.map, 'Already registered: {}'.format(name)
         self.map[name] = self._page_class(name, **kw)
 
     def _add_op(self, name, **kw):
-        assert name not in self.map, 'Operation already registered: {}'.format(
-            name)
+        assert name not in self.map, 'Already registered: {}'.format(name)
         self.map[name] = self._op_class(name, **kw)
 
     def url(self, name, **kw):
