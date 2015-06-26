@@ -268,8 +268,8 @@ class MinimalBase(object):
         return self
 
     @classmethod
-    def query(cls, sas, *predicates, **filters):
-        return sas.query(cls).filter(*predicates).filter_by(**filters)
+    def query(cls, sas, *predicates, what=None, **filters):
+        return sas.query(what or cls).filter(*predicates).filter_by(**filters)
 
     @classmethod
     def get_or_create(cls, session, **filters):
