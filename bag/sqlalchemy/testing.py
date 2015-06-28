@@ -12,9 +12,13 @@ class FakeSession(object):
     def __init__(self):
         self.flush_called = 0
         self.added = []
+        self.deleted = []
 
-    def add(self, obj):
-        self.added.append(obj)
+    def add(self, entity):
+        self.added.append(entity)
+
+    def delete(self, entity):
+        self.deleted.append(entity)
 
     def flush(self):
         self.flush_called += 1
@@ -36,7 +40,7 @@ class FakeSessionByType(FakeSession):
     def filter(self, *a, **kw):
         return self
 
-    filter_by = order_by = filter
+    filter_by = order_by = filter  # args are ignored
 
     def all(self):
         return self.results[self.current_type]
