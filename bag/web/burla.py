@@ -231,7 +231,7 @@ window.burla = {
                 throw new Error('burla: URL template "' + name + '" does not use parameter "' + key + '".');
             }
             var val = options[key];
-            if (val == null)  throw new Error('burla: Operation "' + name + '" needs parameter "' + key + '".';
+            if (val == null)  throw new Error('burla: Operation "' + name + '" needs parameter "' + key + '".');
             s = s.replace(placeholder, val);
         }
         return this.root + s;
