@@ -112,3 +112,14 @@ def djson_renderer_factory(info):
                 response.content_type = 'application/json'
         return dumps(value)
     return _render
+
+
+def now_or_future(dt):
+    ''' Return a datetime that is current or future based on the parameter '''
+    if dt is None \
+            or (not isinstance(dt, datetime))\
+            or dt < datetime.now():
+        dt = datetime.now()
+    return dt
+
+
