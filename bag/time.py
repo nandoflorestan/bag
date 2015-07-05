@@ -114,12 +114,23 @@ def djson_renderer_factory(info):
     return _render
 
 
-def now_or_future(dt):
+def now_or_future(dt, is_utc=True, is_naive=True):
     ''' Return a datetime that is current or future based on the parameter '''
+    if is_utc:
+        now = datetime.now(utc)
+    else:
+        now = datetime.now()
+    if is_naive:
+        now = naive(now)
     if dt is None \
             or (not isinstance(dt, datetime))\
-            or dt < datetime.now():
-        dt = datetime.now()
+            or dt < now:
+        if is_utc:
+            dt = datetime.now(utc)
+        else:
+            dt = datetime.now()
+        if is_naive:
+            dt = naive(dt)
     return dt
 
 
