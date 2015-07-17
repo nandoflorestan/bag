@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
-'''Functions to make it easier to work with datetimes.'''
+'''Functions to make it easier to work with datetimes.
+
+By the way, some ways of constructing a datetime instance:
+
+    datetime.now()    -> datetime(2015, 7, 17, 2, 18, 39, 255470)
+    datetime.now(utc) -> datetime(2015, 7, 17, 5, 18, 39, 255497, tzinfo=<UTC>)
+    datetime.utcnow() -> datetime(2015, 7, 17, 5, 18, 39, 255543)
+'''
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -13,10 +20,12 @@ utc = timezone('utc')
 
 
 def now_with_tz():
+    return datetime.now(utc)
     return utc.localize(datetime.utcnow())
 
 
 def naive(dt):
+    '''Removes the timezone from a datetime instance.'''
     return datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,
                     dt.second, dt.microsecond)
 
@@ -48,11 +57,14 @@ def simplify_datetime(val, granularity='minute'):
     '''Notice this throws away any tzinfo.'''
     if granularity == 'hour':
         return datetime(val.year, val.month, val.day, val.hour)
-    if granularity == 'minute':
+    elif granularity == 'minute':
         return datetime(val.year, val.month, val.day, val.hour, val.minute)
-    if granularity == 'second':
+    elif granularity == 'second':
         return datetime(
             val.year, val.month, val.day, val.hour, val.minute, val.second)
+    else:
+        raise RuntimeError('granularity not implemented: "{}"'.format(
+            granularity))
 
 
 def timed_call(seconds, function, repetitions=-1, *a, **kw):
@@ -114,23 +126,21 @@ def djson_renderer_factory(info):
     return _render
 
 
-def now_or_future(dt, is_utc=True, is_naive=True):
-    ''' Return a datetime that is current or future based on the parameter '''
-    if is_utc:
-        now = datetime.now(utc)
-    else:
-        now = datetime.now()
-    if is_naive:
-        now = naive(now)
-    if dt is None \
-            or (not isinstance(dt, datetime))\
-            or dt < now:
-        if is_utc:
-            dt = datetime.now(utc)
-        else:
-            dt = datetime.now()
-        if is_naive:
-            dt = naive(dt)
-    return dt
+def now_or_future(dt, timezone=utc, now=None):
+    '''Given a datetime, returns it as long as it is not in the past;
+        otherwise, returns now.  You may pass the ``timezone`` instance
+        for the comparison (defaults to UTC); this is useful if your
+        datetime is naive.  The argument ``now`` should be ignored; it
+        is used only in the unit tests.
+        '''
+    now = now or datetime.now(timezone)
+    assert isinstance(now, datetime)
 
+    if not dt:
+        return now
+    assert isinstance(dt, datetime)
 
+    if dt.tzinfo is None:  # dt is a naive datetime (no timezone)
+        now = naive(now)   # comparison only works with another naive datetime
+
+    return now if dt < now else dt

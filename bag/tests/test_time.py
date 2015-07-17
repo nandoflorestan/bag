@@ -6,10 +6,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import unittest
 from datetime import datetime
-from datetime import timedelta
-from bag.time import parse_iso_datetime
-from bag.time import now_or_future
-from bag.time import simplify_datetime
+from bag.time import parse_iso_datetime, naive, now_or_future, utc
 
 
 class TestTime(unittest.TestCase):
@@ -25,11 +22,18 @@ class TestTime(unittest.TestCase):
             parse_iso_datetime('2014-10-21 18:20:59.040Z')
 
     def test_now_or_future(self):
-        assert simplify_datetime(now_or_future(None)) == \
-               simplify_datetime(datetime.now())
-        assert simplify_datetime(now_or_future(datetime.now() +
-               timedelta(days=-1))) == simplify_datetime(datetime.now())
-        assert simplify_datetime(now_or_future(datetime.now() +
-               timedelta(days=1))) == simplify_datetime(datetime.now() +
-               timedelta(days=1))
+        now = datetime(2015, 7, 17, tzinfo=utc)
+        past = datetime(2015, 7, 16, 23, 59, tzinfo=utc)
+        future = datetime(2015, 7, 17, 0, 1, tzinfo=utc)
 
+        assert now is now_or_future(None, now=now)
+        assert now is now_or_future(past, now=now)
+        assert future == now_or_future(future, now=now)
+
+        # Now let's perform the same tests with naive datetimes.
+        past = naive(past)
+        future = naive(future)
+
+        assert now is now_or_future(None, now=now)
+        assert naive(now) == now_or_future(past, now=now)
+        assert future == now_or_future(future, now=now)
