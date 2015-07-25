@@ -37,6 +37,9 @@ class FakeSessionByType(FakeSession):
         self.current_type = atype
         return self
 
+    def join(self, *a, **kw):
+        return self
+
     def filter(self, *a, **kw):
         return self
 
