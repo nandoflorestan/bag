@@ -11,7 +11,9 @@ from decimal import Decimal
 import re
 from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
-from sqlalchemy.orm import relationship, MapperExtension, backref as _backref
+from sqlalchemy.orm import (
+    relationship, MapperExtension, backref as _backref,
+    class_mapper, ColumnProperty)
 from sqlalchemy.orm.attributes import (
     CollectionAttributeImpl, ScalarObjectAttributeImpl)
 from sqlalchemy.orm.dynamic import DynamicAttributeImpl
@@ -208,6 +210,16 @@ def models_from_ids(sas, cls, ids):
         yield sas.query(cls).get(id)
 
 
+def persistent_attribute_names_of(cls):
+    '''Returns a list of the names of the persistent attributes of ``cls``,
+        except collections.'''
+    # return [x for x in dir(cls) if isinstance(
+    #     getattr(cls, x), InstrumentedAttribute)]
+    return [
+        prop.key for prop in class_mapper(cls).iterate_properties
+        if isinstance(prop, ColumnProperty)]
+
+
 class MinimalBase(object):
     """Declarative base class that auto-generates __tablename__."""
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
@@ -345,6 +357,25 @@ class MinimalBase(object):
             new_associations.append(association)
         sas.add_all(new_associations)
         return new_associations
+
+    def clone(self, values=None, pk='id', sas=None):
+        '''Returns a clone of this model.
+            Optionally updates some of its ``values``.
+            Optionally adds the clone to the ``sas`` session.
+            The name of the primary key column should be given as ``pk``.
+            '''
+        attrs = persistent_attribute_names_of(self.__class__)
+        adict = {}
+        for attr in attrs:
+            adict[attr] = getattr(self, attr)
+        if pk:
+            del adict[pk]
+        if values:
+            adict.update(values)
+        clone = self.__class__(**adict)
+        if sas:  # Optionally add the clone to the SQLAlchemy session
+            sas.add(clone)
+        return clone
 
 
 class PK(object):
