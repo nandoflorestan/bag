@@ -11,9 +11,28 @@ except ImportError:
     _ = str  # and i18n is disabled.
 
 
+@nine
+class MissingHeaders(Exception):
+    msg1 = _('The spreadsheet is missing the required header: ')
+    msg2 = _('The spreadsheet is missing the required headers: ')
+
+    def __init__(self, missing_headers):
+        self.missing_headers = missing_headers
+
+    def __repr__(self):
+        return '<{} {}>'.format(type(self).__name__, self.missing_headers)
+
+    def __str__(self):
+        if len(self.missing_headers) == 1:
+            return self.msg1 + self.missing_headers[0]
+        else:
+            return self.msg2 + ', '.join([
+                '"{}"'.format(h) for h in self.missing_headers])
+
+
 def raise_if_missing_required_headers(headers, required_headers=[], case_sensitive=False):
-    '''Raises KeyError if the ``required_headers`` aren't all present in
-        ``headers``.
+    '''Raises MissingHeaders if the ``required_headers`` aren't all
+        present in ``headers``.
         '''
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
@@ -23,12 +42,7 @@ def raise_if_missing_required_headers(headers, required_headers=[], case_sensiti
         missing_headers = [h for h in required_headers if h not in headers]
 
     if missing_headers:
-        if len(missing_headers) == 1:
-            msg = _('The spreadsheet is missing the required header: ')
-        else:
-            msg = _('The spreadsheet is missing the required headers: ')
-        raise KeyError(
-            msg + ', '.join(['"{}"'.format(h) for h in missing_headers]))
+        raise MissingHeaders(missing_headers)
 
 
 def get_corresponding_variable_names(headers, required_headers, case_sensitive=False):
