@@ -71,6 +71,12 @@ class Problem(Exception):
         return self.error_msg
 
 
+def ensure(condition, *a, **kw):
+    '''Use an assert-like syntax to raise Problem exceptions.'''
+    if not condition:
+        raise Problem(*a, **kw)
+
+
 class Unprocessable(Exception):
     '''Exception that mimics Colander's Invalid, because both have an
         ``asdict()`` method. However, this one can be instantiated
