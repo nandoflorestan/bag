@@ -71,7 +71,7 @@ except ImportError:  # It's time people using Python 2.6 would upgrade already
 from babel import Locale
 from babel.numbers import (
     format_number as as_number, format_currency as as_currency)
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.i18n import get_locale_name, default_locale_negotiator
 from nine import basestring, native_str, iterkeys, iteritems, nine
 from . import _
@@ -159,9 +159,9 @@ def locale_view(request):
     '''
     locale_code = request.matchdict['locale']
     # Ensure this locale code is one of the enabled_locales
-    if not locale_code in request.registry.settings[SETTING_NAME]:
+    if locale_code not in request.registry.settings[SETTING_NAME]:
         raise KeyError('Locale not enabled: "{0}"'.format(locale_code))
-    return HTTPFound(
+    return HTTPSeeOther(
         location=request.referrer or '/',
         headers=locale_cookie_headers(locale_code))
 
