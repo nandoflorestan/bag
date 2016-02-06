@@ -23,9 +23,9 @@ def asbool(thing):
 
 
 def resolve(resource_spec):
-    '''Returns the variable referred to in a string such as
+    """Returns the variable referred to in a string such as
         ``my.python.module:some_variable``.
-        '''
+        """
     if isinstance(resource_spec, ModuleType):  # arg is a python module
         return resource_spec
     module, var = resource_spec.split(':')  # arg is assumed to be a string
@@ -34,11 +34,11 @@ def resolve(resource_spec):
 
 
 def resolve_path(resource_spec):
-    '''Returns the path referred to in a string such as
+    """Returns the path referred to in a string such as
         ``my.python.module:some/subdirectory``, as a pathlib.Path object.
 
         Similar: from pyramid.resource import abspath_from_asset_spec
-        '''
+        """
     from pathlib import Path
     module, var = resource_spec.split(':')  # arg is assumed to be a string
     module = import_module(module)
@@ -51,7 +51,7 @@ def first(iterable):
 
 
 def dict_subset(adict, predicate):
-    '''Given a dictionary and a predicate function, returns another dictionary
+    """Given a dictionary and a predicate function, returns another dictionary
         that contains only a subset of the keys in the original.
-        '''
+        """
     return {k: v for k, v in adict.items() if predicate(k, v)}

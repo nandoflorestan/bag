@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''This module allows the Kajiki templating language --
+"""This module allows the Kajiki templating language --
     http://pypi.python.org/pypi/Kajiki/
     -- to be used in the Pyramid web framework --
     http://docs.pylonshq.com/
@@ -22,7 +22,7 @@
     The Kajiki FileLoader class supports searching only one directory for
     templates. If you want a search path, you must roll your own.
     If you do... let us know.
-    '''
+    """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -65,7 +65,7 @@ class KajikiTemplateRenderer(object):
 
 
 def renderer_factory(info):
-    '''*info* contains::
+    """*info* contains::
 
         name = Attribute('The value passed by the user as the renderer name')
         package = Attribute('The "current package" when the renderer '
@@ -75,7 +75,7 @@ def renderer_factory(info):
                              'renderer was created')
         settings = Attribute('The ISettings dictionary related to the '
                              'current app')
-    '''
+    """
     registry = info.registry
     settings = info.settings
     if not hasattr(registry, 'kajiki_loader'):
@@ -90,9 +90,9 @@ def renderer_factory(info):
 
 
 def includeme(config):
-    '''Sets up the Kajiki templating language for the configured
+    """Sets up the Kajiki templating language for the configured
     file extensions.
-    '''
+    """
     if hasattr(config, 'bag_kajiki_included'):
         return  # Include only once per config
     config.bag_kajiki_included = True

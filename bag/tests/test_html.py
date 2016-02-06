@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Tests the *html* module.'''
+"""Tests the *html* module."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

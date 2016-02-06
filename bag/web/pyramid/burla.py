@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Burla integration for Pyramid'''
+"""Burla integration for Pyramid"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -11,9 +11,9 @@ from pyramid.response import Response
 
 class PyramidBurla(Burla):
     def op(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
-        '''Decorator for view handlers that registers an operation with Burla
+        """Decorator for view handlers that registers an operation with Burla
             as well as with Pyramid.
-            '''
+            """
         def wrapper(view_handler):
             self._add_op(
                 op_name,
@@ -28,9 +28,9 @@ class PyramidBurla(Burla):
         return wrapper
 
     def page(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
-        '''Decorator for view handlers that registers a page with Burla
+        """Decorator for view handlers that registers a page with Burla
             as well as with Pyramid.
-            '''
+            """
         def wrapper(view_handler):
             self._add_page(
                 name=op_name,
@@ -55,9 +55,9 @@ def add_http_operations_list_url(config, url='/http_operations'):
     @ops.op(NAME, section='Infrastructure', url_templ=url,
             request_method='GET', route_name=NAME, renderer='json')
     def list_http_operations(context, request):
-        '''Returns objects containing the available application pages and
+        """Returns objects containing the available application pages and
             HTTP API operations in JSON format.
-            '''
+            """
         return ops.to_dict()
 
 
@@ -68,9 +68,9 @@ def add_view_for_javascript_file(config, url='/burla'):
     @ops.op(NAME, section='Infrastructure', url_templ=url,
             request_method='GET', route_name=NAME, renderer='string')
     def javascript_burla_file(context, request):
-        '''Javascript file that contains the available pages and HTTP API
+        """Javascript file that contains the available pages and HTTP API
             operations as well as functions to generate corresponding URLs.
-            '''
+            """
         request.response.content_type = 'application/javascript'
         global js_content
         if not js_content:
@@ -85,7 +85,7 @@ def add_view_for_documentation(config, url='/api_docs', title=None, prefix=None,
     @ops.page(DOC_TITLE, section='Infrastructure', url_templ=url,
               route_name=DOC_TITLE)
     def api_documentation_view(context, request):
-        '''Displays all available HTTP API methods.'''
+        """Displays all available HTTP API methods."""
         content = publish_string(
             '\n'.join(ops.gen_documentation(
                 title=title, prefix=prefix, suffix=suffix)),

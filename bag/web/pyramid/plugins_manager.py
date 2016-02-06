@@ -61,7 +61,7 @@ def find_subclasses(cls, path):
 
 
 class BasePlugin(object):
-    '''Marker class for plugins.'''
+    """Marker class for plugins."""
 
 
 class PluginsManager(object):
@@ -82,7 +82,7 @@ class PluginsManager(object):
                                 module_name=ep.module_name)
 
     def add_plugin(self, callable, module_name):
-        '''Instantiates a plugin and stores it if its name is new.'''
+        """Instantiates a plugin and stores it if its name is new."""
         plugin = callable(self)  # get a plugin instance
         name = getattr(plugin, 'plugin_name', module_name)
         # print(name, plugin)
@@ -101,7 +101,7 @@ class PluginsManager(object):
         return self.settings.get('plugins.' + name, '').lower() != 'disabled'
 
     def call(self, method, args=[], kwargs={}, only_enabled_plugins=True):
-        '''Generic method that calls some method in the plugins.'''
+        """Generic method that calls some method in the plugins."""
         nigulps = self.enabled if only_enabled_plugins else self.all
         for p in nigulps.values():
             if not hasattr(p, method):

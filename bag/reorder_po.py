@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Reorders the translations inside a .po file.
+"""Reorders the translations inside a .po file.
 
 This script was written because transifex is messy and when you pull
 translations from transifex, the order of the strings completely changes and
@@ -9,7 +9,7 @@ when you do a ``git diff`` you cannot make sense of the alterations.
 It is even hard to see whether any translations have been lost.
 But if you always reorder the .po after pulling from transifex, then
 the diff will be readable and the version history will make sense.
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

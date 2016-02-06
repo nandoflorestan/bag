@@ -17,7 +17,7 @@ except ImportError:
 
 
 def get_json_or_raise(request, expect=None, dict_has=None):
-    '''If the incoming json cannot be decoded, this is a bad request,
+    """If the incoming json cannot be decoded, this is a bad request,
         so raise 400 instead of 500.
 
         Usage examples::
@@ -36,7 +36,7 @@ def get_json_or_raise(request, expect=None, dict_has=None):
         required keys by passing as the ``dict_has`` argument a sequence of
         2-tuples where each elemaint contains 1) the required key names and
         2) the accepted value type(s). 400 is raised if a key is missing.
-        '''
+        """
     try:
         payload = request.json_body
     except ValueError as e:
@@ -66,7 +66,7 @@ def get_json_or_raise(request, expect=None, dict_has=None):
 
 
 def ajax_view(view_function):
-    '''Decorator for AJAX views that grabs certain exceptions and turns them
+    """Decorator for AJAX views that grabs certain exceptions and turns them
         into an error JSON response that contains:
 
         - "error_msg": the string to be displayed to end users
@@ -76,7 +76,7 @@ def ajax_view(view_function):
         - possibly other variables, too
 
         The transaction is not committed because we **raise** HTTPError.
-        '''
+        """
     @wraps(view_function)
     def wrapper(context, request):
         try:
@@ -100,9 +100,9 @@ def ajax_view(view_function):
 
 
 def maybe_raise_unprocessable(e, **adict):
-    '''If the provided exception looks like a validation error, raise
+    """If the provided exception looks like a validation error, raise
         422 Unprocessable Entity, optionally with additional information.
-        '''
+        """
     if hasattr(e, 'asdict') and callable(e.asdict):
         error_msg = getattr(
             e, 'error_msg', _('Please correct error(s) in the form.'))
@@ -120,11 +120,11 @@ def maybe_raise_unprocessable(e, **adict):
 
 
 def xeditable_view(view_function):
-    '''Decorator for AJAX views that need to be friendly towards x-editable,
+    """Decorator for AJAX views that need to be friendly towards x-editable,
         the famous edit-in-place component for AngularJS. x-editable likes
         text/plain instead of JSON responses; so it likes
         us to return either an error string or "204 No content".
-        '''
+        """
     @wraps(view_function)
     def wrapper(context, request):
         try:
@@ -160,7 +160,7 @@ def xeditable_view(view_function):
 
 
 def serve_preloaded(config, route_name, route_path, payload, encoding=None, content_type=None):
-    '''Reads a file (such as robots.txt or favicon.ini) into memory,
+    """Reads a file (such as robots.txt or favicon.ini) into memory,
         then sets up a view that serves it.  Usage::
 
             from bag.web.pyramid.views import serve_preloaded
@@ -177,7 +177,7 @@ def serve_preloaded(config, route_name, route_path, payload, encoding=None, cont
                 payload='my_package:static/favicon.ico',
                 content_type='image/x-icon',
                 )
-        '''
+        """
     from os.path import getmtime, getsize
     from pyramid.resource import abspath_from_resource_spec
     from pyramid.response import Response

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''web_deps.py
+"""web_deps.py
 
 The problem: script and CSS linking in composite pages
 ======================================================
@@ -234,7 +234,7 @@ This module, "web_deps", is superior to my previous attempt, called
 * Much better user API.
 * The code is better organized.
 * It has more comprehensive unit tests.
-'''
+"""
 
 
 from __future__ import (absolute_import, division, print_function,
@@ -245,9 +245,9 @@ from ..text import uncommafy
 
 
 def uniquefy(seq, id_fun=lambda x: x):
-    '''Returns a list of the items in `seq` while preserving the order.
+    """Returns a list of the items in `seq` while preserving the order.
     Why? set(seq) might be more expensive and does not preserve the order.
-    '''
+    """
     seen = {}
     result = []
     for item in seq:
@@ -262,9 +262,9 @@ def uniquefy(seq, id_fun=lambda x: x):
 @nine
 class Dependency(object):
     def __init__(self, handle, deps='', **kw):
-        '''You can store whatever attributes you like by providing keyword
+        """You can store whatever attributes you like by providing keyword
         arguments. The only required argument is a name for this dependency.
-        '''
+        """
         assert isinstance(handle, basestring)
         self.handle = handle
         self.dep_handles = list(uncommafy(deps))
@@ -279,9 +279,9 @@ class Dependency(object):
         return self.handle
 
     def recursive_deps(self):
-        '''Returns a deep list of the dependencies, with self as 1st item.
+        """Returns a deep list of the dependencies, with self as 1st item.
         May contain duplicates.
-        '''
+        """
         flat = [self]
         for dep in self.deps:
             flat.extend(dep.recursive_deps())
@@ -293,7 +293,7 @@ class DepsRegistry(object):
         self.items = {}
 
     def admit(self, *deps):
-        '''The arguments must be Dependency instances.'''
+        """The arguments must be Dependency instances."""
         for dep in deps:
             if dep.handle in self.items:
                 raise KeyError('{0} already registered.'.format(dep.handle))
@@ -314,7 +314,7 @@ class DepsRegistry(object):
 
     @memoize(100, keymaker=lambda self, items: repr((self, items)))
     def summon(self, items):
-        '''The parameter `items` can be either a comma-delimited string of
+        """The parameter `items` can be either a comma-delimited string of
         dependency names, or a list of actual Dependency objects.
 
         Returns a list of dependency objects,
@@ -324,7 +324,7 @@ class DepsRegistry(object):
         then reversed and uniquefied.
 
         This method can only be called after close().
-        '''
+        """
         flat = []
         if isinstance(items, basestring):
             items = (self.items[h] for h in uncommafy(items))
@@ -337,7 +337,7 @@ class CallableRegistry(DepsRegistry):
     item_class = Dependency
 
     def __call__(self, handle, deps='', **kw):
-        '''Convenience method to add a Dependency without explicitly
+        """Convenience method to add a Dependency without explicitly
         instantiating it.
 
         If provided, the *deps* argument must be either a list of strings,
@@ -345,7 +345,7 @@ class CallableRegistry(DepsRegistry):
 
         Each of these items must be the name of another resource,
         required for this resource to work.
-        '''
+        """
         self.admit(self.item_class(handle, deps, **kw))
 
 
@@ -357,20 +357,20 @@ class WebDepsRegistry(CallableRegistry):
 
     @memoize(100, keymaker=lambda self, items: repr((self, items)))
     def urls(self, items):
-        '''Recommended for use in your templating language. Returns a list of
+        """Recommended for use in your templating language. Returns a list of
         the URLs for the dependencies required by this page.
-        '''
+        """
         return [self.url_provider(o) for o in self.summon(items)]
 
     @memoize(100, keymaker=lambda self, items: repr((self, items)))
     def tags(self, items):
-        '''Returns a string containing the HTML script tags.'''
+        """Returns a string containing the HTML script tags."""
         return '\n'.join([self.tag_format.format(url)
                           for url in self.urls(items)])
 
 
 class WebDeps(object):
-    '''Should be used at web server initialization time to register every
+    """Should be used at web server initialization time to register every
     javascript and CSS file used by the application. Example:
 
     .. code-block:: python
@@ -385,13 +385,13 @@ class WebDeps(object):
         PageDeps = deps.close()
 
     Then in each request you should instantiate the returned PageDeps.
-    '''
+    """
 
     def __init__(self, url_provider=lambda resource: resource.url):
-        '''By default, the system will output URLs by looking into the "url"
+        """By default, the system will output URLs by looking into the "url"
         instance variable of resources. If needed, you can change this
         by providing a `url_provider` function here.
-        '''
+        """
         self.lib = WebDepsRegistry(
             url_provider=url_provider,
             tag_format='<script type="text/javascript" src="{0}"></script>')
@@ -402,9 +402,9 @@ class WebDeps(object):
         self._url_provider = url_provider
 
     def close(self):
-        '''Finishes registration time and returns a factory that
+        """Finishes registration time and returns a factory that
         should be called for each request.
-        '''
+        """
         self.lib.close()
         self.css.close()
         self.package.close()
@@ -420,25 +420,25 @@ class PageDepsComponent(object):
         self.registry = registry
 
     def __call__(self, handles):
-        '''Adds one or more requirements to this page or request.'''
+        """Adds one or more requirements to this page or request."""
         for handle in uncommafy(handles):
             self._items.append(self.registry.items[handle])
 
     @property
     def sorted(self):
-        '''Returns a list of dependency objects required by this page.'''
+        """Returns a list of dependency objects required by this page."""
         return self.registry.summon(self._items)
 
     @property
     def urls(self):
-        '''Recommended for use in your templating language. Returns a list of
+        """Recommended for use in your templating language. Returns a list of
         the URLs for the dependencies required by this page.
-        '''
+        """
         return self.registry.urls(self._items)
 
     @property
     def tags(self):
-        '''Returns a string containing the HTML script tags.'''
+        """Returns a string containing the HTML script tags."""
         return self.registry.tags(self._items)
 
 
@@ -465,7 +465,7 @@ class ScriptComponent(list):
 
 
 class PackageComponent(object):
-    '''A package is a special kind of dependency. It can refer to
+    """A package is a special kind of dependency. It can refer to
     scripts, stylesheets, other packages, and even contain some
     javascript code.
 
@@ -478,14 +478,14 @@ class PackageComponent(object):
 
         deps.package('deform')
 
-    '''
+    """
 
     def __init__(self, packages, deps):
         self._packages = packages
         self._deps = deps
 
     def __call__(self, handles):
-        '''Adds one or more package requirements to this page or request.'''
+        """Adds one or more package requirements to this page or request."""
         if isinstance(handles, basestring):
             handles = uncommafy(handles)
         for handle in handles:
@@ -502,16 +502,16 @@ class PackageComponent(object):
 
 @nine
 class PageDeps(object):
-    '''Represents the dependencies of a page;
+    """Represents the dependencies of a page;
     an instance must be used on each request.
     Makes it easy to declare dependencies and provides the HTML tag soup.
-    '''
+    """
 
     def __init__(self, libs, styles, packages):
-        '''The constructor is called by
+        """The constructor is called by
         the factory returned by WebDeps.close(), not by you.
         It just assembles a composite object.
-        '''
+        """
         self.lib = PageDepsComponent(libs)
         self.css = PageDepsComponent(styles)
         self.script = ScriptComponent()
@@ -529,7 +529,7 @@ class PageDeps(object):
         return '\n'.join([self.css.tags, self.lib.tags, self.script.tags])
 
     def light_accordion(self, selector='.accordion', h_tag='h3'):
-        '''Implements an accordion that depends on jquery only, not jquery.ui.
+        """Implements an accordion that depends on jquery only, not jquery.ui.
 
         The CSS you need is::
 
@@ -547,9 +547,9 @@ class PageDeps(object):
             </div>
 
         Use "class='show'" to make some answers initially appear.
-        '''
+        """
         self.lib('jquery')
-        s = '''
+        s = """
 function processAccordion(first) {
   var toHide = $('selector > div').not('.show');
   var toShow = $('selector > div.show');
@@ -568,7 +568,7 @@ $(function() {
     $(this).next().addClass('show');
     processAccordion();
   });
-});'''.replace('selector', selector).replace('h_tag', h_tag)
+});""".replace('selector', selector).replace('h_tag', h_tag)
         self.script(s)
 
     favicon_props = dict(
@@ -585,17 +585,17 @@ $(function() {
     )
 
     def is_ie(self, request):
-        '''Returns True if the browser is Internet Explorer.
+        """Returns True if the browser is Internet Explorer.
         Written for the Pyramid web framework. If you are using another
         framework, you can override this method.
-        '''
+        """
         return request.headers.get("User-Agent", '').find("MSIE") != -1
 
     def favicon_tag(self, request):
-        '''Returns the HTML tag for the favicon. If the browser is IE,
+        """Returns the HTML tag for the favicon. If the browser is IE,
         a different tag is returned. You can configure either tag by
         changing the PageDeps.favicon_props dictionary.
-        '''
+        """
         s = '<link rel="{rel}" {typ} href="{url}" sizes="{sizes}" />'.format(
             **self.favicon_props['ie' if self.is_ie(request) else 'normal'])
         return s

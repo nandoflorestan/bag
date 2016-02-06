@@ -8,10 +8,10 @@ from functools import wraps
 
 
 def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
-    '''memoize decorator with a lru cache.
+    """memoize decorator with a lru cache.
     When full, the cache discards the least recently used value.
     You can pass cache_type=WeakValueDictionary (not tested).
-    '''
+    """
     if not keymaker:
         try:
             from cPickle import dumps

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Make Pyramid play ball with AngularJS to achieve CSRF protection.
+"""Make Pyramid play ball with AngularJS to achieve CSRF protection.
 
     To start using this module, include it in your application configuration::
 
@@ -62,7 +62,7 @@
             ...
 
     https://docs.angularjs.org/api/ng/service/$http
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -76,10 +76,10 @@ HEADER_NAME = 'X-XSRF-Token'  # different from Pyramid's default 'X-CSRF-Token'
 
 
 def on_GET_request_setup_csrf_cookie(ev):
-    '''If this is the first GET request, we set the CSRF token in a
+    """If this is the first GET request, we set the CSRF token in a
         JavaScript readable session cookie called XSRF-TOKEN.
         Angular will pick it up for subsequent AJAX requests.
-        '''
+        """
     if ev.request.method == 'GET':  # and not 'static' in ev.request.path:
         token = ev.request.session.get_csrf_token()
         if ev.request.cookies.get('XSRF-TOKEN') != token:

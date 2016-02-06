@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Burla: Powerful URL generation independent of web frameworks'''
+"""Burla: Powerful URL generation independent of web frameworks"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -15,14 +15,14 @@ except ImportError:
 
 
 class Page(object):
-    '''A page is comprised of a descriptive name, a URL template (from which
+    """A page is comprised of a descriptive name, a URL template (from which
         parameters are discovered) and possibly documentation strings.
         The instance is able to generate its URL.
 
         A URL template looks like this (params are preceded by a colon)::
 
             /cities/:city/streets/:street
-        '''
+        """
 
     def __init__(self, name, url_templ, fn=None, permission=None,
                  section='Miscellaneous', **kw):
@@ -71,7 +71,7 @@ class Page(object):
 
 
 class Operation(Page):
-    '''Subclass of Page with a ``request_method`` (the HTTP verb).'''
+    """Subclass of Page with a ``request_method`` (the HTTP verb)."""
 
     def __init__(self, name, url_templ, request_method='GET', **kw):
         assert isinstance(request_method, basestring)
@@ -88,11 +88,11 @@ class Operation(Page):
 
 
 class Burla(object):
-    '''Collection of pages and operations. Easily turned into a dict for
+    """Collection of pages and operations. Easily turned into a dict for
         JSON output.
 
         Generates URLs and provides JS code to generate URLs in the client.
-        '''
+        """
 
     def __init__(self, root='', page_class=Page, op_class=Operation):
         self.map = {}
@@ -109,24 +109,24 @@ class Burla(object):
         self.map[name] = self._op_class(name, **kw)
 
     def url(self, name, **kw):
-        '''Returns only the generated URL.'''
+        """Returns only the generated URL."""
         return self.map[name].url(**kw)
 
     # def item(self, name, **kw):
-    #     '''Returns the generated URL and the request_method.'''
+    #     """Returns the generated URL and the request_method."""
     #     op = self.map[name]
     #     return {'url': op.url(**kw), 'request_method': op.request_method}
 
     def add_op(self, name, **kw):
-        '''Decorator for view handlers that registers an operation with Burla.
-            '''
+        """Decorator for view handlers that registers an operation with Burla.
+            """
         def wrapper(view_handler):
             self._add_op(name, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
     def add_page(self, name, **kw):
-        '''Decorator for view handlers that registers a page with Burla.'''
+        """Decorator for view handlers that registers a page with Burla."""
         def wrapper(view_handler):
             self._add_page(name, fn=view_handler, **kw)
             return view_handler
@@ -143,17 +143,17 @@ class Burla(object):
                 yield o
 
     def to_dict(self):
-        '''Use this to generate JSON so the client knows the URLs too.'''
+        """Use this to generate JSON so the client knows the URLs too."""
         return {
             'pages': {o.name: o.to_dict() for o in self.gen_pages()},
             'ops': {o.name: o.to_dict() for o in self.gen_ops()},
             }
 
     def gen_documentation(self, title=None, prefix=None, suffix=None):
-        '''Generates documentation from 'section', 'name', 'doc' and
+        """Generates documentation from 'section', 'name', 'doc' and
             'permission' attributes of the registered Operation instances,
             in reStructuredText.
-            '''
+            """
         # Organize the operations inside their respective sections first
         sections = {}
         for op in self.gen_ops():
@@ -208,10 +208,10 @@ class Burla(object):
             yield ''
 
     def get_javascript_code(self):
-        '''Returns a JS file that contains the operations and pages and
+        """Returns a JS file that contains the operations and pages and
             functions to generate URLs from them.
-            '''
-        return '''"use strict";
+            """
+        return """"use strict";
 
 // Usage:
 // var url = burla.page(pageName, urlParams);
@@ -239,7 +239,7 @@ window.burla = {
 
     page: function (name, options) { return this._find(this.pages, name, options); },
     op: function (name, options) { return this._find(this.ops, name, options); },
-}\n''' \
+}\n""" \
             .replace('PAGES', dumps(
                 {o.name: o.to_dict() for o in self.gen_pages()},
                 sort_keys=True)) \

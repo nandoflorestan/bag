@@ -15,7 +15,7 @@ def parse_iso_date(txt):
 
 
 def shorten(txt, length=10, ellipsis='…'):
-    '''Truncate *txt*, adding *ellipsis* to the end, with total *length*.'''
+    """Truncate *txt*, adding *ellipsis* to the end, with total *length*."""
     if len(txt) > length:
         return txt[:length - len(ellipsis)] + ellipsis
     else:
@@ -23,7 +23,7 @@ def shorten(txt, length=10, ellipsis='…'):
 
 
 def shorten_proper(name, length=11, ellipsis='…', min=None):
-    '''Shortens a proper name for displaying.'''
+    """Shortens a proper name for displaying."""
     min = min or length / 2.0
     words = name.split(' ')
     output = []
@@ -40,9 +40,9 @@ def shorten_proper(name, length=11, ellipsis='…', min=None):
 
 
 def uncommafy(txt, sep=','):
-    '''Takes a comma-delimited string and returns a generator of
+    """Takes a comma-delimited string and returns a generator of
     stripped strings. No empty string is yielded.
-    '''
+    """
     for item in txt.split(sep):
         item = item.strip()
         if item:
@@ -52,7 +52,7 @@ def uncommafy(txt, sep=','):
 def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                                 'abcdefghijklmnopqrstuvwxyz'
                                 '0123456789'):
-    '''Returns a random string of some `length`.'''
+    """Returns a random string of some `length`."""
     return ''.join((random.choice(chars) for i in range(length)))
 
 
@@ -92,11 +92,11 @@ ascii_map.extend(latin1_map)
 
 
 def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
-    '''Removes from *txt* (a unicode object) all characters not
+    """Removes from *txt* (a unicode object) all characters not
     supported by *encoding*, but using a map to "simplify" some
     characters instead of just removing them.
     If *byts* is true, returns a bytestring.
-    '''
+    """
     if amap is None:
         if encoding == 'ascii':
             amap = ascii_map
@@ -109,7 +109,7 @@ def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
 
 
 def to_filename(txt, for_web=False, badchars='', maxlength=0):
-    '''Massages *txt* until it is a good filename.'''
+    """Massages *txt* until it is a good filename."""
     illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
     for c in illegal:
         txt = txt.replace(c, '')
@@ -125,14 +125,14 @@ def to_filename(txt, for_web=False, badchars='', maxlength=0):
 def slugify(txt, exists=lambda x: False, badchars='', maxlength=16,
             chars='abcdefghijklmnopqrstuvwxyz23456789',
             min_suffix_length=1, max_suffix_length=4):
-    '''Returns a slug that does not yet exist, based on ``txt``.
+    """Returns a slug that does not yet exist, based on ``txt``.
 
     You may provide ``exists``, a callback that takes a generated slug and
     checks the database to see if it already exists.
 
     Each attempt generates a longer suffix in order to keep the number of
     attempts at a minimum.
-    '''
+    """
     slug1 = slug = to_filename(txt, for_web=True, badchars=badchars,
                                maxlength=maxlength - max_suffix_length - 1)
     while exists(slug):
@@ -208,7 +208,7 @@ def make_title(txt):
 
 
 def capitalize(txt):
-    '''Alter ONLY the first character to make it upper case.'''
+    """Alter ONLY the first character to make it upper case."""
     if txt in (None, ''):
         return txt
     val = txt[0].upper()

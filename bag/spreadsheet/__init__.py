@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Spreadsheet importers in CSV and Excel formats.'''
+"""Spreadsheet importers in CSV and Excel formats."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -31,9 +31,9 @@ class MissingHeaders(Exception):
 
 
 def raise_if_missing_required_headers(headers, required_headers=[], case_sensitive=False):
-    '''Raises MissingHeaders if the ``required_headers`` aren't all
+    """Raises MissingHeaders if the ``required_headers`` aren't all
         present in ``headers``.
-        '''
+        """
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
         missing_headers = [h for h in required_headers
@@ -46,14 +46,14 @@ def raise_if_missing_required_headers(headers, required_headers=[], case_sensiti
 
 
 def get_corresponding_variable_names(headers, required_headers, case_sensitive=False):
-    '''If happy, returns the corresponding variable names.
+    """If happy, returns the corresponding variable names.
 
         The parameter ``required_headers`` may be a map or a sequence. If map,
         the keys should be the legible header names and the values should be
         the corresponding variable names.  For headers absent from the map,
         or if ``required_headers`` is a list, the variable names returned
         are the result of string conversion.
-        '''
+        """
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
         required_headers = [h.lower() for h in required_headers]

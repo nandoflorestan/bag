@@ -12,7 +12,7 @@ __all__ = ('SAContext',)
 
 
 class SAContext(object):
-    '''Convenient SQLALchemy initialization.
+    """Convenient SQLALchemy initialization.
 
     Usage:
 
@@ -36,7 +36,7 @@ class SAContext(object):
 
         # You can also create a copy of sa, bound to another engine:
         sa2 = sa.clone('sqlite://')
-    '''
+    """
     __slots__ = ('base', 'dburi', 'engine', 'Session', '_scoped_session',
                  'session_extensions')
 
@@ -78,9 +78,9 @@ class SAContext(object):
 
     @property
     def ss(self):
-        '''Returns a scoped session. This is memoized (meaning, created only
+        """Returns a scoped session. This is memoized (meaning, created only
         when first used and then stored).
-        '''
+        """
         if not self._scoped_session:
             assert not self.Session is None, \
                 'Tried to use the scoped session before the engine was set.'
@@ -100,12 +100,12 @@ class SAContext(object):
         return self
 
     def tables_in(self, context):
-        '''*context* may be a dictionary or a module.
+        """*context* may be a dictionary or a module.
 
         Returns a list containing the tables in the passed *context*::
 
             tables = sa.tables_in(globals())
-        '''
+        """
         tables = []
         if isinstance(context, ModuleType):  # context is a python module
             context = context.__dict__
@@ -124,11 +124,11 @@ class SAContext(object):
         return o
 
     def subtransaction(self, fn):
-        '''Decorator that encloses the decorated function in a subtransaction.
+        """Decorator that encloses the decorated function in a subtransaction.
 
         Your system must use our ``ss`` scoped session and it
         does not need to call ``commit()`` on the session.
-        '''
+        """
         @wraps(fn)
         def wrapper(*a, **kw):
             self.ss.begin(subtransactions=True)
@@ -142,11 +142,11 @@ class SAContext(object):
         return wrapper
 
     def transaction(self, fn):
-        '''Decorator that encloses the decorated function in a transaction.
+        """Decorator that encloses the decorated function in a transaction.
 
         Your system must use our ``ss`` scoped session and it
         does not need to call ``commit()`` on the session.
-        '''
+        """
         @wraps(fn)
         def wrapper(*a, **kw):
             try:
@@ -159,12 +159,12 @@ class SAContext(object):
         return wrapper
 
     def transient(self, fn):
-        '''Decorator that encloses the decorated function in a subtransaction
+        """Decorator that encloses the decorated function in a subtransaction
         which is always rewinded. It is recommended that you apply this
         decorator to each of your automated tests; then you only need to
         create the tables once, instead of once per test,
         because nothing gets persisted. This should make tests faster.
-        '''
+        """
         @wraps(fn)
         def wrapper(*a, **kw):
             self.ss.begin(subtransactions=True)
@@ -176,15 +176,15 @@ class SAContext(object):
         return wrapper
 
 
-"""
+'''
 # TYPES FOR SQLITE
 # ================
 import sqlalchemy.types as types
 class AutoDate(types.TypeDecorator):
-    '''A SQLAlchemy DateTime type that converts strings to datetime
+    """A SQLAlchemy DateTime type that converts strings to datetime
     when storing. Prevents TypeError("SQLite Date, Time, and DateTime types
     only accept Python datetime objects as input.")
-    '''
+    """
     impl = types.DateTime
 
     def process_bind_param(self, value, dialect):
@@ -204,9 +204,9 @@ class Integer(types.TypeDecorator):
     impl = types.Integer
 
     def process_bind_param(self, value, dialect):
-        '''Make sure an int is persisted. Otherwise, SQLite might persist
+        """Make sure an int is persisted. Otherwise, SQLite might persist
         things such as empty strings...
-        '''
+        """
         # return None if not value else int(value)
         return None if value is None or value == '' else int(value)
 
@@ -215,14 +215,14 @@ class Numeric(types.TypeDecorator):
     impl = types.Numeric
 
     def process_bind_param(self, value, dialect):
-        '''When you are feeding a CSV file to a SQLite database, you
+        """When you are feeding a CSV file to a SQLite database, you
         want empty strings to be automatically converted to None,
         for a Decimal column...
-        '''
+        """
         return None if value == '' else value
 
 del types
-"""
+'''
 
 
 __doc__ = SAContext.__doc__

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Removes git branches that have been merged onto the current branch.
+"""Removes git branches that have been merged onto the current branch.
 
 Don't forget to do a "git fetch --all --prune" on other machines
 after deleting remote branches. Other machines may still have
 obsolete tracking branches (see them with "git branch -a").
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -21,7 +21,7 @@ IGNORE = ['develop', 'master']
 
 
 def merged_branches(remote=None, ignore=IGNORE):
-    '''Sequence of branches that have been merged onto the current branch.'''
+    """Sequence of branches that have been merged onto the current branch."""
     if remote:
         command = 'git branch -a --merged'
     else:
@@ -59,11 +59,11 @@ class Branch(object):
 
     @reify
     def merge_date(self):
-        '''Returns the date when the specified branch was merged into the
+        """Returns the date when the specified branch was merged into the
         current git branch. On the console, you can try this command:
 
             git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" BRANCH | head -n 1
-        '''
+        """
         branch_spec = repr(self)
         line = checked_execute(
             'git show --pretty=format:"%ci" {} | head -n 1'

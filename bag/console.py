@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Functions for user interaction at the console.'''
+"""Functions for user interaction at the console."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -21,7 +21,7 @@ def ask(prompt='', default=None):
 
 
 def bool_input(prompt, default=None):
-    '''Returns True or False based on the user's choice.'''
+    """Returns True or False based on the user's choice."""
     if default is None:
         choices = ' (y/n) '
     elif default:
@@ -40,7 +40,7 @@ def bool_input(prompt, default=None):
 
 
 def pick_one_of(options, prompt='Pick one: '):
-    '''Lets the user pick an item by number.'''
+    """Lets the user pick an item by number."""
     alist = options if isinstance(options, list) else list(options)
     c = 0
     for o in alist:
@@ -55,7 +55,7 @@ def pick_one_of(options, prompt='Pick one: '):
 
 
 def screen_header(text, decor='=', max=79):
-    '''Returns a header to be displayed on screen, by decorating ``text``.'''
+    """Returns a header to be displayed on screen, by decorating ``text``."""
     text = str(text)
     available = max - len(text)
     if available > 3:

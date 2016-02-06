@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-'''This module is for Python 3 only.
+"""This module is for Python 3 only.
 See the bag.csv2 module if you use Python 2.
-'''
+"""
 
 from codecs import BOM_UTF8, BOM_UTF16
 import csv
@@ -11,7 +11,7 @@ from . import (
 
 
 def decoding(stream, encoding='utf8'):
-    '''
+    """
     If you have a stream that yields bytes, use this wrapper to decode them
     into str objects. Example:
 
@@ -22,7 +22,7 @@ def decoding(stream, encoding='utf8'):
 
     This generator removes the UTF8 BOM if the file contains it.
     http://en.wikipedia.org/wiki/Byte_order_mark
-    '''
+    """
     line = stream.readline()
 
     # Python is buggy, it removes other BOMs but not the UTF8 one.
@@ -63,7 +63,7 @@ def setup_reader(stream, required_headers=[], **k):
 
 
 def csv_with_headers_reader(stream, required_headers=[], **k):
-    '''Returns an iterator over a CSV reader that uses *stream* with the
+    """Returns an iterator over a CSV reader that uses *stream* with the
     options passed as keyword arguments. The iterator yields objects so you
     can access the values conveniently.
 
@@ -79,22 +79,22 @@ def csv_with_headers_reader(stream, required_headers=[], **k):
             dialect="excel", delimiter=';', required_headers='email')
         for o in csv_reader:
             print(o.name, o.email, o.sex)
-    '''
+    """
     c, readline, headers, CsvRow = setup_reader(stream, required_headers, **k)
     while True:  # eventually, StopIteration is raised by csv.reader
         yield CsvRow(readline())
 
 
 def decoding_csv_with_headers(bytestream, encoding='utf8', **k):
-    '''Combines the *decoding* and *csv_with_headers_reader* generators.'''
+    """Combines the *decoding* and *csv_with_headers_reader* generators."""
     return csv_with_headers_reader(decoding(bytestream, encoding), **k)
 
 
 class DecodingCsvWithHeaders(object):
-    '''The advantage of using the class instead of the generator is that
+    """The advantage of using the class instead of the generator is that
         any errors related to the headers happen when the class is
         instantiated, so they can be catched separately.
-        '''
+        """
 
     def __init__(self, stream, encoding=None, **k):
         if encoding:
@@ -110,7 +110,7 @@ class DecodingCsvWithHeaders(object):
 
 
 def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
-    '''Generator that yields CSV lines using a buffer of size *buffer_rows*.
+    """Generator that yields CSV lines using a buffer of size *buffer_rows*.
     The values for the first CSV line may be provided as *headers*, and
     the remaining ones as *rows*, which is preferrably another generator.
 
@@ -118,7 +118,7 @@ def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
 
         return Response(content_type='text/csv', app_iter=buffered_csv_writing(
             rows=my_generator, headers=['name', 'email'], buffer_rows=50))
-    '''
+    """
     from io import StringIO
     buf = StringIO()
     writer = csv.writer(buf)
@@ -142,7 +142,7 @@ def pyramid_download_csv(response, file_title, rows, encoding='utf8', **k):
     return response
 
 
-'''
+"""
 Downloading a large CSV file in a web app
 =========================================
 
@@ -224,4 +224,4 @@ Downloading a large CSV file in a web app
                     buf.truncate(0)
             yield buf.getvalue()
         return Response(content_type='text/csv', app_iter=csvdata)
-'''
+"""

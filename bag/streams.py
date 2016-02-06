@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Functions that use streams (open files)'''
+"""Functions that use streams (open files)"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

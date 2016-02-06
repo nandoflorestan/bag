@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Script that releases a new version of the software.'''
+"""Script that releases a new version of the software."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

@@ -9,7 +9,7 @@ import hashlib
 
 
 def gravatar_image(email, default='mm', size=80, cacheable=True):
-    '''Returns a Gravatar image URL for this email.'''
+    """Returns a Gravatar image URL for this email."""
     base = "http://www.gravatar.com/avatar/" if cacheable else \
         "https://secure.gravatar.com/avatar/"
     return base + \

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''A little plugin supporting human language alternation in Pyramid.
+"""A little plugin supporting human language alternation in Pyramid.
     It lets you enable and disable locales (as your translations allow)
     in the configuration file.
 
@@ -60,7 +60,7 @@
 
     ...because the variable ``locale_code`` is made available to
     template context.
-    '''
+    """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -108,12 +108,12 @@ locale_titles = dict(
 
 
 class LocaleDict(OrderedDict):
-    '''A dictionary of dictionaries grouping:
+    """A dictionary of dictionaries grouping:
 
     * locale codes (i.e. "pt_BR"),
     * human-readable and translatable language names such as "English", and
     * titles such as "Change to English", written in THAT language.
-    '''
+    """
 
     def add(self, code, display_name=None, english_name=None, title=None):
         babel_locale = Locale(*code.split("_"))
@@ -125,12 +125,12 @@ class LocaleDict(OrderedDict):
 
 
 def prepare_enabled_locales(settings, Dict=LocaleDict):
-    '''If you have a *bag.locale.enable* setting with a value such as
+    """If you have a *bag.locale.enable* setting with a value such as
     "en pt-BR es fr de" (without the quotes),
     this method substitutes that setting with
     a dictionary of Locale objects which is useful to
     build a web interface for the user to change the locale.
-    '''
+    """
     # Read from settings a list of locale codes that should be enabled
     codes = set(settings.get(SETTING_NAME, 'en').split(' '))
     # Create the LocaleDict containing info for each code
@@ -143,9 +143,9 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
 
 
 def locale_cookie_headers(locale_code):
-    '''Returns HTTP headers setting the cookie that stores the
+    """Returns HTTP headers setting the cookie that stores the
     Pyramid locale.
-    '''
+    """
     # native_str() calls below are because waitress expects
     # bytes in Python 2 and unicode in Python 3.
     return [(native_str('Set-Cookie'), native_str(
@@ -154,9 +154,9 @@ def locale_cookie_headers(locale_code):
 
 
 def locale_view(request):
-    '''View that sets the locale cookie -- as long as the requested locale
+    """View that sets the locale cookie -- as long as the requested locale
     is enabled -- and redirects back to the referer.
-    '''
+    """
     locale_code = request.matchdict['locale']
     # Ensure this locale code is one of the enabled_locales
     if locale_code not in request.registry.settings[SETTING_NAME]:
@@ -167,14 +167,14 @@ def locale_view(request):
 
 
 def locale_from_browser(request):
-    '''The browser provides the user's preferred languages, ordered.
+    """The browser provides the user's preferred languages, ordered.
     They come in the *Accept-Language* header.
 
     This function returns the best match between that list and
     the enabled languages.
 
     Most of the implementation is in the WebOb request object.
-    '''
+    """
     # settings = request.registry.settings
     # enabled_locales = settings[SETTING_NAME].keys()
     # first = enabled_locales[0]
@@ -185,20 +185,20 @@ def locale_from_browser(request):
 
 
 def locale_negotiator(request):
-    '''This is a locale negotiator that decorates Pyramid's default one.
+    """This is a locale negotiator that decorates Pyramid's default one.
 
     If the default locale negotiator's schemes should fail,
     we try to match the browser's stated preferred languages
     with our configured enabled locales.
-    '''
+    """
     return default_locale_negotiator(request) or locale_from_browser(request)
 
 
 def add_template_globals(event):
-    '''Makes the following variables readily available in template context:
+    """Makes the following variables readily available in template context:
 
     * *enabled_locales*: OrderedDict containing the enabled locales
-    '''
+    """
     event['enabled_locales'] = \
         event['request'].registry.settings[SETTING_NAME]
 
@@ -217,7 +217,7 @@ def includeme(config):
 
 
 class BaseLocalizedView(object):
-    '''A mixin class for your application's base view class.'''
+    """A mixin class for your application's base view class."""
 
     def format_number(self, n):
         return as_number(n, locale=self.request.locale_name)
@@ -235,12 +235,12 @@ def format_currency(request, n, currency='USD', format=None):
 
 
 def sorted_countries(arg, top_entry=True):  # TODO memoized version
-    '''*arg* may be either the desired locale code or the request object,
+    """*arg* may be either the desired locale code or the request object,
     from which the locale will be discovered.
 
     Returns a list of tuples like ``('BR', 'Brazil')``, already sorted,
     ready for inclusion in your web form.
-    '''
+    """
     code = arg if isinstance(arg, basestring) else get_locale_name(arg)
 
     def generator(territories):
@@ -257,12 +257,12 @@ def sorted_countries(arg, top_entry=True):  # TODO memoized version
 # ===========================
 
 def locale_exists_validator(settings):
-    '''If you use Deform or even just Colander, you can use this to get a
+    """If you use Deform or even just Colander, you can use this to get a
     validator that you can use on your user preferences form,
     so a user can only choose a locale that is enabled in the system.
 
     TODO: Test this new implementation when I use colander again...
-    '''
+    """
     from colander import Invalid
     enabled_locales = settings[SETTING_NAME]
 
@@ -274,9 +274,9 @@ def locale_exists_validator(settings):
 
 def language_dropdown(settings, title=_('Locale'), name='locale',
                       blank_option_at_top=True):
-    '''If you use Deform, you can use this to get a SchemaNode that lets
+    """If you use Deform, you can use this to get a SchemaNode that lets
     the user select a locale from the enabled ones.
-    '''
+    """
     import colander as c
     import deform as d
 

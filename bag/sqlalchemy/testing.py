@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-'''Fake objects for unit testing code that uses SQLAlchemy'''
+"""Fake objects for unit testing code that uses SQLAlchemy"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 
 class FakeSession(object):
-    '''Fake SQLAlchemy session'''
+    """Fake SQLAlchemy session"""
 
     def __init__(self):
         self.flush_called = 0
@@ -25,9 +25,9 @@ class FakeSession(object):
 
 
 class FakeSessionByType(FakeSession):
-    '''This mock session can be configured to return the results you want
+    """This mock session can be configured to return the results you want
         based on the model type being queried.
-        '''
+        """
 
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)

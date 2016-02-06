@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-'''Functions to make it easier to work with datetimes.
+"""Functions to make it easier to work with datetimes.
 
 By the way, some ways of constructing a datetime instance:
 
     datetime.now()    -> datetime(2015, 7, 17, 2, 18, 39, 255470)
     datetime.now(utc) -> datetime(2015, 7, 17, 5, 18, 39, 255497, tzinfo=<UTC>)
     datetime.utcnow() -> datetime(2015, 7, 17, 5, 18, 39, 255543)
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -25,13 +25,13 @@ def now_with_tz():
 
 
 def naive(dt):
-    '''Removes the timezone from a datetime instance.'''
+    """Removes the timezone from a datetime instance."""
     return datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,
                     dt.second, dt.microsecond)
 
 
 def parse_iso_datetime(text):
-    '''Converts the given string to a naive (no tzinfo) datetime.'''
+    """Converts the given string to a naive (no tzinfo) datetime."""
     text = text.strip()
     if 'T' in text:
         sep = 'T'
@@ -54,7 +54,7 @@ def parse_iso_datetime(text):
 
 
 def simplify_datetime(val, granularity='minute'):
-    '''Notice this throws away any tzinfo.'''
+    """Notice this throws away any tzinfo."""
     if granularity == 'hour':
         return datetime(val.year, val.month, val.day, val.hour)
     elif granularity == 'minute':
@@ -68,13 +68,13 @@ def simplify_datetime(val, granularity='minute'):
 
 
 def timed_call(seconds, function, repetitions=-1, *a, **kw):
-    '''Performs some task every x seconds. Sleeps if necessary.
+    """Performs some task every x seconds. Sleeps if necessary.
     Does not sleep after the last turn.
 
     By default, runs forever. To control the number of times
     that *function* should run, pass in a number of *repetitions*.
     Returns immediately if *repetitions* is zero.
-    '''
+    """
     period = seconds if isinstance(seconds, timedelta) else \
         timedelta(0, seconds)
     turn = 0
@@ -91,11 +91,11 @@ def timed_call(seconds, function, repetitions=-1, *a, **kw):
 
 
 class DJSONEncoder(json.JSONEncoder):
-    '''Example usage::
+    """Example usage::
 
             DJSONEncoder().encode([datetime.datetime.now()])
             '["2015-01-21T14:42:28"]'
-        '''
+        """
 
     def default(self, obj):
         if hasattr(obj, 'isoformat'):
@@ -111,10 +111,10 @@ def dumps(value):
 
 
 def djson_renderer_factory(info):
-    '''Pyramid renderer. Install like this::
+    """Pyramid renderer. Install like this::
 
        config.add_renderer('djson', 'bag.time.djson_renderer_factory')
-    '''
+    """
     def _render(value, system):
         request = system.get('request')
         if request is not None:
@@ -127,12 +127,12 @@ def djson_renderer_factory(info):
 
 
 def now_or_future(dt, timezone=utc, now=None):
-    '''Given a datetime, returns it as long as it is not in the past;
+    """Given a datetime, returns it as long as it is not in the past;
         otherwise, returns now.  You may pass the ``timezone`` instance
         for the comparison (defaults to UTC); this is useful if your
         datetime is naive.  The argument ``now`` should be ignored; it
         is used only in the unit tests.
-        '''
+        """
     now = now or datetime.now(timezone)
     assert isinstance(now, datetime)
 

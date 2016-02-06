@@ -7,7 +7,7 @@ from nine import nine
 
 @nine
 class Problem(Exception):
-    '''Service (or "action") layers should be independent of web frameworks;
+    """Service (or "action") layers should be independent of web frameworks;
         however, often I feel I want the service layer to determine the
         HTTP code returned by a web service, instead of the controller layer.
         So I raise this exception in the service layer and capture it in the
@@ -23,7 +23,7 @@ class Problem(Exception):
         - error_msg: the string to be displayed to the end user
         - error_title: by default the HTTP error title
         - error_debug: should NOT be shown to end users; for devs only
-        '''
+        """
 
     HTTP = {  # http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
         # TODO Complete this map with the remaining 4xx and 5xx
@@ -72,19 +72,19 @@ class Problem(Exception):
 
 
 def ensure(condition, *a, **kw):
-    '''Use an assert-like syntax to raise Problem exceptions.'''
+    """Use an assert-like syntax to raise Problem exceptions."""
     if not condition:
         raise Problem(*a, **kw)
 
 
 class Unprocessable(Exception):
-    '''Exception that mimics Colander's Invalid, because both have an
+    """Exception that mimics Colander's Invalid, because both have an
         ``asdict()`` method. However, this one can be instantiated
         without a schema. Example usage::
 
             if not data.get('user_email'):
                 raise Unprocessable(user_email='This field is required.')
-        '''
+        """
 
     def __init__(self, **adict):
         self.adict = adict

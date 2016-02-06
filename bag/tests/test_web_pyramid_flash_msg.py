@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Tests the *bag.web.pyramid.flash_msg* module.'''
+"""Tests the *bag.web.pyramid.flash_msg* module."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

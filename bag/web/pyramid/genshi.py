@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''This module allows the Genshi templating language --
+"""This module allows the Genshi templating language --
 http://pypi.python.org/pypi/Genshi/
 -- to be used in the Pyramid web framework --
 http://docs.pylonshq.com/
@@ -72,7 +72,7 @@ From anywhere in your web app you can use the renderer like this::
 
     some_html = settings['genshi_renderer'].fragment(
         'myapp:templates/menu.genshi', template_context_dict)
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -92,10 +92,10 @@ def to_list(sequence):
 
 
 def load_template(asset):
-    '''Make the Genshi TemplateLoader work with typical Pyramid
+    """Make the Genshi TemplateLoader work with typical Pyramid
     asset specifications by passing this function to
     the TemplateLoader constructor as one of the paths.
-    '''
+    """
     # print('LOAD {}'.format(asset))
     abspath = abspath_from_resource_spec(asset)
     stream = open(abspath, 'r')  # Genshi catches the possible IOError.
@@ -185,7 +185,7 @@ class GenshiTemplateRenderer(object):
 
 
 def includeme(config):
-    '''Easily integrates Genshi template rendering into Pyramid.'''
+    """Easily integrates Genshi template rendering into Pyramid."""
     if hasattr(config, 'bag_genshi_included'):
         return  # Include only once per config
     config.bag_genshi_included = True
@@ -200,7 +200,7 @@ def includeme(config):
     renderer = settings['genshi_renderer'] = GenshiTemplateRenderer(settings)
 
     def factory(info):
-        '''info.name is the value passed by the user as the renderer name.
+        """info.name is the value passed by the user as the renderer name.
 
         info.package is the "current package" when the renderer configuration
         statement was found.
@@ -211,7 +211,7 @@ def includeme(config):
         the renderer was created.
 
         info.settings is the ISettings dictionary related to the current app.
-        '''
+        """
         return renderer
     extension = settings.get('genshi.extension', '.genshi')
     config.add_renderer(extension, factory)

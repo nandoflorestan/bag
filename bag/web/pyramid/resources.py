@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Construction kit for Pyramid resource classes. Example usage::
+"""Construction kit for Pyramid resource classes. Example usage::
 
         from bag.web.pyramid.resources import (
             BaseRootResource, BaseResource, IntResource,
@@ -56,7 +56,7 @@
                 return ancestor_model(self, User).addresses
 
         UserResource.factories['addresses'] = AddressesResource
-    '''
+    """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -67,9 +67,9 @@ from pyramid.httpexceptions import HTTPNotFound
 
 
 def ancestor_finder(resource, predicate, include_self=False):
-    '''Generator that climbs the tree yielding resources for which
+    """Generator that climbs the tree yielding resources for which
         ``predicate(current_resource)`` returns True.
-        '''
+        """
     resource = resource if include_self else getattr(
         resource, '__parent__', None)
     while resource is not None:
@@ -79,16 +79,16 @@ def ancestor_finder(resource, predicate, include_self=False):
 
 
 def ancestor(resource, cls, include_self=False):
-    '''Returns the first ancestor of ``resource`` that is of type ``cls``.'''
+    """Returns the first ancestor of ``resource`` that is of type ``cls``."""
     def predicate(resource):
         return isinstance(resource, cls)
     return first(ancestor_finder(resource, predicate, include_self))
 
 
 def ancestor_model(resource, cls, include_self=False):
-    '''Returns a model instance of type ``cls`` found in the ``model``
+    """Returns a model instance of type ``cls`` found in the ``model``
         attribute of the ancestors of ``resource``, or None.
-        '''
+        """
     def predicate(resource):
         return hasattr(resource, 'model') and isinstance(resource.model, cls)
     o = first(ancestor_finder(resource, predicate, include_self))
@@ -100,13 +100,13 @@ def find_root(resource):
 
 
 def model_property(sas, model_cls, **ancestors):
-    '''If you are using SQLAlchemy, this function returns a model property
+    """If you are using SQLAlchemy, this function returns a model property
         that checks some ancestor ID(s) against its foreign key(s).
         Example usage::
 
             class AddressResource(BaseResource):
                 model = model_property(sas, Address, user=User)
-        '''
+        """
 
     def wrapped(self):
         o = sas.query(model_cls).get(self.__name__)
@@ -121,7 +121,7 @@ def model_property(sas, model_cls, **ancestors):
 
 @nine
 class BaseRootResource(object):
-    '''Base class for your Root resource.'''
+    """Base class for your Root resource."""
     __name__ = ''
     __parent__ = None
 
@@ -151,7 +151,7 @@ class BaseRootResource(object):
 
 @nine
 class BaseResource(BaseRootResource):
-    '''Base class for Pyramid traversal resources.
+    """Base class for Pyramid traversal resources.
 
         Subclasses may define a static ``factories`` dict, used to
         map URL elements to other resource classes or factories.
@@ -171,10 +171,10 @@ class BaseResource(BaseRootResource):
             @reify
             def model(self):
                 return sas.query(Book).get(self.__name__)
-        '''
+        """
 
     def __init__(self):
-        '''Constructor without arguments.'''
+        """Constructor without arguments."""
 
     def __str__(self):
         return '<{} "{}">'.format(type(self).__name__, self.__name__)
@@ -188,7 +188,7 @@ class BaseResource(BaseRootResource):
 
 
 class IntResource(BaseResource):
-    '''Base class for resources whose name must be an integer, e.g. /books/1'''
+    """Base class for resources whose name must be an integer, e.g. /books/1"""
 
     def validate_name(self, name):
         try:

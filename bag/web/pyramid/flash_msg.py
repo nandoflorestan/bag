@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Advanced flash messages scheme for Pyramid.
+"""Advanced flash messages scheme for Pyramid.
 
     Some developers have been using the queues of flash messages to separate
     them by level (danger, warning, info or success) in code such as this::
@@ -35,7 +35,7 @@
     flash messages in your template (now you only need one queue) and use
     FlashMessage's instance variables to render the
     bootstrap alerts just the way you want them.
-    '''
+    """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -44,10 +44,10 @@ from nine import nine, basestring
 
 
 def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
-    '''Renders a bootstrap alert message, optionally with a close button.
+    """Renders a bootstrap alert message, optionally with a close button.
         Provide either ``plain`` or ``rich`` content. The parameter ``v``
         can be 3 or 2 depending on your bootstrap version (default 3).
-        '''
+        """
     # In bootstrap 3, the old "error" class becomes "danger":
     if kind == 'danger' and v == 2:
         kind = 'error'
@@ -65,17 +65,17 @@ def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
 
 @nine
 class FlashMessage(object):
-    '''A flash message that renders in Twitter Bootstrap style.
+    """A flash message that renders in Twitter Bootstrap style.
     To register a message, simply instantiate it.
-    '''
+    """
     __slots__ = ('kind', 'plain', 'rich', 'close')
 
     def __getstate__(self):
-        '''Because we are using __slots__, pickling needs this method.'''
+        """Because we are using __slots__, pickling needs this method."""
         return {i: getattr(self, i) for i in self.__slots__}
 
     def __setstate__(self, state):
-        '''Because we are using __slots__, unpickling needs this method.'''
+        """Because we are using __slots__, unpickling needs this method."""
         for s in self.__slots__:
             setattr(self, s, state.get(s))
 
@@ -113,14 +113,14 @@ def render_flash_messages(request):
 
 
 def render_flash_messages_from_queues(request):
-    '''This method is for compatibility with other systems only.
+    """This method is for compatibility with other systems only.
     Some developers are using queues named after bootstrap message flavours.
     I think my system (using only the default queue '') is better,
     because FlashMessage already supports a ``kind`` attribute,
     but this function provides a way to display their flash messages, too.
 
     You can set QUEUES to something else if you like, from user code.
-    '''
+    """
     msgs = []
     for q in QUEUES:
         for m in request.session.pop_flash(q):
@@ -133,13 +133,13 @@ QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
 def includeme(config):
-    '''Make a render_flash_messages() function available to every template.
+    """Make a render_flash_messages() function available to every template.
 
     If you want to use the queues feature (not recommended), add this
     configuration setting:
 
         bag.flash.use_queues = true
-    '''
+    """
     if hasattr(config, 'bag_flash_msg_included'):
         return  # Include only once per config
     config.bag_flash_msg_included = True

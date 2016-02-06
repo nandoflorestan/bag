@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-'''Functions that help define SQLALchemy models.
+"""Functions that help define SQLALchemy models.
 These have been separated from SQLAlchemy initialization modules because
 there are many different ways to initialize SQLALchemy.
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -34,9 +34,9 @@ def now_column(nullable=False, **k):
 
 
 def get_col(model, attribute_name):
-    '''Introspects the SQLALchemy model *model* and returns the column object
+    """Introspects the SQLALchemy model *model* and returns the column object
     for *attribute_name*. E.g.: ``get_col(User, 'email')``
-    '''
+    """
     return model._sa_class_manager.mapper.columns[attribute_name]
 
 
@@ -45,26 +45,26 @@ def _get_length(col):
 
 
 def get_length(model, field):
-    '''Returns the length of column *field* of a SQLAlchemy model *model*.'''
+    """Returns the length of column *field* of a SQLAlchemy model *model*."""
     return _get_length(get_col(model, field))
 
 
 def col(attrib):
-    '''Given a sqlalchemy.orm.attributes.InstrumentedAttribute
+    """Given a sqlalchemy.orm.attributes.InstrumentedAttribute
     (type of the attributes of model classes),
     returns the corresponding column. E.g.: ``col(User.email)``
-    '''
+    """
     return attrib.property.columns[0]
 
 
 def length(attrib):
-    '''Returns the length of the attribute *attrib*.'''
+    """Returns the length of the attribute *attrib*."""
     return _get_length(col(attrib))
 
 
 def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
        ondelete='CASCADE'):
-    '''Returns a ForeignKey column while automatically setting the type.'''
+    """Returns a ForeignKey column while automatically setting the type."""
     assert ondelete in (
         'CASCADE',   # Creates ON DELETE CASCADE
         'SET NULL',  # Creates ON DELETE SET NULL
@@ -78,7 +78,7 @@ def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
 
 def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
            doc=None, ondelete='CASCADE', backref=None, order_by=None):
-    '''Returns a ForeignKey column and a relationship,
+    """Returns a ForeignKey column and a relationship,
         while automatically setting the type of the foreign key.
 
         Usage::
@@ -95,7 +95,7 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
         If provided, ``order_by`` is used on the backref.
         You may also pass an ``attrib`` which is the column name for
         the foreign key.
-        '''
+        """
     # http://docs.sqlalchemy.org/en/latest/orm/collections.html#passive-deletes
     if ondelete == 'CASCADE':
         cascade = CASC
@@ -114,7 +114,7 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
 
 def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
                  backref=None):
-    '''Easily set up a many-to-many relationship between 2 existing models.
+    """Easily set up a many-to-many relationship between 2 existing models.
 
     Returns an association table and the relationship itself.
 
@@ -122,7 +122,7 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
 
         customer_user, Customer.users = many_to_many(Customer, User,
             pk2='__id__')
-    '''
+    """
     table1 = Model1.__tablename__
     table2 = Model2.__tablename__
     col1 = col(getattr(Model1, pk1))
@@ -154,12 +154,12 @@ def is_model_class(val):
 
 
 def models_and_tables_in(arg):
-    '''``arg`` may be a resource spec, a module or a dictionary.
+    """``arg`` may be a resource spec, a module or a dictionary.
 
     Returns 2 lists containing the model classes and tables in it::
 
         models, tables = models_and_tables_in(globals())
-    '''
+    """
     if not isinstance(arg, dict):
         arg = resolve(arg)  # ensure arg is a python module
         arg = arg.__dict__
@@ -205,14 +205,14 @@ def foreign_keys_in(cls):
 
 
 def models_from_ids(sas, cls, ids):
-    '''Generator that, given a sequence of IDs, yields model instances.'''
+    """Generator that, given a sequence of IDs, yields model instances."""
     for id in ids:
         yield sas.query(cls).get(id)
 
 
 def persistent_attribute_names_of(cls):
-    '''Returns a list of the names of the persistent attributes of ``cls``,
-        except collections.'''
+    """Returns a list of the names of the persistent attributes of ``cls``,
+        except collections."""
     # return [x for x in dir(cls) if isinstance(
     #     getattr(cls, x), InstrumentedAttribute)]
     return [
@@ -234,7 +234,7 @@ class MinimalBase(object):
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
 
     def to_dict(self, blacklist=None, whitelist=None, for_json=True):
-        '''Dumps the properties of the object into a dict.'''
+        """Dumps the properties of the object into a dict."""
         props = {}
         blacklist = self.blacklist if blacklist is None else blacklist
         keys = whitelist or self.whitelist or (
@@ -258,9 +258,9 @@ class MinimalBase(object):
     whitelist = None
 
     def update(self, adict, transient=False):
-        '''Applies the information in the provided dictionary to this
+        """Applies the information in the provided dictionary to this
             model's properties, optionally checking that the keys exist.
-            '''
+            """
         for k, v in adict.items():
             if not transient:
                 assert hasattr(type(self), k), \
@@ -270,10 +270,10 @@ class MinimalBase(object):
         return self
 
     def update_from_schema(self, schema, adict):
-        '''Validates the information in the dictionary ``adict`` against
+        """Validates the information in the dictionary ``adict`` against
             a Colander ``schema``. If validation fails, colander.Invalid
             is raised. If happy, returns the updated model instance.
-            '''
+            """
         schema._model_instance = self  # makes some validations easier
         clean = schema.deserialize(adict)  # May raise colander.Invalid
         self.update(clean)
@@ -285,9 +285,9 @@ class MinimalBase(object):
 
     @classmethod
     def get_or_create(cls, session, **filters):
-        '''Returns a tuple (object, is_new). *is_new* is True if the
+        """Returns a tuple (object, is_new). *is_new* is True if the
         object already exists in the database.
-        '''
+        """
         instance = session.query(cls).filter_by(**filters).first()
         is_new = not instance
         if is_new:
@@ -297,9 +297,9 @@ class MinimalBase(object):
 
     @classmethod
     def create_or_update(cls, session, values={}, **filters):
-        '''First obtains either an existing object or a new one, based on
+        """First obtains either an existing object or a new one, based on
         *filters*. Then applies *values* and returns a tuple (object, is_new).
-        '''
+        """
         instance, is_new = cls.get_or_create(session, **filters)
         for k, v in values.items():
             setattr(instance, k, v)
@@ -311,7 +311,7 @@ class MinimalBase(object):
 
     def update_association(self, sas, cls, field, ids, filters={},
                            synchronize_session=False):
-        '''When you have a many-to-many relationship, there is an association
+        """When you have a many-to-many relationship, there is an association
             table between 2 main tables. The problem of setting the data in
             this case is a recurring one and it is solved here.
             Some associations might be deleted and some might be created.
@@ -336,7 +336,7 @@ class MinimalBase(object):
             more with them (e. g. setting other attributes).
 
             A new query is needed to retrieve the totality of the associations.
-            '''
+            """
         # Fetch eventually existing association IDs
         existing_ids = frozenset([
             o[0] for o in sas.query(getattr(cls, field)).filter_by(**filters)])
@@ -359,11 +359,11 @@ class MinimalBase(object):
         return new_associations
 
     def clone(self, values=None, pk='id', sas=None):
-        '''Returns a clone of this model.
+        """Returns a clone of this model.
             Optionally updates some of its ``values``.
             Optionally adds the clone to the ``sas`` session.
             The name of the primary key column should be given as ``pk``.
-            '''
+            """
         attrs = persistent_attribute_names_of(self.__class__)
         adict = {}
         for attr in attrs:
@@ -379,23 +379,23 @@ class MinimalBase(object):
 
 
 class PK(object):
-    '''Mixin class that includes a primary key column.'''
+    """Mixin class that includes a primary key column."""
     @declared_attr
     def pk(cls):
-        '''We use "pk" instead of "id" because "id" is a python builtin.'''
+        """We use "pk" instead of "id" because "id" is a python builtin."""
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
 class ID(object):
-    '''Mixin class that includes a primary key column "id".'''
+    """Mixin class that includes a primary key column "id"."""
     @declared_attr
     def id(cls):
-        '''So many projects out there are using "id" instead of "pk"...'''
+        """So many projects out there are using "id" instead of "pk"..."""
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
 class CreatedChanged(object):
-    '''Mixin class for your models. It updates the *created* and *changed*
+    """Mixin class for your models. It updates the *created* and *changed*
     columns automatically.
 
     If you define __mapper_args__ in your model, you have to readd the
@@ -405,7 +405,7 @@ class CreatedChanged(object):
 
         __mapper_args__ = dict(order_by=name,
             extension=CreatedChanged.MapperExt())
-    '''
+    """
     created = Column(DateTime, nullable=False)
     changed = Column(DateTime, nullable=False)
 
@@ -420,9 +420,9 @@ class CreatedChanged(object):
 
 
 class AddressBase(object):
-    '''Base class for addresses. In subclasses you can just define
+    """Base class for addresses. In subclasses you can just define
     __tablename__, id, the foreign key, and maybe indexes.
-    '''
+    """
     # __tablename__ = 'customer'
 
     # pk = pk(__tablename__)
@@ -441,7 +441,7 @@ class AddressBase(object):
 
 
 class EmailParts(object):
-    '''Mixin class that stores an email address in 2 columns,
+    """Mixin class that stores an email address in 2 columns,
     one for the local part, one for the domain. This makes it easy to
     find emails from the same domain.
 
@@ -452,7 +452,7 @@ class EmailParts(object):
         class Customer(SABase, EmailParts):
             __table_args__ = (UniqueConstraint('email_local', 'email_domain',
                               name='customer_email_key'), {})
-    '''
+    """
     email_local = Column('email_local',   Unicode(160), nullable=False)
     email_domain = Column('email_domain', Unicode(255), nullable=False)
 

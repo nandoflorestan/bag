@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''2 solutions for showing progress periodically on the console.
+"""2 solutions for showing progress periodically on the console.
 To use them, encapsulate your iterable with these generators.
 
 When you know how many items you're going to process, you can print the
@@ -31,7 +31,7 @@ iteration index. The output messages are configurable; here are examples::
 
 Both solutions decide when to print out a progress message based on time, not
 on the number of iterations, so updates tend to appear steadily on the screen.
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -40,14 +40,14 @@ from nine import range
 
 
 class ShowingProgress(object):
-    '''A generator that encapsulates your iterable, printing the progress
+    """A generator that encapsulates your iterable, printing the progress
     every so many seconds. Usage::
 
         p = ShowingProgress(iterable, seconds=6)
         # Then use p instead of your iterable:
         for index, something in p:
             process(something)
-    '''
+    """
     def __init__(self, iterable, message='Item #{} done. Working...',
                  seconds=6, done='Done in {time}! Total items: {total}'):
         self.iterable = iterable
@@ -70,24 +70,24 @@ class ShowingProgress(object):
 
 
 class PercentageDone(object):
-    '''When you are processing a long iterable and it takes minutes,
+    """When you are processing a long iterable and it takes minutes,
     you should let the user know that your application is still working.
     This class helps do that in the console, without creating too
     much output.
-    '''
+    """
     def __init__(self, max, granularity=6):
-        '''Parameters:
+        """Parameters:
         *max*: The number of elements that shall be processed.
         *granularity*: how many seconds must elapse between printing
         the percentage done.
-        '''
+        """
         self.max = int(max)
         self.granularity = timedelta(0, granularity)
         self.current = 0
         self.start = self.printed = datetime.utcnow()
 
     def calc(self, val):
-        '''Takes *val* (the current position relative to *max* and
+        """Takes *val* (the current position relative to *max* and
         calculates:
 
         * self.current (int): the current percentage done
@@ -96,7 +96,7 @@ class PercentageDone(object):
         * self.remaining (timedelta): how long you still have to wait
 
         Returns self.remaining.
-        '''
+        """
         percent = 100 * int(val) / self.max
         if percent > self.current:
             self.current = percent
@@ -108,12 +108,12 @@ class PercentageDone(object):
             return self.remaining
 
     def display(self, val):
-        '''Calls self.calc() and prints the percentage done and
+        """Calls self.calc() and prints the percentage done and
         how long the user still has to wait.
 
         But only does so every X seconds, where X is *granularity*.
         Does nothing if the granularity has not elapsed yet.
-        '''
+        """
         if self.granularity > datetime.utcnow() - self.printed:
             return
         remaining = self.calc(val)
@@ -125,7 +125,7 @@ class PercentageDone(object):
 
 
 class ShowingPercentage(PercentageDone):
-    '''A generator that encapsulates your iterable, printing the
+    """A generator that encapsulates your iterable, printing the
     percentage done.
 
     Usage::
@@ -134,7 +134,7 @@ class ShowingPercentage(PercentageDone):
         # Then use p instead of your iterable:
         for index, something in p:
             process(something)
-    '''
+    """
     def __init__(self, iterable, max, **k):
         super(ShowingPercentage, self).__init__(max, **k)
         self.iterable = iterable

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Transecma is a Python solution for javascript internationalization,
+"""Transecma is a Python solution for javascript internationalization,
 written in 2012 by Nando Florestan.
 
 Babel already has a javascript extractor (a function that goes through
@@ -101,7 +101,7 @@ is English. So, for languages other than English, we load the
 corresponding translations file (which may include the transecma library).
 For English, we only load the library itself, otherwise we would miss
 its functions, especially interpol().
-'''
+"""
 
 
 from __future__ import (absolute_import, division, print_function,
@@ -114,7 +114,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 
 def exists(path):
-    '''Test whether a path exists. Returns False for broken symbolic links.'''
+    """Test whether a path exists. Returns False for broken symbolic links."""
     try:
         os.stat(path)
     except os.error:
@@ -123,7 +123,7 @@ def exists(path):
 
 
 def extract_jquery_templates(fileobj, keywords, comment_tags, options):
-    '''Extracts translation messages from query template files.
+    """Extracts translation messages from query template files.
 
     This is a plugin to Babel, written according to
      http://babel.edgewall.org/wiki/Documentation/0.9/messages.html#writing-extraction-methods
@@ -138,7 +138,7 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
     :return: an iterator over ``(lineno, funcname, message, comments)``
              tuples
     :rtype: ``iterator``
-    '''
+    """
     # print('Keywords: {0}. Options: {1}'.format(keywords, options))
     encoding = options.get('encoding', 'utf-8')
     comments = []
@@ -168,9 +168,9 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
 
 
 def po2dict(stream, locale, use_fuzzy=False):
-    '''Given a *stream* (a file-like object) and a locale, returns a
+    """Given a *stream* (a file-like object) and a locale, returns a
     dictionary of the message IDs and translation strings.
-    '''
+    """
     from babel.messages.pofile import read_po
     catalog = read_po(stream, locale)
     messages = [m for m in catalog if m.string]
@@ -181,12 +181,12 @@ def po2dict(stream, locale, use_fuzzy=False):
 
 
 def make_json(structure, variable_name=None, indent=1, **k):
-    '''Converts something into a json string, optionally attributing the result
+    """Converts something into a json string, optionally attributing the result
     to a variable.
 
     It also escapes the forward slash, making the result suitable
     to be included in an HTML <script> tag.
-    '''
+    """
     import json
     s = json.dumps(structure, indent=indent, **k).replace('/', '\/')
     return "{0} = {1};\n".format(variable_name, s) if variable_name \
@@ -194,7 +194,7 @@ def make_json(structure, variable_name=None, indent=1, **k):
 
 
 def po2json(po_path, locale, variable_name=None, use_fuzzy=None):
-    '''Compiles one .po file into JSON and returns the resulting string.'''
+    """Compiles one .po file into JSON and returns the resulting string."""
     with open(po_path) as file:
         d = po2dict(file, locale, use_fuzzy=use_fuzzy)
     return make_json(d, variable_name=variable_name)
@@ -202,14 +202,14 @@ def po2json(po_path, locale, variable_name=None, use_fuzzy=None):
 
 def compile_dir(dir, domain, out_dir, variable_name=None, use_fuzzy=None,
                 encoding='utf8', include_lib=False):
-    '''Given a *dir*, goes through all locale subdirectories in it,
+    """Given a *dir*, goes through all locale subdirectories in it,
     reads the .po translation files pertaining to *domain*, and then converts
     the translations to javascript files, which are written out to the
     directory *out_dir* and assigned to a *variable_name*.
 
     If *include_lib* is True, the contents of transecma.js are appended to
     the end of each of the output files.
-    '''
+    """
     import codecs
     if include_lib:
         with codecs.open(os.path.join(here, 'transecma.js'),
@@ -237,7 +237,7 @@ def compile_dir(dir, domain, out_dir, variable_name=None, use_fuzzy=None,
 
 
 def po2json_command():
-    '''This function is an entry point; it is turned into a console script
+    """This function is an entry point; it is turned into a console script
     when the package is installed.
 
     po2json is a command that converts .PO translation files into javascript
@@ -250,7 +250,7 @@ def po2json_command():
     For help with the arguments, type::
 
         po2json -h
-    '''
+    """
     from argparse import ArgumentParser
     p = ArgumentParser(
         description='Converts .po files into .js files '

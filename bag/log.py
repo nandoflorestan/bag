@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Easily set up logging.'''
+"""Easily set up logging."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -16,7 +16,7 @@ FORMAT = '%(asctime)s %(levelname)s %(message)s'
 def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
               disk_level=logging.DEBUG, screen_level=logging.INFO,
               encoding='utf-8'):
-    '''This logs to screen if ``screen_level`` is not None, and logs to
+    """This logs to screen if ``screen_level`` is not None, and logs to
     disk if ``disk_level`` is not None.
 
     If you do not pass a log ``name``, the root log is configured and
@@ -27,7 +27,7 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
 
     If ``rotating`` is False, a single log file will be created at ``path``.
     Its ``file_mode`` defaults to `a` (append), but you can set it to `w`.
-    '''
+    """
     # If strings are passed in as levels, "decode" them first
     levels = dict(
         debug=logging.DEBUG,                         # 10
@@ -66,10 +66,10 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
 def setup_rotating_logger(logger=None, backups=4, size=250000000,
                           level=logging.DEBUG, encoding='utf-8',
                           format=FORMAT, directory='.'):
-    '''You may pass either a name or an existing logger as the first argument.
+    """You may pass either a name or an existing logger as the first argument.
     This attaches a RotatingFileHandler to the specified logger.
     Returns the logger object.
-    '''
+    """
     if isinstance(logger, basestring):
         filename = '.'.join((logger, encoding, 'log'))
         logger = logging.getLogger(logger)
@@ -88,10 +88,10 @@ def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
                                 when='D', interval=1, utc=True, delay=False,
                                 encoding='utf-8', format=FORMAT,
                                 directory='.'):
-    '''You may pass either a name or an existing logger as the first argument.
+    """You may pass either a name or an existing logger as the first argument.
     This attaches a TimedRotatingFileHandler to the specified logger.
     Returns the logger object.
-    '''
+    """
     if isinstance(logger, basestring):
         filename = '.'.join((logger, encoding, 'log'))
         logger = logging.getLogger(logger)
@@ -109,13 +109,13 @@ def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
 
 def setup_watched_file_handler(logger=None, level=logging.DEBUG, format=FORMAT,
                                encoding='utf-8', delay=False, directory='.'):
-    '''You may pass either a name or an existing logger as the first argument.
+    """You may pass either a name or an existing logger as the first argument.
     This attaches a WatchedFileHandler to the specified logger.
     Returns the logger object.
 
     The WatchedFileHandler detects when the log file is moved, so it is
     compatible with the logrotate daemon.
-    '''
+    """
     if isinstance(logger, basestring):
         filename = '.'.join((logger, encoding, 'log'))
         logger = logging.getLogger(logger)

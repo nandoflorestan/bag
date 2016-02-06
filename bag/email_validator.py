@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''This module aims to provide the ultimate functions for:
+"""This module aims to provide the ultimate functions for:
 * domain validation, and
 * e-mail validation.
 
@@ -85,7 +85,7 @@ See also tests/test_email_validator.py
 
 Authors: Nando Florestan, Marco Ferreira
 Code written in 2009 and donated to the public domain.
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -107,10 +107,10 @@ class ValidationException(ValueError):
 
 class BaseValidator(object):
     def validate_or_raise(self, *a, **k):
-        '''Some people would condemn this whole module screaming:
+        """Some people would condemn this whole module screaming:
         "Don't return success codes, use exceptions!"
         This method allows them to be happy, too.
-        '''
+        """
         validatee, err = self.validate(*a, **k)
         if err:
             raise ValidationException(err)
@@ -133,15 +133,15 @@ class DomainValidator(BaseValidator):
         self.fix = fix
         if lookup_dns:
             lookup_dns = lookup_dns.lower()
-            if not lookup_dns in ('a', 'mx'):
+            if lookup_dns not in ('a', 'mx'):
                 raise RuntimeError(
                     "Not a valid *lookup_dns* value: " + lookup_dns)
         self._lookup_dns = lookup_dns
 
     def _apply_common_rules(self, part, maxlength):
-        '''This method contains the rules that must be applied to both the
+        """This method contains the rules that must be applied to both the
         domain and the local part of the e-mail address.
-        '''
+        """
         part = part.strip()
         if self.fix:
             part = part.strip('.')
@@ -175,16 +175,16 @@ class DomainValidator(BaseValidator):
     # TODO: As an option, DNS lookup on the domain:
     # http://mail.python.org/pipermail/python-list/2008-July/497997.html
 
-    '''OpenDNS has a feature that bites us. If you are using OpenDNS, and you
+    """OpenDNS has a feature that bites us. If you are using OpenDNS, and you
     type in your browser a domain that does not exist, OpenDNS catches that
     and presents a page. "Did you mean www.hovercraft.eels?"
     For us, this feature appears as a false positive when looking up the
     DNS server. So we try to work around it:
-    '''
+    """
     false_positive_ips = ['208.67.217.132']
 
     def lookup_domain(self, domain, lookup_record=None):
-        '''Looks up the DNS record for *domain* and returns:
+        """Looks up the DNS record for *domain* and returns:
 
         * None if it does not exist,
         * The IP address if looking up the "A" record, or
@@ -197,7 +197,7 @@ class DomainValidator(BaseValidator):
         the *lookup_dns* parameter from the constructor is used.
         "a" means verify that the domain exists.
         "mx" means verify that the domain exists and specifies mail servers.
-        '''
+        """
         if lookup_record:
             lookup_record = lookup_record.lower()
         else:

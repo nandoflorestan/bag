@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Easily import an Excel spreadsheet with headers on the top row.'''
+"""Easily import an Excel spreadsheet with headers on the top row."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -18,7 +18,7 @@ from . import (
 
 
 def excel_reader(stream, worksheet_name=None, required_headers=[]):
-    '''Reads an XLSX file (from ``stream``) and yields objects so you can
+    """Reads an XLSX file (from ``stream``) and yields objects so you can
         access the values conveniently.
 
         You can pass in the ``worksheet_name`` to be read.  If not passed in or
@@ -37,7 +37,7 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
                 required_headers=['E-mail', 'Full Name', 'Gender'])
             for o in reader:
                 print(o.full_name, o.e_mail, o.gender)
-        '''
+        """
     try:
         wb = load_workbook(stream, data_only=True)
     except (BadZipFile, InvalidFileException) as e:
@@ -61,9 +61,9 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
             index_of_var = {var: i for i, var in enumerate(vars)}
 
             class SpreadsheetRow(object):
-                '''View on a spreadsheet row so you can access data as if
+                """View on a spreadsheet row so you can access data as if
                     they were instance variables.
-                    '''
+                    """
                 __slots__ = ('__cells',)
 
                 def __init__(self, cells):

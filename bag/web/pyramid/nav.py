@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''A simple navigation menu system for web apps. Example::
+"""A simple navigation menu system for web apps. Example::
 
     from bag.web.pyramid.nav import Item
 
@@ -49,7 +49,7 @@ Another example template using Mako and bootstrap:
       % endif
     % endfor
     </ul>
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -57,7 +57,7 @@ from warnings import warn
 
 
 class Item(object):
-    '''Represents a navigation menu item.'''
+    """Represents a navigation menu item."""
     # This constant can be overridden in subclasses:
     ACTIVE_ITEM_CSS_CLASS = 'active'
 

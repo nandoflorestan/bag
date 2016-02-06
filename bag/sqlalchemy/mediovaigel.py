@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Complete solution for database fixtures using SQLAlchemy.
+"""Complete solution for database fixtures using SQLAlchemy.
 
     This module is BETA software. You've been warned.
 
@@ -32,7 +32,7 @@
 
     At the end of the loading process, the transaction is only committed if
     all fixtures have been successfully loaded.
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -81,7 +81,7 @@ if IS_PYTHON2:
 
 @nine
 class Mediovaigel(IndentWriter):
-    '''Use this to generate SQLAlchemy fixtures from an existing database.
+    """Use this to generate SQLAlchemy fixtures from an existing database.
     The fixtures are expressed as Python code, so they sort of self-load.
 
     One uses Mediovaigel like this::
@@ -96,14 +96,14 @@ class Mediovaigel(IndentWriter):
         # (...)
         print(m.output())
         m.save_to('fixtures/generated.py')
-    '''
+    """
 
     def __init__(self, session_factory, pk_property_name='id'):
-        '''The parameter ``session_factory`` must be a SQLAlchemy
+        """The parameter ``session_factory`` must be a SQLAlchemy
         session maker callable and not a session instance.
         ``pk_property_name`` must be the name of the primary key column
         consistently used in your models.
-        '''
+        """
         super(Mediovaigel, self).__init__()
         self.session_factory = session_factory
         self.pk = pk_property_name
@@ -112,10 +112,10 @@ class Mediovaigel(IndentWriter):
         self.indent()
 
     def _serialize_property_value(self, val):
-        '''Returns a str containing the representation, or None.
+        """Returns a str containing the representation, or None.
 
         Override this in subclasses to support other types.
-        '''
+        """
         if val is None or isinstance(val, REPRESENTABLE):
             return repr(val)
 
@@ -129,7 +129,7 @@ class Mediovaigel(IndentWriter):
                     entity, attrib, getattr(entity, attrib)))
 
     def generate_fixtures(self, o, ignore_attribs=None):
-        '''``o`` can be one of 2 things:
+        """``o`` can be one of 2 things:
 
         * a model class; or
         * a string containing a resource spec pointing to a Table instance,
@@ -138,7 +138,7 @@ class Mediovaigel(IndentWriter):
         ``ignore_attribs`` is a list of the
         properties for this class that should not be passed to the constructor
         when instantiating an entity.
-        '''
+        """
         if isinstance(o, basestring):
             return self._process_table(
                 o, ignore_attribs or [self.pk])
@@ -147,10 +147,10 @@ class Mediovaigel(IndentWriter):
                 o, ignore_attribs or [self.pk])
 
     def _process_class(self, cls, ignore_attribs):
-        '''``cls`` is the model class. ``ignore_attribs`` is a list of the
+        """``cls`` is the model class. ``ignore_attribs`` is a list of the
         properties for this class that should not be passed when instantiating
         an entity.
-        '''
+        """
         sas = self.session_factory()
         attribs = model_property_names(cls, blacklist=ignore_attribs,
                                        include_relationships=False)
@@ -180,7 +180,7 @@ class Mediovaigel(IndentWriter):
         sas.close()
 
     def _process_table(self, resource_spec, ignore_attribs):
-        '''Intended for association tables.'''
+        """Intended for association tables."""
         sas = self.session_factory()
         table = resolve(resource_spec)
         cols = list(enumerate(table.c.keys()))
@@ -200,7 +200,7 @@ class Mediovaigel(IndentWriter):
         sas.close()
 
     def output(self, encoding='utf-8'):
-        '''Returns the final Python code with the fixture functions.'''
+        """Returns the final Python code with the fixture functions."""
         return TEMPLATE.format(
             encoding=encoding, when=str(datetime.utcnow())[:16],
             imports='\n'.join(self.imports), pk=self.pk,
@@ -331,18 +331,18 @@ class load_fixtures(object):
         return True
 
     def _get_new_id(self, fk, old_id):
-        '''Given a ForeignKey object and its value in the old database,
+        """Given a ForeignKey object and its value in the old database,
         looks up the cache and returns the value for the new database.
-        '''
+        """
         table_name = fk.target_fullname.split('.')[0]
         return self.mapp[table_name + str(old_id)]
 
     def _delay_creation(self, wanted, method, *args):
-        '''When an entity cannot be created yet because it references another
+        """When an entity cannot be created yet because it references another
         entity that doesn't exist yet, we store the job for retrying later.
         In the dict, the key is the non-existent entity key, and the value is
         a tuple with the arguments to the creation method.
-        '''
+        """
         val = (method, args)
         if wanted in self.delayed:
             self.delayed[wanted].append(val)
