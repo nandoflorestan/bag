@@ -31,6 +31,7 @@ Most important library contents
 - `bag.email_validator <https://github.com/nandoflorestan/bag/blob/master/bag/email_validator.py>`_
   -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
+- `bag.web.burla <https://github.com/nandoflorestan/bag/blob/master/bag/web/burla.py>`_ -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
 - `bag.web.transecma <https://github.com/nandoflorestan/bag/blob/master/bag/web/transecma.py>`_
   -- Complete solution for javascript internationalization. Compatible with
   jquery templates. Includes
