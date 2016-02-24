@@ -3,24 +3,24 @@
 
 """reStructuredText document validator / verifier / checker.
 
-For Python code you have 2 available functions::
+    For Python code you have 2 available functions::
 
-    warnings = check_rst_document(a_string)
-    warnings = check_rst_file(path)
+        warnings = check_rst_document(a_string)
+        warnings = check_rst_file(path)
 
-These functions will return an empty list if the document is OK.
+    These functions will return an empty list if the document is OK.
 
-In shell, use it like this::
+    In shell, use it like this::
 
-    check_rst < some_document.rst
+        check_rst < some_document.rst
 
-Or like this if the package *bag* isn't easy_installed:
+    Or like this if the package *bag* isn't easy_installed:
 
-    python check_rst.py < some_document.rst
+        python check_rst.py < some_document.rst
 
-The command prints either "OK" or the warnings.
-And it returns 0 if the document is OK.
-"""
+    The command prints either "OK" or the warnings.
+    And it returns 0 if the document is OK.
+    """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -63,13 +63,15 @@ check_transforms = [
 
 def check_rst_document(source, source_path='<string>', settings=None):
     """Returns a list of objects containing problems in the
-    provided reStructuredText document ``source``.
+        provided reStructuredText document ``source``.
 
-    ``settings`` is the settings object for the docutils document instance.
-    If None, the default settings are used.
-    """
+        ``settings`` is the settings object for the docutils document instance.
+        If None, the default settings are used.
+        """
     alist = []
-    accumulate = lambda x: alist.append(x)
+
+    def accumulate(x):
+        return alist.append(x)
     document = utils.new_document(source_path, settings=settings)
     document.reporter.attach_observer(accumulate)
     if settings is None:  # Fill in some values to prevent AttributeError
@@ -107,9 +109,9 @@ def check_rst_file2(path, encoding='utf-8'):
 
 """ The following attempt isn't finished, the docutils API is too convoluted:
 class RestDocumentChecker(Reader):
-    """Has parse warnings accumulated into its ``checker_result``
-    instance variable.
-    """
+    '''Has parse warnings accumulated into its ``checker_result``
+        instance variable.
+        '''
     def new_document(self):
         # We override this method in order to be able to observe the document
         document = super(RestDocumentChecker, self).new_document()
@@ -120,12 +122,12 @@ class RestDocumentChecker(Reader):
 
 
 def check_rst_file2(path, encoding='utf-8', settings=None):
-    """Returns a list of objects containing (in their ``message`` attribute)
-    problems in the provided reStructuredText document ``source``.
+    '''Returns a list of objects containing (in their ``message`` attribute)
+        problems in the provided reStructuredText document ``source``.
 
-    ``settings`` is the settings object for the docutils document instance.
-    If None, the default settings are used.
-    """
+        ``settings`` is the settings object for the docutils document instance.
+        If None, the default settings are used.
+        '''
     r = RestDocumentChecker(parser=Parser())
     with codecs.open(path, encoding=encoding) as stream:
         r.read(stream, None, None)
@@ -135,8 +137,8 @@ def check_rst_file2(path, encoding='utf-8', settings=None):
 
 def command():
     """This function is an entry point; it is turned into a console script
-    when the package is installed.
-    """
+        when the package is installed.
+        """
     from sys import exit, stdin
     source = stdin.read()
     warnings = check_rst_document(source)
