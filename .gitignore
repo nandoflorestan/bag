@@ -2,6 +2,7 @@
 *.tmp
 *.*~
 build/
+.cache/
 dist/
 data/
 *.egg-info
