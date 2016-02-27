@@ -51,7 +51,11 @@ class FakeSessionByType(FakeSession):
     first = all
 
     def get(self, id):
-        return self.results[self.current_type]
+        for x in self.results[self.current_type]:
+            if x.id == id:
+                return x
+        else:
+            return None
 
     def __iter__(self):
-        return self.results.__iter__()
+        return self.results[self.current_type].__iter__()
