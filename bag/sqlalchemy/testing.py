@@ -4,8 +4,10 @@
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+# from operator import eq
 from bag import first
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.sql.elements import BindParameter, ColumnElement
 
 
 class BaseFakeSession(object):
@@ -185,17 +187,33 @@ class FakeQuery(object):
                 raise NotImplementedError(
                     'FakeQuery does not yet return results with joins.')
 
-            # TODO Consider predicates too
-            if self.predicates:
-                raise NotImplementedError(
-                    'FakeQuery does not yet work with .filter().')
-                for p in self.predicates:
-                    p.left.name
-                    p.operator
-                    p.right.value
+            for predicate in self.predicates:
+                if not self._eval_predicate(entity, predicate):
+                    it_matches = False
+                    break
 
             if it_matches:
                 yield entity
+
+    def _eval_predicate(self, entity, p):
+        """Run a .filter() clause/predicate against an entity."""
+        # raise NotImplementedError(
+        #     'FakeQuery does not yet work with .filter().')
+        assert isinstance(p.left, ColumnElement)
+        assert isinstance(p.right, BindParameter)
+        # cols = [x for x in (p.left, p.right) if isinstance(x, ColumnElement)]
+        # if len(cols) != 1:
+        #     raise RuntimeError('Not implemented case: cols == {}'.format(cols))
+        # param = first((x for x in (p.left, p.right) if isinstance(
+        #         x, BindParameter)))
+        col = p.left
+        param = p.right
+
+        # TODO What if names in entity and column differ?
+        entity_value = getattr(entity, col.name)
+        # TODO Need to find the model with the table of col
+
+        return p.operator(entity_value, param.value)
 
     def _gen_ordered_results(self):
         # Reuse _gen_unordered_results() but then respect orders
