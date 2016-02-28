@@ -70,7 +70,8 @@ class FakeSession(object):
         end of a unit test.  Tries to behave like autoflush mode.
         """
 
-    def __init__(self):
+    def __init__(self, query_cls=None):
+        self.query_cls = query_cls or FakeQuery
         self.db = {}
         self.recording = False
         self.new = []
@@ -93,9 +94,7 @@ class FakeSession(object):
         self.deleted.append(entity)
 
     def query(self, *typs):
-        q = FakeQuery(self, typs)
-        self.queries_made.append(q)
-        return q
+        return self.query_cls(self, typs)
 
     def flush(self):
         for entity in self.new:
@@ -125,28 +124,46 @@ class FakeQuery(object):
     def __init__(self, sas, typs):
         self.sas = sas
         self.typs = typs
-        self.joins = []
-        self.predicates = []
         self.filters = {}
+        self.predicates = []
+        self.joins = []
         self.orders = []
 
+    def _clone(self):
+        """Each method called on query returns a new query which must not
+            affect the original.
+            """
+        clone = FakeQuery(self.sas, list(self.typs))
+        clone.filters.update(self.filters)
+        clone.predicates.extend(self.predicates)
+        clone.joins.extend(self.joins)
+        clone.orders.extend(self.orders)
+        return clone
+
     def join(self, *typs):
-        self.joins.extend(typs)
-        return self
+        clone = self._clone()
+        clone.joins.extend(typs)
+        return clone
 
     def filter(self, *predicates):
-        self.predicates.extend(predicates)
-        return self
+        clone = self._clone()
+        clone.predicates.extend(predicates)
+        return clone
 
     def filter_by(self, **filters):
-        self.filters.update(filters)
-        return self
+        clone = self._clone()
+        clone.filters.update(filters)
+        return clone
 
     def order_by(self, *orders):
-        self.orders.extend(orders)
-        return self
+        clone = self._clone()
+        clone.orders.extend(orders)
+        return clone
 
     def _gen_unordered_results(self):
+        # "Log" usage of this query
+        self.sas.queries_made.append(self)
+
         # In autoflush mode, flush is called before a query executes:
         self.sas.flush()
 
@@ -211,6 +228,8 @@ class FakeQuery(object):
             return alist[0]
 
     def get(self, id):
+        # TODO What if someone is using "pk" instead of "id"?
+        # TODO What about composite primary keys?
         for entity in self:
             if entity.id == id:
                 return entity
