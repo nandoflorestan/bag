@@ -66,10 +66,30 @@ class FakeSessionByType(BaseFakeSession):
 
 
 class FakeSession(object):
-    """SQLALchemy session mock for quick unit tests.
+    """SQLALchemy session mock intended for use in quick unit tests.
+        Because even SQLite in memory is far too slow for real unit tests.
 
         Uses lists as an in-memory "database" which can be inspected at the
         end of a unit test.  Tries to behave like autoflush mode.
+        You can actually make queries on this session, but only simple
+        queries work right now.
+
+        Use it like a real SQLAlchemy session::
+
+            sas = FakeSession()
+            user = User(name="Johann Gambolputty")
+            sas.add(user)
+            assert user in sas.db[User]
+            sas.add_all((Address(address="221b Baker Street"),
+                         Address(address="185 North Gower Street")))
+            sas.flush()  # optional because next line does autoflush
+            q = sas.query(User)  # returns a FakeQuery instance
+            q1 = q.filter_by(name="Johann Gambolputty")  # a new FakeQuery
+            assert user == q1.first()
+            assert user == q1.one()
+            assert [user] == q1.all()
+            assert [] == sas.query(User).filter_by(
+                name="Johann Gambolputty... de von Ausfern-schplenden").all()
         """
 
     def __init__(self, query_cls=None):
