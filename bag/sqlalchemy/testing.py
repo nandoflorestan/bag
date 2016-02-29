@@ -95,7 +95,6 @@ class FakeSession(object):
     def __init__(self, query_cls=None):
         self.query_cls = query_cls or FakeQuery
         self.db = {}
-        self.recording = False
         self.new = []
         self.dirty = []
         self.deleted = []
@@ -194,26 +193,26 @@ class FakeQuery(object):
         entities = self.sas.db.get(first_typ, ())
         for entity in entities:
             assert isinstance(entity, first_typ)
-            it_matches = True
-
-            for key, value in self.filters.items():
-                assert hasattr(entity, key)
-                if getattr(entity, key) != value:
-                    it_matches = False
-                    break
-
-            # TODO predicate matching will fail right now if there are joins
-            if self.joins:
-                raise NotImplementedError(
-                    'FakeQuery does not yet return results with joins.')
-
-            for predicate in self.predicates:
-                if not self._eval_predicate(entity, predicate):
-                    it_matches = False
-                    break
-
-            if it_matches:
+            if self._eval_filters(entity) and self._eval_predicates(entity):
                 yield entity
+
+    def _eval_filters(self, entity):
+        for key, value in self.filters.items():
+            assert hasattr(entity, key)
+            if getattr(entity, key) != value:
+                return False
+        return True
+
+    def _eval_predicates(self, entity):
+        # TODO predicate matching will fail right now if there are joins
+        if self.joins:
+            raise NotImplementedError(
+                'FakeQuery does not yet return results with joins.')
+
+        for predicate in self.predicates:
+            if not self._eval_predicate(entity, predicate):
+                return False
+        return True
 
     def _eval_predicate(self, entity, p):
         """Run a .filter() clause/predicate against an entity."""
