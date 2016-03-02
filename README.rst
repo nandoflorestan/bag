@@ -122,8 +122,11 @@ Less important library contents
   print the progress every few seconds.
 - `bag.streams <https://github.com/nandoflorestan/bag/blob/master/bag/streams.py>`_
   -- Functions that use streams (open files).
-- `bag.text <https://github.com/nandoflorestan/bag/blob/master/bag/text.py>`_
+- `bag.text <https://github.com/nandoflorestan/bag/blob/master/bag/text/__init__.py>`_
   -- Functions for working with unicode strings.
+- `bag.text.words <https://github.com/nandoflorestan/bag/blob/master/bag/text/words.py>`_
+  -- Contains lists of nouns and adjectives and can generate a random combination words
+  -- good for generating test data.
 - `bag.time <https://github.com/nandoflorestan/bag/blob/master/bag/time.py>`_
   -- Functions to make it easier to work with datetimes.
   Includes a JSON encoder that supports time, datetime and Decimal.
