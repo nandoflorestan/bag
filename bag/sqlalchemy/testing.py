@@ -4,7 +4,7 @@
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-# from operator import eq
+import operator
 from bag import first
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.sql.elements import BindParameter, ColumnElement
@@ -258,12 +258,17 @@ class FakeQuery(BaseFakeQuery):
         #         x, BindParameter)))
         col = p.left
         param = p.right
-
-        # TODO What if names in entity and column differ?
         entity_value = getattr(entity, col.name)
-        # TODO Need to find the model with the table of col
-
-        return p.operator(entity_value, param.value)
+        if p.operator is operator.eq:
+            # TODO What if names in entity and column differ?
+            # TODO Need to find the model with the table of col
+            return entity_value == param.value
+        elif p.operator.__name__ == 'ilike_op':
+            # TODO Deal with wildcards
+            return param.value in entity_value
+        else:
+            raise NotImplementedError(
+                "Operator not implemented: {}".format(p.operator.__name__))
 
     def _gen_ordered_results(self):
         # Reuse _gen_unordered_results() but then respect orders
