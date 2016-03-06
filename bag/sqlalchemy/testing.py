@@ -15,11 +15,11 @@ class BaseFakeSession(object):
 
     def __init__(self):
         self.flush_called = 0
-        self.added = []
+        self.new = []
         self.deleted = []
 
     def add(self, entity):
-        self.added.append(entity)
+        self.new.append(entity)
 
     def delete(self, entity):
         self.deleted.append(entity)
@@ -27,45 +27,81 @@ class BaseFakeSession(object):
     def flush(self):
         self.flush_called += 1
 
+    def query(self, *typs):
+        return self.query_cls(self, typs)
+
+
+class BaseFakeQuery(object):
+    def __init__(self, sas, typs):
+        self.sas = sas
+        self.typs = typs
+
+    def _clone(self):
+        """Each method called on query returns a new query which must not
+            affect the original.
+            """
+        clone = self.__class__(self.sas, list(self.typs))
+        # Subclasses should then update any other info in the clone
+        return clone
+
+    def all(self):
+        return list(self)
+
+    def first(self):
+        """Returns a matching entity, or None."""
+        return first(self)
+
+    def one(self):
+        """Ensures there is only one result and returns it, or raises."""
+        alist = self.all()
+        if not alist:
+            raise NoResultFound("No row was found for one()")
+        elif len(alist) > 1:
+            raise MultipleResultsFound("Multiple rows were found for one()")
+        else:
+            return alist[0]
+
+    def get(self, id):
+        # TODO What if someone is using "pk" instead of "id"?
+        # TODO What about composite primary keys?
+        for entity in self:
+            if entity.id == id:
+                return entity
+        else:
+            return None
+
 
 class FakeSessionByType(BaseFakeSession):
     """This mock session can be configured to return the results you want
         based on the model type being queried.
         """
 
-    def __init__(self, *a, **kw):
+    def __init__(self, *a, query_cls=None, **kw):
         super().__init__(*a, **kw)
-        self.results = {}
+        self.query_cls = query_cls or FakeQueryByType
+        self._results = {}
 
-    def query(self, atype):
-        self.current_type = atype
-        return self
+    def add_query_results(self, typs, results):
+        if isinstance(typs, tuple):
+            pass
+        elif isinstance(typs, (list, set, frozenset)):
+            typs = tuple(typs)
+        else:
+            typs = (typs,)  # Put model class in a tuple
+        self._results[typs] = results
 
-    def join(self, *a, **kw):
-        return self
+
+class FakeQueryByType(BaseFakeQuery):
+    def __iter__(self):
+        return self.sas._results[self.typs].__iter__()
 
     def filter(self, *a, **kw):
         return self
 
-    filter_by = order_by = filter  # args are ignored
-
-    def all(self):
-        return self.results[self.current_type]
-
-    first = all
-
-    def get(self, id):
-        for x in self.results[self.current_type]:
-            if x.id == id:
-                return x
-        else:
-            return None
-
-    def __iter__(self):
-        return self.results[self.current_type].__iter__()
+    join = filter_by = order_by = filter  # args are ignored
 
 
-class FakeSession(object):
+class FakeSession(BaseFakeSession):
     """SQLALchemy session mock intended for use in quick unit tests.
         Because even SQLite in memory is far too slow for real unit tests.
 
@@ -93,11 +129,10 @@ class FakeSession(object):
         """
 
     def __init__(self, query_cls=None):
+        super(FakeSession, self).__init__()
         self.query_cls = query_cls or FakeQuery
         self.db = {}
-        self.new = []
         self.dirty = []
-        self.deleted = []
         self.queries_made = []
         self.flush_called = 0
 
@@ -105,7 +140,7 @@ class FakeSession(object):
         typ = type(entity)
         if typ not in self.db:
             self.db[typ] = []
-        self.new.append(entity)
+        super(FakeSession, self).add(entity)
 
     def add_all(self, entities):
         for entity in entities:
@@ -113,9 +148,6 @@ class FakeSession(object):
 
     def delete(self, entity):
         self.deleted.append(entity)
-
-    def query(self, *typs):
-        return self.query_cls(self, typs)
 
     def flush(self):
         for entity in self.new:
@@ -141,10 +173,9 @@ class FakeSession(object):
             self.rollback()  # to clear the identity sets
 
 
-class FakeQuery(object):
+class FakeQuery(BaseFakeQuery):
     def __init__(self, sas, typs):
-        self.sas = sas
-        self.typs = typs
+        super(FakeQuery, self).__init__(sas, typs)
         self.filters = {}
         self.predicates = []
         self.joins = []
@@ -154,7 +185,7 @@ class FakeQuery(object):
         """Each method called on query returns a new query which must not
             affect the original.
             """
-        clone = FakeQuery(self.sas, list(self.typs))
+        clone = super(FakeQuery, self)._clone()
         clone.filters.update(self.filters)
         clone.predicates.extend(self.predicates)
         clone.joins.extend(self.joins)
@@ -246,29 +277,3 @@ class FakeQuery(object):
         else:
             for x in self._gen_unordered_results():
                 yield x
-
-    def all(self):
-        return list(self)
-
-    def first(self):
-        """Returns a matching entity, or None."""
-        return first(self)
-
-    def one(self):
-        """Ensures there is only one result and returns it, or raises."""
-        alist = self.all()
-        if not alist:
-            raise NoResultFound("No row was found for one()")
-        elif len(alist) > 1:
-            raise MultipleResultsFound("Multiple rows were found for one()")
-        else:
-            return alist[0]
-
-    def get(self, id):
-        # TODO What if someone is using "pk" instead of "id"?
-        # TODO What about composite primary keys?
-        for entity in self:
-            if entity.id == id:
-                return entity
-        else:
-            return None
