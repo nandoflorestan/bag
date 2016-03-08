@@ -75,7 +75,8 @@ If you use SQLAlchemy
   -- Convenient SQLAlchemy initialization, at last.
 - `bag.sqlalchemy.mediovaigel <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/mediovaigel.py>`_ -- Complete solution for database fixtures using SQLAlchemy.
 - `bag.sqlalchemy.testing <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/testing.py>`_
-  -- Fake objects for unit testing code that uses SQLAlchemy.
+  -- Fake objects for unit testing code that uses SQLAlchemy. Tests will run
+  much faster because no database is accessed.
 - `bag.sqlalchemy.tricks <https://github.com/nandoflorestan/bag/blob/master/bag/sqlalchemy/tricks.py>`_
   -- Various SQLAlchemy gimmicks, including a great base model class.
 
@@ -126,7 +127,7 @@ Less important library contents
   -- Functions for working with unicode strings.
 - `bag.text.words <https://github.com/nandoflorestan/bag/blob/master/bag/text/words.py>`_
   -- Contains lists of nouns and adjectives and can generate a random combination words
-  -- good for generating test data.
+  -- good for generating funny test data.
 - `bag.time <https://github.com/nandoflorestan/bag/blob/master/bag/time.py>`_
   -- Functions to make it easier to work with datetimes.
   Includes a JSON encoder that supports time, datetime and Decimal.

@@ -82,7 +82,7 @@ class SAContext(object):
         when first used and then stored).
         """
         if not self._scoped_session:
-            assert not self.Session is None, \
+            assert self.Session is not None, \
                 'Tried to use the scoped session before the engine was set.'
             self._scoped_session = scoped_session(self.Session)
         return self._scoped_session
