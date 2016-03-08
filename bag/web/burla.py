@@ -13,6 +13,8 @@ try:
 except ImportError:
     _ = str  # and i18n is disabled.
 
+urlencode = nimport('urllib.parse:urlencode')
+
 
 class Page(object):
     """A page is comprised of a descriptive name, a URL template (from which
@@ -24,8 +26,7 @@ class Page(object):
             /cities/:city/streets/:street
         """
 
-    def __init__(self, name, url_templ, fn=None, permission=None,
-                 section='Miscellaneous', **kw):
+    def __init__(self, name, url_templ, fn=None, permission=None, section='Miscellaneous', **kw):
         assert isinstance(name, basestring)
         assert name
         assert isinstance(url_templ, basestring)
@@ -54,10 +55,19 @@ class Page(object):
             self.params.append(match.group(1))
     PARAM = compile(r':([a-z_]+)')
 
-    def url(self, **kw):
+    def url(self, fragment='', **kw):
+        """Given a dictionary, generates an actual URL from the template."""
         astr = self.url_templ
         for param in self.params:
-            astr = astr.replace(':' + param, str(kw[param]))
+            key = ':' + param
+            if key in self.url_templ:
+                value = str(kw.pop(param))
+                astr = astr.replace(key, value)
+        # The remaining params in kw make the query parameters
+        if kw:
+            astr += '?' + urlencode(kw)
+        if fragment:
+            astr += '#' + fragment
         return astr
 
     def to_dict(self):
