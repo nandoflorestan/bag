@@ -1585,7 +1585,7 @@ ADJECTIVES = [
         'flippant',
         'floppy',
         'flowery',
-        'flufy',
+        'fluffy',
         'fluid',
         'flustered',
         'fluttering',
