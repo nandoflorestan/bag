@@ -70,6 +70,9 @@ class BaseFakeQuery(object):
         else:
             return None
 
+    def count(self):
+        return len(self.all())
+
 
 class FakeSessionByType(BaseFakeSession):
     """This mock session can be configured to return the results you want
