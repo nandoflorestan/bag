@@ -41,7 +41,7 @@
         "/users/1/details#tab=aboutme"
 
         // Extra params (not found in the URL template) go in the query:
-        burla.page('User details', {user_id: 1, photos:'big'}, 'tab=aboutme')
+        burla.page('User details', {user_id: 1, photos: 'big'}, 'tab=aboutme')
         "/users/1/details?photos=big#tab=aboutme"
 
     You can find integration with the Pyramid web framework in the module
