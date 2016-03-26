@@ -2,7 +2,23 @@
 
 """Advanced flash messages scheme for Pyramid.
 
-    Some developers have been using the queues of flash messages to separate
+    This module integrates ``bag.web.flash_msg`` into Pyramid.
+    (That module can be used with any web framework.)
+
+    Why?
+    ====
+
+    It is natural to have a single class that knows:
+
+    - the content of a flash message in either plain or rich form(s)
+    - the kind (color) of the message, such as info, danger, success etc.
+    - different ways of rendering the message on the page
+    - whatever else you want.
+
+    The queue problem
+    =================
+
+    Some Pyramid applications have used flash message queues to separate
     them by level (danger, warning, info or success) in code such as this::
 
         request.session.flash(str(e), 'danger')
@@ -10,105 +26,58 @@
     The problem with this is that messages won't appear in the order in which
     they were created. Because each queue is processed separately in the
     template, order is lost and messages are grouped by kind.
+    This is undesirable and confusing to the user.
 
-    Our solution: we store the level *with* the message, so you can create
-    flash messages as bootstrap alerts *in a single queue* like this::
+    Our solution stores the level *with* the message, so you can add all
+    messages to the default queue and process only that queue in templates.
 
-        from bag.web.pyramid.flash_msg import FlashMessage
-        FlashMessage(
-            request,
-            "You can enqueue a message simply by instantiating FlashMessage.",
-            kind='warning')
+    Installation
+    ============
 
-    An additional feature is available if you do this at configuration time::
+    At web server startup time, add this simple line::
 
         config.include('bag.web.pyramid.flash_msg')
+
+    Usage
+    =====
+
+    Add messages to the queue like this::
+
+        request.add_flash(
+            plain="Your password has been changed, thanks.",
+            kind='warning',
+            close=False,  # user will NOT see an X button to close the alert
+            allow_duplicate=False,  # do not bother the user with repeated text
+            )
 
     Then you can simply do, in templates:
 
         ${render_flash_messages()}
 
     ...to render the messages with Bootstrap styling.
+    The Jinja2 version is ``{{ render_flash_messages() | safe }}``.
 
-    If you don't like that I am generating HTML in Python, or if you want
-    some additional content or style, then you can just loop over the
-    flash messages in your template (now you only need one queue) and use
-    FlashMessage's instance variables to render the
-    bootstrap alerts just the way you want them.
+    If you don't like the result in any way, just loop over the flash messages
+    yourself and do what you want -- no need to use this feature.
     """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from cgi import escape
-from copy import copy
 from nine import nine, basestring
+from bag.web.flash_msg import FlashMessage, bootstrap_alert
 
 
-def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
-    """Renders a bootstrap alert message, optionally with a close button.
-        Provide either ``plain`` or ``rich`` content. The parameter ``v``
-        can be 3 or 2 depending on your bootstrap version (default 3).
-        """
-    # In bootstrap 3, the old "error" class becomes "danger":
-    if kind == 'danger' and v == 2:
-        kind = 'error'
-
-    return '<div class="alert alert-{kind}{cls} fade in">{close}' \
-        '{body}</div>\n'.format(
-            kind=escape(kind),
-            cls=' alert-block' if rich else '',
-            close='<button type="button" class="close" data-dismiss="alert" '
-                  'aria-label="Close"><span aria-hidden="true">×</span>'
-                  '</button>' if close else '',
-            body=rich or escape(plain),
-            )
-
-
-@nine
-class FlashMessage(object):
-    """A flash message that renders in Twitter Bootstrap style.
-        To register a message, simply instantiate it.
-        """
-    KINDS = {'danger', 'warning', 'info', 'success'}
-
-    def __init__(self, request, plain=None, rich=None, kind='warning',
-                 close=True, allow_duplicate=False):
-        assert (plain and not rich) or (rich and not plain)
-        if kind == 'error':
-            kind = 'danger'
-        assert kind in self.KINDS, 'Unknown kind of alert: "{0}". ' \
-            "Possible kinds are {1}".format(kind, self.KINDS)
-        self.kind = kind
-        self.rich = rich
-        self.plain = plain
-        self.close = close
-        request.session.flash(self, allow_duplicate=allow_duplicate)
-
-    def __repr__(self):
-        return 'FlashMessage("{0}")'.format(self.plain or self.rich[:40])
-
-    def __str__(self):
-        return self.rich or self.plain
-
-    def to_dict(self, whitelist=None):
-        """A returns a new dictionary containing all values in this instance,
-            or the subset indicated in the ``whitelist`` argument.
-            """
-        if whitelist:
-            return {k: v for k, v in self.__dict__.items() if k in whitelist}
-        else:
-            return copy(self.__dict__)
-
-    @property
-    def html(self):
-        return bootstrap_alert(
-            self.plain, self.rich, kind=self.kind, close=self.close)
+def add_flash(request, allow_duplicate=False, **kw):
+    """Convenience function that adds a flash message to the user's session."""
+    msg = FlashMessage(**kw)
+    request.session.flash(msg, allow_duplicate=allow_duplicate)
 
 
 def render_flash_messages(request):
     msgs = request.session.pop_flash()  # Pops from the '' queue
-    return ''.join((bootstrap_alert(m) if isinstance(m, basestring) else m.html
-                    for m in msgs))
+    return ''.join((
+        bootstrap_alert(m) if isinstance(m, basestring)
+        else m.bootstrap_alert for m in msgs))
 
 
 def render_flash_messages_from_queues(request):
@@ -123,7 +92,7 @@ def render_flash_messages_from_queues(request):
     msgs = []
     for q in QUEUES:
         for m in request.session.pop_flash(q):
-            html = m.html if isinstance(m, FlashMessage) \
+            html = m.bootstrap_alert if isinstance(m, FlashMessage) \
                 else bootstrap_alert(m, q)
             msgs.append(html)
     return ''.join(msgs)
@@ -131,7 +100,7 @@ def render_flash_messages_from_queues(request):
 QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
-def includeme(config):
+def make_templates_able_to_render_flash_msgs(config):
     """Make a render_flash_messages() function available to every template.
 
     If you want to use the queues feature (not recommended), add this
@@ -153,3 +122,8 @@ def includeme(config):
         event['render_flash_messages'] = lambda: fn(event['request'])
 
     config.add_subscriber(on_before_render, BeforeRender)
+
+
+def includeme(config):
+    config.add_request_method(add_flash, 'add_flash')
+    make_templates_able_to_render_flash_msgs(config)
