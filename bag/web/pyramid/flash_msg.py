@@ -66,8 +66,8 @@ def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
 @nine
 class FlashMessage(object):
     """A flash message that renders in Twitter Bootstrap style.
-    To register a message, simply instantiate it.
-    """
+        To register a message, simply instantiate it.
+        """
     __slots__ = ('kind', 'plain', 'rich', 'close')
 
     def __getstate__(self):
@@ -99,6 +99,15 @@ class FlashMessage(object):
 
     def __str__(self):
         return self.rich or self.plain
+
+    def to_dict(self, whitelist=__slots__):
+        """A returns a new dictionary containing all values in this instance,
+            or the subset indicated in the ``whitelist`` argument.
+            """
+        adict = {}
+        for key in whitelist:
+            adict[key] = getattr(self, key)
+        return adict
 
     @property
     def html(self):
