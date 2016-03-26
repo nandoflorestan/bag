@@ -32,6 +32,8 @@ Most important library contents
   -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
 - `bag.web.burla <https://github.com/nandoflorestan/bag/blob/master/bag/web/burla.py>`_ -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
+- `bag.web.flash_msg <https://github.com/nandoflorestan/bag/blob/master/bag/web/flash_msg.py>`_
+  -- Advanced flash messages for any web framework. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/flash_msg.py>`_.
 - `bag.web.transecma <https://github.com/nandoflorestan/bag/blob/master/bag/web/transecma.py>`_
   -- Complete solution for javascript internationalization. Compatible with
   jquery templates. Includes
@@ -46,8 +48,6 @@ If you use the Pyramid web framework
 
 - `bag.web.pyramid.angular_csrf <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/angular_csrf.py>`_
   -- Make Pyramid play ball with AngularJS to achieve CSRF protection.
-- `bag.web.pyramid.flash_msg <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/flash_msg.py>`_
-  -- Advanced flash messages scheme for Pyramid.
 - `bag.web.pyramid.locale <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/locale.py>`_
   -- Easily enable and disable locales, let users switch languages,
   and use the browser's languages by default.
