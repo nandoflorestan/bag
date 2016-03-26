@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
 
-"""Tests the *bag.web.pyramid.flash_msg* module."""
+"""Tests the *bag.web.flash_msg* module."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import unittest
-from bag.web.pyramid.flash_msg import FlashMessage
-from pyramid.testing import DummyRequest
+from bag.web.flash_msg import FlashMessage
 
 
 class TestFlashMessage(unittest.TestCase):
     def test_plain(self):
-        f = FlashMessage(DummyRequest(), 'Albatross!!!', kind='error')
+        f = FlashMessage(plain='Albatross!!!', kind='error')
         assert f.to_dict() == dict(
             close=True, kind='danger', plain='Albatross!!!', rich=None)
         assert '<div class="alert alert-danger fade in">' \
             '<button type="button" class="close" data-dismiss="alert" ' \
             'aria-label="Close"><span aria-hidden="true">×</span></button>' \
-            'Albatross!!!</div>\n' == f.html
+            'Albatross!!!</div>\n' == f.bootstrap_alert
 
     def test_rich(self):
-        f = FlashMessage(DummyRequest(), rich='<p>Albatross!!!</p>',
-                         kind='danger', close=False)
+        f = FlashMessage(rich='<p>Albatross!</p>', kind='danger', close=False)
         assert '<div class="alert alert-danger alert-block fade in">' \
-            '<p>Albatross!!!</p></div>\n' == f.html
+            '<p>Albatross!</p></div>\n' == f.bootstrap_alert
