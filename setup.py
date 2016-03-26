@@ -3,14 +3,14 @@
 
 # http://peak.telecommunity.com/DevCenter/setuptools#developer-s-guide
 # from distutils.core import setup
-from setuptools import setup, find_packages
 from codecs import open
+from sys import version_info
+from setuptools import setup, find_packages
 
 with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 dependencies = ['nine>=0.3.4', 'polib', 'argh']
-from sys import version_info
 if version_info[:2] < (3, 4):
     dependencies.append('pathlib')
 if version_info[:2] == (2, 6):
@@ -43,7 +43,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
