@@ -40,6 +40,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from cgi import escape
+from copy import copy
 from nine import nine, basestring
 
 
@@ -68,18 +69,7 @@ class FlashMessage(object):
     """A flash message that renders in Twitter Bootstrap style.
         To register a message, simply instantiate it.
         """
-    __slots__ = ('kind', 'plain', 'rich', 'close')
-
-    def __getstate__(self):
-        """Because we are using __slots__, pickling needs this method."""
-        return {i: getattr(self, i) for i in self.__slots__}
-
-    def __setstate__(self, state):
-        """Because we are using __slots__, unpickling needs this method."""
-        for s in self.__slots__:
-            setattr(self, s, state.get(s))
-
-    KINDS = set(['danger', 'warning', 'info', 'success'])
+    KINDS = {'danger', 'warning', 'info', 'success'}
 
     def __init__(self, request, plain=None, rich=None, kind='warning',
                  close=True, allow_duplicate=False):
@@ -95,19 +85,19 @@ class FlashMessage(object):
         request.session.flash(self, allow_duplicate=allow_duplicate)
 
     def __repr__(self):
-        return 'FlashMessage("{0}")'.format(self.plain)
+        return 'FlashMessage("{0}")'.format(self.plain or self.rich[:40])
 
     def __str__(self):
         return self.rich or self.plain
 
-    def to_dict(self, whitelist=__slots__):
+    def to_dict(self, whitelist=None):
         """A returns a new dictionary containing all values in this instance,
             or the subset indicated in the ``whitelist`` argument.
             """
-        adict = {}
-        for key in whitelist:
-            adict[key] = getattr(self, key)
-        return adict
+        if whitelist:
+            return {k: v for k, v in self.__dict__.items() if k in whitelist}
+        else:
+            return copy(self.__dict__)
 
     @property
     def html(self):

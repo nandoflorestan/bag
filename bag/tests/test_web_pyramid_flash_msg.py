@@ -12,6 +12,8 @@ from pyramid.testing import DummyRequest
 class TestFlashMessage(unittest.TestCase):
     def test_plain(self):
         f = FlashMessage(DummyRequest(), 'Albatross!!!', kind='error')
+        assert f.to_dict() == dict(
+            close=True, kind='danger', plain='Albatross!!!', rich=None)
         assert '<div class="alert alert-danger fade in">' \
             '<button type="button" class="close" data-dismiss="alert" ' \
             'aria-label="Close"><span aria-hidden="true">×</span></button>' \
