@@ -450,7 +450,6 @@ NOUNS = [
         'horses',
         'hose',
         'hospital',
-        'hot',
         'hour',
         'house',
         'houses',
