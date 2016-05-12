@@ -61,7 +61,7 @@ def get_json_or_raise(request, expect=None, dict_has=None):
                 raise Problem(
                     'The value of the "{}" variable is of type {}, but '
                     'should be {}.'.format(
-                        key,  type(payload[key]).__name__,  typ.__name__))
+                        key, type(payload[key]).__name__, typ.__name__))
     return payload
 
 
@@ -89,7 +89,7 @@ def ajax_view(view_function):
                 body=dumps(adict),
                 detail=e.error_msg,  # could be shown to end users
                 comment=e.error_debug,  # not displayed to end users
-                )
+            )
         except Exception as e:
             maybe_raise_unprocessable(e)
             raise  # or let this view-raised exception pass through
@@ -116,7 +116,7 @@ def maybe_raise_unprocessable(e, **adict):
             detail=error_msg,  # could be shown to end users
             # *comment* is not displayed to end users:
             comment=str(e) or 'Form validation error',
-            )
+        )
 
 
 def xeditable_view(view_function):
@@ -155,7 +155,7 @@ def xeditable_view(view_function):
             body=error_msg,
             detail=error_msg,  # could be shown to end users
             comment=comment,  # not displayed to end users
-            )
+        )
     return wrapper
 
 
@@ -199,7 +199,7 @@ def serve_preloaded(config, route_name, route_path, payload, encoding=None, cont
         body=stream.read(),
         last_modified=getmtime(path),
         content_length=getsize(path),
-        )
+    )
     stream.close()
 
     def preloaded_view(request):  # This closure is the view handler

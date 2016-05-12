@@ -39,13 +39,17 @@ def bool_input(prompt, default=None):
         return bool_input(prompt)
 
 
-def pick_one_of(options, prompt='Pick one: '):
-    """Lets the user pick an item by number."""
+def pick_one_of(options, prompt='Pick one: ', to_str=None):
+    """Lets the user pick an item by number.
+
+        ``to_str() is a callback that must take an item as argument and must
+        return a string to be displayed.
+    """
     alist = options if isinstance(options, list) else list(options)
     c = 0
     for o in alist:
         c += 1
-        print(str(c).rjust(2) + ". " + str(o))
+        print(str(c).rjust(2) + ". " + to_str(o) if to_str else str(o))
     while True:
         try:
             opt = int(input(prompt))
