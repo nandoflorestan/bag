@@ -126,28 +126,28 @@ class Mediovaigel(IndentWriter):
                 'Cannot serialize. Entity: {}. Attrib: {}. Value: {}'.format(
                     entity, attrib, getattr(entity, attrib)))
 
-    def generate_fixtures(self, o=None, query=None, ignore_attribs=None,
+    def generate_fixtures(self, cls=None, query=None, ignore_attribs=None,
                           sas=None):
-        """``o`` can be one of 2 things:
+        """``cls`` can be one of 2 things:
 
             * a model class; or
             * a string containing a resource spec pointing to a Table instance,
               for example: "my.models.book:book_tag"
 
             ``ignore_attribs`` is a list of the
-            properties for this class that should not be passed to the constructor
-            when instantiating an entity.
+            properties for this class that should not be passed to the
+            constructor when instantiating an entity.
             """
-        assert (o and sas) or query
-        if isinstance(o, basestring):
+        assert cls and (sas or query)
+        if isinstance(cls, basestring):
             return self._process_table(
-                o, ignore_attribs or [self.pk], sas=sas)
+                cls, ignore_attribs or [self.pk], sas=sas)
         else:
             return self._process_class(
-                cls=o, query=query, ignore_attribs=ignore_attribs or [self.pk],
+                cls, query=query, ignore_attribs=ignore_attribs or [self.pk],
                 sas=sas)
 
-    def _process_class(self, cls=None, query=None, ignore_attribs=None,
+    def _process_class(self, cls, query=None, ignore_attribs=None,
                        sas=None):
         """``cls`` is the model class. ``ignore_attribs`` is a list of the
             properties for this class that should not be passed when instantiating
