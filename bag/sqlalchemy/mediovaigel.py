@@ -46,7 +46,9 @@ from sqlalchemy import insert, select
 from nine import nine, str, basestring, IS_PYTHON2
 
 from bag import resolve
-from .tricks import model_property_names, foreign_key_from_col, foreign_keys_in
+from .tricks import (
+    model_property_names, foreign_key_from_col, foreign_keys_in,
+    commit_session_or_transaction)
 
 EMPTY = []
 
@@ -257,15 +259,7 @@ class load_fixtures(object):
         else:
             print('Total: {} fixtures loaded. Committing the transaction...'
                   .format(index + 1))
-            try:
-                self.sas.commit()
-            except AssertionError as e:
-                if str(e) == 'Transaction must be committed using ' \
-                             'the transaction manager':
-                    import transaction
-                    transaction.commit()
-                else:
-                    raise
+            commit_session_or_transaction(self.sas)
 
     def _load_entity(self, original_id, entity):
         cls = type(entity)

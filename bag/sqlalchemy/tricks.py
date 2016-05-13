@@ -471,3 +471,16 @@ class EmailParts(object):
     def gravatar_image(self, default='mm', size=80, cacheable=True):
         return gravatar_image(self.email, default=default, size=size,
                               cacheable=cacheable)
+
+
+def commit_session_or_transaction(sas):
+    """Not sure if using the transaction package or not? No problem."""
+    try:
+        sas.commit()
+    except AssertionError as e:
+        if str(e) == 'Transaction must be committed using ' \
+                     'the transaction manager':
+            import transaction
+            transaction.commit()
+        else:
+            raise
