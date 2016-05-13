@@ -257,7 +257,15 @@ class load_fixtures(object):
         else:
             print('Total: {} fixtures loaded. Committing the transaction...'
                   .format(index + 1))
-            self.sas.commit()
+            try:
+                self.sas.commit()
+            except AssertionError as e:
+                if str(e) == 'Transaction must be committed using ' \
+                             'the transaction manager':
+                    import transaction
+                    transaction.commit()
+                else:
+                    raise
 
     def _load_entity(self, original_id, entity):
         cls = type(entity)
