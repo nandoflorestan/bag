@@ -82,30 +82,28 @@ if IS_PYTHON2:
 @nine
 class Mediovaigel(IndentWriter):
     """Use this to generate SQLAlchemy fixtures from an existing database.
-    The fixtures are expressed as Python code, so they sort of self-load.
+        The fixtures are expressed as Python code, so they sort of self-load.
 
-    One uses Mediovaigel like this::
+        One uses Mediovaigel like this::
 
-        from bag.sqlalchemy.mediovaigel import Mediovaigel
-        from my.models import Course, Lecture, User, db
-        m = Mediovaigel(Session)  # pass a session factory, not instance
-        # The order of the lines below matters:
-        m.generate_fixtures(Course)
-        m.generate_fixtures(Lecture)  # A Lecture belongs to a Course
-        m.generate_fixtures(User, ignore_attribs=['id', 'password'])
-        # (...)
-        print(m.output())
-        m.save_to('fixtures/generated.py')
-    """
-
-    def __init__(self, session_factory, pk_property_name='id'):
-        """The parameter ``session_factory`` must be a SQLAlchemy
-        session maker callable and not a session instance.
-        ``pk_property_name`` must be the name of the primary key column
-        consistently used in your models.
+            from bag.sqlalchemy.mediovaigel import Mediovaigel
+            from my.models import Course, Lecture, User, db
+            m = Mediovaigel(Session)  # pass a session factory, not instance
+            # The order of the lines below matters:
+            m.generate_fixtures(Course)
+            m.generate_fixtures(Lecture)  # A Lecture belongs to a Course
+            m.generate_fixtures(User, ignore_attribs=['id', 'password'])
+            # (...)
+            print(m.output())
+            m.save_to('fixtures/generated.py')
         """
+
+    def __init__(self, pk_property_name='id'):
+        """The parameter ``session`` must be a SQLAlchemy session instance.
+            ``pk_property_name`` must be the name of the primary key column
+            consistently used in your models.
+            """
         super(Mediovaigel, self).__init__()
-        self.session_factory = session_factory
         self.pk = pk_property_name
         self.imports = ['import datetime', 'from decimal import Decimal']
         # self.refs = {}
@@ -114,8 +112,8 @@ class Mediovaigel(IndentWriter):
     def _serialize_property_value(self, val):
         """Returns a str containing the representation, or None.
 
-        Override this in subclasses to support other types.
-        """
+            Override this in subclasses to support other types.
+            """
         if val is None or isinstance(val, REPRESENTABLE):
             return repr(val)
 
@@ -128,30 +126,33 @@ class Mediovaigel(IndentWriter):
                 'Cannot serialize. Entity: {}. Attrib: {}. Value: {}'.format(
                     entity, attrib, getattr(entity, attrib)))
 
-    def generate_fixtures(self, o, ignore_attribs=None):
+    def generate_fixtures(self, o=None, query=None, ignore_attribs=None,
+                          sas=None):
         """``o`` can be one of 2 things:
 
-        * a model class; or
-        * a string containing a resource spec pointing to a Table instance,
-          for example: "my.models.book:book_tag"
+            * a model class; or
+            * a string containing a resource spec pointing to a Table instance,
+              for example: "my.models.book:book_tag"
 
-        ``ignore_attribs`` is a list of the
-        properties for this class that should not be passed to the constructor
-        when instantiating an entity.
-        """
+            ``ignore_attribs`` is a list of the
+            properties for this class that should not be passed to the constructor
+            when instantiating an entity.
+            """
+        assert (o and sas) or query
         if isinstance(o, basestring):
             return self._process_table(
-                o, ignore_attribs or [self.pk])
+                o, ignore_attribs or [self.pk], sas=sas)
         else:
             return self._process_class(
-                o, ignore_attribs or [self.pk])
+                cls=o, query=query, ignore_attribs=ignore_attribs or [self.pk],
+                sas=sas)
 
-    def _process_class(self, cls, ignore_attribs):
+    def _process_class(self, cls=None, query=None, ignore_attribs=None,
+                       sas=None):
         """``cls`` is the model class. ``ignore_attribs`` is a list of the
-        properties for this class that should not be passed when instantiating
-        an entity.
-        """
-        sas = self.session_factory()
+            properties for this class that should not be passed when instantiating
+            an entity.
+            """
         attribs = model_property_names(cls, blacklist=ignore_attribs,
                                        include_relationships=False)
         assert len(attribs) > 0
@@ -159,7 +160,7 @@ class Mediovaigel(IndentWriter):
 
         self.imports.append('from {} import {}'.format(
             cls.__module__, cls.__name__))
-        for entity in sas.query(cls).yield_per(50):
+        for entity in (query or sas.query(cls)).yield_per(50):
             # if hasattr(entity, 'id'):
             #     ref = cls.__name__ + str(entity.id)
             # else:  # If there is no id, we generate our own random id:
@@ -177,11 +178,9 @@ class Mediovaigel(IndentWriter):
             self.dedent()
             self.add('))')
             # self.add('session.add({})\n'.format(ref))
-        sas.close()
 
-    def _process_table(self, resource_spec, ignore_attribs):
+    def _process_table(self, resource_spec, ignore_attribs, sas):
         """Intended for association tables."""
-        sas = self.session_factory()
         table = resolve(resource_spec)
         cols = list(enumerate(table.c.keys()))
         for row in sas.execute(select([table])).fetchall():
@@ -197,7 +196,6 @@ class Mediovaigel(IndentWriter):
 
             self.dedent()
             self.add(']')
-        sas.close()
 
     def output(self, encoding='utf-8'):
         """Returns the final Python code with the fixture functions."""
@@ -205,7 +203,7 @@ class Mediovaigel(IndentWriter):
             encoding=encoding, when=str(datetime.utcnow())[:16],
             imports='\n'.join(self.imports), pk=self.pk,
             the_fixtures='\n'.join(self.lines),
-            )
+        )
 
     def save_to(self, path, encoding='utf-8'):
         with open(path, 'w', encoding=encoding) as writer:
@@ -332,17 +330,17 @@ class load_fixtures(object):
 
     def _get_new_id(self, fk, old_id):
         """Given a ForeignKey object and its value in the old database,
-        looks up the cache and returns the value for the new database.
-        """
+            looks up the cache and returns the value for the new database.
+            """
         table_name = fk.target_fullname.split('.')[0]
         return self.mapp[table_name + str(old_id)]
 
     def _delay_creation(self, wanted, method, *args):
         """When an entity cannot be created yet because it references another
-        entity that doesn't exist yet, we store the job for retrying later.
-        In the dict, the key is the non-existent entity key, and the value is
-        a tuple with the arguments to the creation method.
-        """
+            entity that doesn't exist yet, we store the job for retrying later.
+            In the dict, the key is the non-existent entity key, and the value
+            is a tuple with the arguments to the creation method.
+            """
         val = (method, args)
         if wanted in self.delayed:
             self.delayed[wanted].append(val)
