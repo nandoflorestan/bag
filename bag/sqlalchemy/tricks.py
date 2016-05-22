@@ -45,7 +45,7 @@ def _get_length(col):
 
 
 def get_length(model, field):
-    """Returns the length of column *field* of a SQLAlchemy model *model*."""
+    """Return the length of column *field* of a SQLAlchemy model *model*."""
     return _get_length(get_col(model, field))
 
 
@@ -477,8 +477,8 @@ def commit_session_or_transaction(sas):
     """Not sure if using the transaction package or not? No problem."""
     try:
         sas.commit()
-    except AssertionError as e:
-        if str(e) == 'Transaction must be committed using ' \
+    except AssertionError as exc:
+        if str(exc) == 'Transaction must be committed using ' \
                      'the transaction manager':
             import transaction
             transaction.commit()
