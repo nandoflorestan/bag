@@ -7,3 +7,5 @@ dist/
 data/
 *.egg-info
 .coverage
+.idea
+docs/source/api/
