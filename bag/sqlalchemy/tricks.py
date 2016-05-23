@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""Functions that help define SQLALchemy models.
+"""Functions that help define SQLAlchemy models.
 These have been separated from SQLAlchemy initialization modules because
-there are many different ways to initialize SQLALchemy.
+there are many different ways to initialize SQLAlchemy.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -34,7 +34,7 @@ def now_column(nullable=False, **k):
 
 
 def get_col(model, attribute_name):
-    """Introspects the SQLALchemy model *model* and returns the column object
+    """Introspects the SQLAlchemy model *model* and returns the column object
     for *attribute_name*. E.g.: ``get_col(User, 'email')``
     """
     return model._sa_class_manager.mapper.columns[attribute_name]

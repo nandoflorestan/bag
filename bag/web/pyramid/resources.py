@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""Construction kit for Pyramid resource classes. Example usage::
+"""Construction kit for Pyramid resource classes.
+
+    Example usage::
 
         from bag.web.pyramid.resources import (
             BaseRootResource, BaseResource, IntResource,

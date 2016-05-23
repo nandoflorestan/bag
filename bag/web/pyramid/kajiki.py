@@ -65,7 +65,9 @@ class KajikiTemplateRenderer(object):
 
 
 def renderer_factory(info):
-    """*info* contains::
+    """*info* contains:
+
+    ::
 
         name = Attribute('The value passed by the user as the renderer name')
         package = Attribute('The "current package" when the renderer '

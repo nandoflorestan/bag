@@ -25,7 +25,7 @@ provide only the file name (without a path) to the renderer, like this::
     @view_config(route_name='faq', renderer='faq-page.genshi')
 
 ...then you must set ``genshi.directories`` in the application section
-of your Pyramid application’s .ini file:
+of your Pyramid application’s .ini file::
 
     [app:myapp]
     # ... other stuff ...
@@ -44,18 +44,18 @@ the directories are searched.
 Other settings
 ==============
 
-You can configure these rendering parameters:
+You can configure these rendering parameters::
 
     genshi.doctype = html5
     genshi.method = xhtml
 
 You can also set the file extension that triggers the Genshi renderer.
-The default is ".genshi":
+The default is ".genshi"::
 
     genshi.extension = .genshi
 
 The Genshi template loader keeps templates cached in memory. You can control
-the size of this LRU cache through this setting (my default is 100):
+the size of this LRU cache through this setting (my default is 100)::
 
     genshi.max_cache_size = 100
 
