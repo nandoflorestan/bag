@@ -6,13 +6,12 @@ apps that use the Pyramid web framework.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from nine import basestring, str
 from pyramid.decorator import reify
-from pyramid.exceptions import Forbidden
 from pyramid.i18n import get_localizer
 from pyramid.renderers import get_renderer
 from pyramid.settings import asbool
 from pyramid.url import route_url
-from nine import basestring, str
 from ....text import uncommafy
 
 

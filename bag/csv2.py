@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-'''The stuff in this module is for Python 2 only.
-See the bag.csv3 module if you use Python 3.
-'''
+"""The stuff in this module is for Python 2 only.
+See the bag.spreadsheet.csv module if you use Python 3.
+"""
 
 from __future__ import (absolute_import, division, print_function)
 import csv
 
 
 class CsvWriter(object):
-    '''A CSV writer that encapsulates a stream and supports encodings.'''
+    """A CSV writer that encapsulates a stream and supports encodings."""
 
     def __init__(self, file, encoding='utf8', delimiter=',',
                  quoting=csv.QUOTE_MINIMAL, lineterminator='\r\n'):
@@ -20,9 +20,11 @@ class CsvWriter(object):
         self._enc = encoding
 
     def close(self):
-        '''Closes the underlying "file". If it has a getvalue() method
-        (StringIO objects do), the content is returned.
-        '''
+        """Close the underlying "file".
+
+        If it has a getvalue() method (StringIO objects do),
+        the content is returned.
+        """
         s = self._file.getvalue() if hasattr(self._file, 'getvalue') \
             else None
         if hasattr(self._file, 'close'):
@@ -30,10 +32,11 @@ class CsvWriter(object):
         return s
 
     def put(self, vals):
-        '''Writes the passed values to the CSV stream.
+        """Write the passed values to the CSV stream.
+
         Argument: an iterable of unicode or bytes objects. Unicode objects are
         encoded into the output encoding.
-        '''
+        """
         try:
             self._writer.writerow([
                 v.encode(self._enc) if isinstance(v, unicode)
@@ -44,13 +47,12 @@ class CsvWriter(object):
 
     @staticmethod
     def file_extension(encoding='utf8'):
-        '''Returns an appropriate file extension such as ".utf8.csv".'''
+        """Return an appropriate file extension such as ".utf8.csv"."""
         return '.{0}.csv'.format(encoding)
 
 
 def decoding_csv(csv_stream, encoding='utf8'):
-    '''
-    Generator that wraps a simple CSV reader in order to give you
+    """Generator that wraps a simple CSV reader in order to give you
     unicode objects in the returned rows. Example:
 
     f = open('filepath.csv', 'r')
@@ -60,7 +62,7 @@ def decoding_csv(csv_stream, encoding='utf8'):
     f.close()
 
     This generator removes the UTF8 BOM if the file contains it.
-    '''
+    """
     # This is the only opportunity I found to remove the UTF8 BOM
     # and still use the csv module.
     row = csv_stream.next()
@@ -74,10 +76,10 @@ def decoding_csv(csv_stream, encoding='utf8'):
 
 
 class UnicodeDictReader(object):
-    '''Reads a CSV stream, returning for each row a dictionary where
+    """Reads a CSV stream, returning for each row a dictionary where
     the keys are column headers and the values are unicode objects.
 
-    Example:
+    Example::
 
         csv = UnicodeDictReader(open('myfile', 'r'), delimiter=b',',
                                 encoding='iso-8859-1')
@@ -94,7 +96,7 @@ class UnicodeDictReader(object):
     while the Python CSV module does not support unicode objects.
 
     Apparently, in Python 3 we don't need this class anymore.
-    '''
+    """
 
     def __iter__(self):
         return self

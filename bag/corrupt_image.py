@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Read image files and do something if they are corrupt.'''
+"""Read image files and do something if they are corrupt."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -23,7 +23,7 @@ def is_valid_image(pth):
 
 
 def corrupt_images(directory='.', files='*.jpg'):
-    '''Generator that, given a ``directory``, goes through all files that
+    """Generator that, given a ``directory``, goes through all files that
         pass through the filter ``files``, reads them onto Pillow and
         yields each corrupt image path.
 
@@ -34,7 +34,7 @@ def corrupt_images(directory='.', files='*.jpg'):
             for img in corrupt_images('./images/', files='*.png'):
                 # Do something with *img*, which is a Path object:
                 img.rename(target / img.name)  # move it
-        '''
+        """
     from pathlib import Path
     directory = Path(directory)
     for p in directory.glob(files):
