@@ -1,4 +1,30 @@
 # -*- coding: utf-8 -*-
+
+"""Convenient, encapsulated SQLALchemy initialization.
+
+Usage::
+
+    from bag.sqlalchemy.context import SAContext
+
+    sa = SAContext()  # you can provide create_engine's args here
+    # Now define your models with sa.metadata and sa.base
+
+    # At runtime:
+    # Add a working engine:
+    sa.create_engine('sqlite:///db.sqlite3', echo=False)
+    # or...
+    sa.use_memory()  # This one immediately creates the tables.
+
+    # Now use it:
+    sa.drop_tables().create_tables()
+    session = sa.Session()
+    # Use that session...
+    session.commit()
+
+    # You can also create a copy of sa, bound to another engine:
+    sa2 = sa.clone('sqlite://')
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from functools import wraps
@@ -12,31 +38,8 @@ __all__ = ('SAContext',)
 
 
 class SAContext(object):
-    """Convenient SQLALchemy initialization.
+    """Provide convenient and encapsulated SQLAlchemy initialization."""
 
-    Usage:
-
-    .. code-block:: python
-
-        from bag.sqlalchemy.context import SAContext
-
-        sa = SAContext()  # you can provide create_engine's args here
-        # Now define your model with sa.metadata and sa.base
-
-        # Add a working engine:
-        sa.create_engine('sqlite:///db.sqlite3', echo=False)
-        # or...
-        sa.use_memory()  # This one immediately creates the tables.
-
-        # Now use it:
-        sa.drop_tables().create_tables()
-        session = sa.Session()
-        # Use that session...
-        session.commit()
-
-        # You can also create a copy of sa, bound to another engine:
-        sa2 = sa.clone('sqlite://')
-    """
     __slots__ = ('base', 'dburi', 'engine', 'Session', '_scoped_session',
                  'session_extensions')
 
@@ -78,8 +81,9 @@ class SAContext(object):
 
     @property
     def ss(self):
-        """Returns a scoped session. This is memoized (meaning, created only
-        when first used and then stored).
+        """Return a (memoized) scoped session.
+
+        This is created only when first used and then stored.
         """
         if not self._scoped_session:
             assert self.Session is not None, \
@@ -92,17 +96,19 @@ class SAContext(object):
         return self.base.metadata
 
     def drop_tables(self, tables=None):
+        """Drop tables."""
         self.metadata.drop_all(tables=tables, bind=self.engine)
         return self
 
     def create_tables(self, tables=None):
+        """Create tables."""
         self.metadata.create_all(tables=tables, bind=self.engine)
         return self
 
     def tables_in(self, context):
-        """*context* may be a dictionary or a module.
+        """Return a list containing the tables in the passed *context*.
 
-        Returns a list containing the tables in the passed *context*::
+        ``context`` may be a dictionary or a module::
 
             tables = sa.tables_in(globals())
         """
@@ -117,6 +123,7 @@ class SAContext(object):
         return tables
 
     def clone(self, **k):
+        """Copy this object. If keyword args, create another engine."""
         from copy import copy
         o = copy(self)
         if k:
@@ -159,11 +166,12 @@ class SAContext(object):
         return wrapper
 
     def transient(self, fn):
-        """Decorator that encloses the decorated function in a subtransaction
-        which is always rewinded. It is recommended that you apply this
-        decorator to each of your automated tests; then you only need to
+        """Decorator. Create a subtransaction which is always rewinded.
+
+        It is recommended that you apply this
+        decorator to each of your integrated tests; then you only need to
         create the tables once, instead of once per test,
-        because nothing gets persisted. This should make tests faster.
+        because nothing ever gets persisted. This makes tests run faster.
         """
         @wraps(fn)
         def wrapper(*a, **kw):
@@ -223,6 +231,3 @@ class Numeric(types.TypeDecorator):
 
 del types
 '''
-
-
-__doc__ = SAContext.__doc__

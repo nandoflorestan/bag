@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module aims to provide the ultimate functions for:
-* domain validation, and
-* e-mail validation.
+"""The ultimate functions for domain validation and e-mail address validation.
 
 Why not just use a regular expression?
 ======================================
@@ -18,6 +16,7 @@ become possible, international domain names are real...
 So validating an e-mail address is more complex than you might think. Take a
 look at some of the rules:
 http://en.wikipedia.org/wiki/E-mail_address#RFC_specification
+
 
 How to do it then?
 ==================

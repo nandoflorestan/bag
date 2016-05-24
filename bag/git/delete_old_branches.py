@@ -1,7 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Removes git branches that have been merged onto the current branch.
+"""A solution to the problem of cleaning old git branches.
+
+A command that removes git branches that have been merged onto
+the current branch.
+
+Usage::
+
+    # Try this to see the supported arguments:
+    delete_old_branches --help
+
+    # Ensure you are in the branch "master" before starting.
+    # Test first, by printing the names of the branches that would be deleted:
+    delete_old_branches -l -r origin -y 0 --dry
+
+    # If you agree, run the command again without --dry:
+    delete_old_branches -l -r origin -y 0
+
+If you don't like the 2 steps, just omit ``-y`` and the command will confirm
+each branch with you before deleting it.
+
+The zero in the above example is a number of days since the branch was
+merged into the branch you are in.
 
 Don't forget to do a "git fetch --all --prune" on other machines
 after deleting remote branches. Other machines may still have

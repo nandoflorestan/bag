@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Functions for user interaction at the console."""
+"""Functions for user interaction at the terminal/console."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -8,6 +8,7 @@ from nine import str, input
 
 
 def ask(prompt='', default=None):
+    """Print the ``prompt``, get user's answer, return it -- or a default."""
     if prompt:
         if default:
             prompt = prompt + ' [' + default + ']'
@@ -21,7 +22,7 @@ def ask(prompt='', default=None):
 
 
 def bool_input(prompt, default=None):
-    """Returns True or False based on the user's choice."""
+    """Print ``prompt``; return True or False based on the user's choice."""
     if default is None:
         choices = ' (y/n) '
     elif default:
@@ -40,10 +41,10 @@ def bool_input(prompt, default=None):
 
 
 def pick_one_of(options, prompt='Pick one: ', to_str=None):
-    """Lets the user pick an item by number.
+    """Let the user choose an item (from a sequence of options) by number.
 
-        ``to_str() is a callback that must take an item as argument and must
-        return a string to be displayed.
+    ``to_str()`` is a callback that must take an item as argument and must
+    return a corresponding string to be displayed.
     """
     alist = options if isinstance(options, list) else list(options)
     c = 0
@@ -59,7 +60,7 @@ def pick_one_of(options, prompt='Pick one: ', to_str=None):
 
 
 def screen_header(text, decor='=', max=79):
-    """Returns a header to be displayed on screen, by decorating ``text``."""
+    """Return a header to be displayed on screen, by decorating ``text``."""
     text = str(text)
     available = max - len(text)
     if available > 3:

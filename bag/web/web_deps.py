@@ -149,7 +149,7 @@ In short
 There are 4 moments that should never be confused:
 
 * Declaration of all available libs and stylesheets (and their proper order),
-done as the web server starts, with the WebDeps class;
+  done as the web server starts, with the WebDeps class;
 * In the scope of one request, instantiation of a PageDeps;
 * Declaration of what is needed by the current request;
 * Output.
@@ -245,7 +245,8 @@ from ..text import uncommafy
 
 
 def uniquefy(seq, id_fun=lambda x: x):
-    """Returns a list of the items in `seq` while preserving the order.
+    """Return a list of the items in ``seq`` while preserving the order.
+
     Why? set(seq) might be more expensive and does not preserve the order.
     """
     seen = {}
@@ -261,10 +262,13 @@ def uniquefy(seq, id_fun=lambda x: x):
 
 @nine
 class Dependency(object):
+    """Represents a dependency.
+
+    You can store whatever attributes you like by providing keyword
+    arguments. The only required argument is a name for this dependency.
+    """
+
     def __init__(self, handle, deps='', **kw):
-        """You can store whatever attributes you like by providing keyword
-        arguments. The only required argument is a name for this dependency.
-        """
         assert isinstance(handle, basestring)
         self.handle = handle
         self.dep_handles = list(uncommafy(deps))
@@ -279,7 +283,8 @@ class Dependency(object):
         return self.handle
 
     def recursive_deps(self):
-        """Returns a deep list of the dependencies, with self as 1st item.
+        """Return a deep list of the dependencies, with self as 1st item.
+
         May contain duplicates.
         """
         flat = [self]
@@ -334,11 +339,12 @@ class DepsRegistry(object):
 
 
 class CallableRegistry(DepsRegistry):
+    """Registry that instantiates a dependency when called."""
+
     item_class = Dependency
 
     def __call__(self, handle, deps='', **kw):
-        """Convenience method to add a Dependency without explicitly
-        instantiating it.
+        """Convenience: add a Dependency without explicitly instantiating it.
 
         If provided, the *deps* argument must be either a list of strings,
         or one string separated by commas.

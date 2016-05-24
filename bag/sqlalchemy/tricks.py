@@ -12,7 +12,7 @@ import re
 from datetime import date, datetime
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import (
-    relationship, MapperExtension, backref as _backref,
+    MapperExtension, backref as _backref,
     class_mapper, ColumnProperty)
 from sqlalchemy.orm.attributes import (
     CollectionAttributeImpl, ScalarObjectAttributeImpl)
@@ -30,6 +30,7 @@ CASC = 'all, delete-orphan'
 
 
 def now_column(nullable=False, **k):
+    """Return a DateTime column that defaults to utcnow."""
     return Column(DateTime, default=datetime.utcnow, nullable=nullable, **k)
 
 
@@ -78,25 +79,29 @@ def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
 
 def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
            doc=None, ondelete='CASCADE', backref=None, order_by=None):
-    """Returns a ForeignKey column and a relationship,
-        while automatically setting the type of the foreign key.
+    """Return a ForeignKey column and a relationship.
 
-        Usage::
+    Automatically sets the type of the foreign key.
 
-            # A relationship in an Address model pointing to a parent Person:
-            person_id, person = fk_rel(Person, nullable=False,
-                index=True, backref='addresses', ondelete='CASCADE')
+    Usage::
 
-        A backref is created only if you provide its name in the argument.
-        ``nullable`` and ``index`` are usually ommited, because these are the
-        default values and they are good.
-        ``ondelete`` is "CASCADE" by default, but you can set it to "SET NULL",
-        or None which translates to "NO ACTION" (less interesting).
-        If provided, ``order_by`` is used on the backref.
-        You may also pass an ``attrib`` which is the column name for
-        the foreign key.
-        """
+        # A relationship in an Address model pointing to a parent Person:
+        person_id, person = fk_rel(Person, nullable=False,
+            index=True, backref='addresses', ondelete='CASCADE')
+
+    A backref is created only if you provide its name in the argument.
+    ``nullable`` and ``index`` are usually ommited, because these are the
+    default values and they are good.
+
+    ``ondelete`` is "CASCADE" by default, but you can set it to "SET NULL",
+    or None which translates to "NO ACTION" (less interesting).
+    If provided, ``order_by`` is used on the backref.
+
+    You may also pass an ``attrib`` which is the column name for
+    the foreign key.
+    """
     # http://docs.sqlalchemy.org/en/latest/orm/collections.html#passive-deletes
+    from sqlalchemy.orm import relationship
     if ondelete == 'CASCADE':
         cascade = CASC
         passive_deletes = True
@@ -123,6 +128,7 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
         customer_user, Customer.users = many_to_many(Customer, User,
             pk2='__id__')
     """
+    from sqlalchemy.orm import relationship
     table1 = Model1.__tablename__
     table2 = Model2.__tablename__
     col1 = col(getattr(Model1, pk1))
@@ -143,6 +149,7 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
 
 
 def pk(tablename):
+    """Return a primary key column."""
     # The type must be Integer for Sequences to work, AFAICT.
     # Maybe this problem is in Python only?
     return Column(Integer, Sequence(tablename + '_id_seq'),
@@ -150,6 +157,7 @@ def pk(tablename):
 
 
 def is_model_class(val):
+    """Return whether the parameter is a SQLAlchemy model class."""
     return hasattr(val, '__base__') and hasattr(val, '__table__')
 
 
@@ -170,6 +178,7 @@ def models_and_tables_in(arg):
 
 def model_property_names(cls, whitelist=None, blacklist=None,
                          include_relationships=True):
+    """Return the property names in the passed class, maybe filtered."""
     names = (str(n).split('.')[1] for n in cls.__mapper__.iterate_properties)
     filtered = []
     for name in names:
@@ -222,19 +231,18 @@ def persistent_attribute_names_of(cls):
 
 class MinimalBase(object):
     """Declarative base class that auto-generates __tablename__."""
+
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     @declared_attr
     def __tablename__(cls):
-        """Convert the CamelCase class name to an underscores_between_words
-        table name.
-        """
+        """Convert CamelCase class to underscores_between_words table name."""
         name = cls.__name__.replace('Mixin', '')
         return name[0].lower() + \
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
 
     def to_dict(self, blacklist=None, whitelist=None, for_json=True):
-        """Dumps the properties of the object into a dict."""
+        """Dump the properties of the object into a dict."""
         props = {}
         blacklist = self.blacklist if blacklist is None else blacklist
         keys = whitelist or self.whitelist or (
@@ -258,9 +266,10 @@ class MinimalBase(object):
     whitelist = None
 
     def update(self, adict, transient=False):
-        """Applies the information in the provided dictionary to this
-            model's properties, optionally checking that the keys exist.
-            """
+        """Merge dictionary into this entity.
+
+        Optionally check that the keys exist.
+        """
         for k, v in adict.items():
             if not transient:
                 assert hasattr(type(self), k), \
@@ -388,6 +397,7 @@ class PK(object):
 
 class ID(object):
     """Mixin class that includes a primary key column "id"."""
+
     @declared_attr
     def id(cls):
         """So many projects out there are using "id" instead of "pk"..."""
@@ -395,8 +405,7 @@ class ID(object):
 
 
 class CreatedChanged(object):
-    """Mixin class for your models. It updates the *created* and *changed*
-    columns automatically.
+    """Mixin; updates *created* and *changed* columns automatically.
 
     If you define __mapper_args__ in your model, you have to readd the
     mapper extension:
@@ -406,10 +415,12 @@ class CreatedChanged(object):
         __mapper_args__ = dict(order_by=name,
             extension=CreatedChanged.MapperExt())
     """
+
     created = Column(DateTime, nullable=False)
     changed = Column(DateTime, nullable=False)
 
     class MapperExt(MapperExtension):
+
         def before_insert(self, mapper, connection, instance):
             instance.created = instance.changed = datetime.utcnow()
 
@@ -420,9 +431,12 @@ class CreatedChanged(object):
 
 
 class AddressBase(object):
-    """Base class for addresses. In subclasses you can just define
-    __tablename__, id, the foreign key, and maybe indexes.
+    """Base class for addresses.
+
+    In subclasses you can just define ``__tablename__``, ``id``,
+    the foreign key, and maybe indexes.
     """
+
     # __tablename__ = 'customer'
 
     # pk = pk(__tablename__)
@@ -441,9 +455,10 @@ class AddressBase(object):
 
 
 class EmailParts(object):
-    """Mixin class that stores an email address in 2 columns,
-    one for the local part, one for the domain. This makes it easy to
-    find emails from the same domain.
+    """Mixin class that stores an email address in 2 columns.
+
+    One column contains for the local part, another contains the domain.
+    This makes it easy to find emails from the same domain.
 
     Typical usage:
 
@@ -453,11 +468,13 @@ class EmailParts(object):
             __table_args__ = (UniqueConstraint('email_local', 'email_domain',
                               name='customer_email_key'), {})
     """
+
     email_local = Column('email_local',   Unicode(160), nullable=False)
     email_domain = Column('email_domain', Unicode(255), nullable=False)
 
     @hybrid_property
     def email(self):
+        """Get or set the entire email, in Python or in the RDBMS."""
         return self.email_local + '@' + self.email_domain
 
     @email.setter
