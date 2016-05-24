@@ -107,33 +107,3 @@ def authenticated(func):
         else:
             raise Forbidden()
     return wrapper
-
-
-def get_request_class(User=None, sas=None, PageDeps=None):
-    """You can use this on Pyramid/SQLAlchemy apps.
-    Returns a nice Request class which
-    memoizes the user object (if the User class is passed in) and
-    uses PageDeps if passed in.
-    """
-    from pyramid.request import Request
-    if User:
-        from pyramid.security import authenticated_userid
-        if not sas:
-            from .models.user import sas
-
-    class CustomRequest(Request):
-        def __init__(self, *a, **kw):
-            super(CustomRequest, self).__init__(*a, **kw)
-            if PageDeps:
-                self.page_deps = PageDeps()
-
-        if User:
-            @reify
-            def user(self):
-                """Memoized user object. If we always use request.user to
-                retrieve the authenticated user, the query will happen
-                only once per request, which is good for performance.
-                """
-                userid = authenticated_userid(self)
-                return sas.query(User).get(userid) if userid else None
-    return CustomRequest
