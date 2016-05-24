@@ -85,25 +85,3 @@ class ChameleonBaseView(object):
                 self.macro_cache[macro_path] = macro = \
                     get_renderer(template).implementation().macros[macro_name]
             return macro
-
-
-def authenticated(func):
-    """Decorator that redirects to Pyramid's Forbidden view
-    if the user is not authenticated.
-
-    Depends on your request object possessing a *user* instance variable.
-    This can easily be configured::
-
-        # str('user') returns a bytestring under Python 2 and a
-        # unicode string under Python 3, which is what we need:
-        config.set_request_property(get_user, str('user'), reify=True)
-        # Alternatively, use the *nine* library's ``native_str``:
-        config.set_request_property(get_user, native_str('user'), reify=True)
-    """
-
-    def wrapper(self, *a, **kw):
-        if self.request.user:
-            return func(self, *a, **kw)
-        else:
-            raise Forbidden()
-    return wrapper
