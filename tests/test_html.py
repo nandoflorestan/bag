@@ -5,7 +5,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from unittest import TestCase
-from ..html import decode_entities, encode_xml_char_refs
+from bag.html import decode_entities, encode_xml_char_refs
 
 
 class TestHtml(TestCase):

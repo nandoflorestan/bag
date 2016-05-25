@@ -5,7 +5,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import unittest
-from ..text import to_filename
+from bag.text import to_filename
 
 
 class TestText(unittest.TestCase):

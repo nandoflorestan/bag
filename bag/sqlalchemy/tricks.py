@@ -465,7 +465,7 @@ class AddressBase(object):
 class EmailParts(object):
     """Mixin class that stores an email address in 2 columns.
 
-    One column contains for the local part, another contains the domain.
+    One column contains the local part, another contains the domain.
     This makes it easy to find emails from the same domain.
 
     Typical usage:
