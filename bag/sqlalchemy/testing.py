@@ -1,6 +1,46 @@
 # -*- coding: utf-8 -*-
 
-"""Fake objects for unit testing code that uses SQLAlchemy"""
+"""Fake objects for unit testing code that uses SQLAlchemy.
+
+**Problem:** SQLAlchemy is the main thing making our automated tests slow.
+In larger systems, hitting the database (even if SQLite in memory)
+leads to multiple-minute test suite runs, making TDD (Test First) impossible.
+
+Mocking SQLAlchemy is impossibly hard to keep doing in numerous tests
+because the SQLAlchemy API is made of many objects and methods
+(session, query, filter, order_by, all, first, one etc.).
+It is bad to need to change the mocks every time you change an
+implementation detail!
+
+Is there really no easy way to unit-test code that uses SQLAlchemy?
+
+Come on, we are programmers! We can do this!
+
+**Solution 1:** Create a fake session which can be populated with entities
+in the Arrange phase of the unit test, and then provides these entities
+to the code being tested. :py:class:`FakeSessionByType` is a fake that
+does this -- it only pays attention to the model class being queried
+and ignores all filters and order_bys and whatever else.
+
+This solution was moderately successful, but what is annoying in it is that,
+unlike the real session, it does not populate entities with their IDs
+when it is flushed -- neither does it take care of foreign keys.
+
+**Solution 2:** The ambitious :py:class:`FakeSession` is an implementation
+of the session that also stores entities in memory but tries to behave
+like a real session and actually interpret queries and filters and orders
+and so on and so forth. Currently it only works for very simple queries,
+but with your help it could become the perfect solution in the future.
+
+**Solution 3:** As of 2016-05, I am sidestepping this as I try to implement
+Robert C. Martin's **Clean Architecture** in Python, which forbids I/O
+in the center layers of the system. The only place in the system that can
+import and use the session is the
+`Repository <https://gist.github.com/uris77/4711015>`_,
+which is dependency-injected into the service layer. This means the
+repository will contain one function per operation or query --
+thus it must be easy to mock. We'll see.
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -11,7 +51,7 @@ from sqlalchemy.sql.elements import BindParameter, ColumnElement
 
 
 class BaseFakeSession(object):
-    """Base class for fake SQLAlchemy sessions"""
+    """Base class for fake SQLAlchemy sessions. Look at the subclasses."""
 
     def __init__(self):
         self.flush_called = 0
@@ -32,14 +72,15 @@ class BaseFakeSession(object):
 
 
 class BaseFakeQuery(object):
+    """Base class for Query objects. Look at the subclasses."""
     def __init__(self, sas, typs):
         self.sas = sas
         self.typs = typs
 
     def _clone(self):
         """Each method called on query returns a new query which must not
-            affect the original.
-            """
+        affect the original.
+        """
         clone = self.__class__(self.sas, list(self.typs))
         # Subclasses should then update any other info in the clone
         return clone
@@ -48,11 +89,11 @@ class BaseFakeQuery(object):
         return list(self)
 
     def first(self):
-        """Returns a matching entity, or None."""
+        """Return a matching entity, or None."""
         return first(self)
 
     def one(self):
-        """Ensures there is only one result and returns it, or raises."""
+        """Ensure there is only one result and returns i, or raise."""
         alist = self.all()
         if not alist:
             raise NoResultFound("No row was found for one()")
@@ -106,30 +147,30 @@ class FakeQueryByType(BaseFakeQuery):
 
 class FakeSession(BaseFakeSession):
     """SQLALchemy session mock intended for use in quick unit tests.
-        Because even SQLite in memory is far too slow for real unit tests.
+    Because even SQLite in memory is far too slow for real unit tests.
 
-        Uses lists as an in-memory "database" which can be inspected at the
-        end of a unit test.  Tries to behave like autoflush mode.
-        You can actually make queries on this session, but only simple
-        queries work right now.
+    Uses lists as an in-memory "database" which can be inspected at the
+    end of a unit test.  Tries to behave like autoflush mode.
+    You can actually make queries on this session, but only simple
+    queries work right now.
 
-        Use it like a real SQLAlchemy session::
+    Use it like a real SQLAlchemy session::
 
-            sas = FakeSession()
-            user = User(name="Johann Gambolputty")
-            sas.add(user)
-            assert user in sas.db[User]
-            sas.add_all((Address(address="221b Baker Street"),
-                         Address(address="185 North Gower Street")))
-            sas.flush()  # optional because next line does autoflush
-            q = sas.query(User)  # returns a FakeQuery instance
-            q1 = q.filter_by(name="Johann Gambolputty")  # a new FakeQuery
-            assert user == q1.first()
-            assert user == q1.one()
-            assert [user] == q1.all()
-            assert [] == sas.query(User).filter_by(
-                name="Johann Gambolputty... de von Ausfern-schplenden").all()
-        """
+        sas = FakeSession()
+        user = User(name="Johann Gambolputty")
+        sas.add(user)
+        assert user in sas.db[User]
+        sas.add_all((Address(address="221b Baker Street"),
+                     Address(address="185 North Gower Street")))
+        sas.flush()  # optional because next line does autoflush
+        q = sas.query(User)  # returns a FakeQuery instance
+        q1 = q.filter_by(name="Johann Gambolputty")  # a new FakeQuery
+        assert user == q1.first()
+        assert user == q1.one()
+        assert [user] == q1.all()
+        assert [] == sas.query(User).filter_by(
+            name="Johann Gambolputty... de von Ausfern-schplenden").all()
+    """
 
     def __init__(self, query_cls=None):
         super(FakeSession, self).__init__()
@@ -186,8 +227,8 @@ class FakeQuery(BaseFakeQuery):
 
     def _clone(self):
         """Each method called on query returns a new query which must not
-            affect the original.
-            """
+        affect the original.
+        """
         clone = super(FakeQuery, self)._clone()
         clone.filters.update(self.filters)
         clone.predicates.extend(self.predicates)

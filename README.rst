@@ -2,22 +2,19 @@
 bag library
 ===========
 
-Functions and classes for many purposes,
-that I use all the time in multiple programs.
+**bag** contains code for many purposes, which I find myself reusing in
+multiple programs -- so this code must be version-controlled.
 
 I use SQLAlchemy and Pyramid a lot.
 
-The library is hosted at
+The library, tested on Python 2.7, 3.3, 3.4 and 3.5, is hosted at
 https://github.com/nandoflorestan/bag
 
-Previously, this library was hosted at
-http://code.google.com/p/bag
+For documentation, please look up the Sphinx documentation, or
+the docstrings of the module.
 
-The library is tested on Python 2.7, 3.3, 3.4 and 3.5.
-
-For documentation on each module, please refer to its own docstrings.
-
-This version was published with `releaser <https://pypi.python.org/pypi/releaser>`_.
+This version was published with
+`releaser <https://pypi.python.org/pypi/releaser>`_.
 
 
 Most important library contents
@@ -31,9 +28,13 @@ Most important library contents
 - `bag.email_validator <https://github.com/nandoflorestan/bag/blob/master/bag/email_validator.py>`_
   -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
+- `bag.pathlib_complement <https://github.com/nandoflorestan/bag/blob/master/bag/pathlib_complement.py>`_
+  -- A Path subclass that does what pathlib doesn't do.
 - `bag.web.burla <https://github.com/nandoflorestan/bag/blob/master/bag/web/burla.py>`_ -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
 - `bag.web.flash_msg <https://github.com/nandoflorestan/bag/blob/master/bag/web/flash_msg.py>`_
   -- Advanced flash messages for any web framework. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/flash_msg.py>`_.
+- `bag.web.subcommand <https://github.com/nandoflorestan/bag/blob/master/bag/subcommand.py>`_
+  -- Use argh to dispatch to subcommands with their command-line arguments.
 - `bag.web.transecma <https://github.com/nandoflorestan/bag/blob/master/bag/web/transecma.py>`_
   -- Complete solution for javascript internationalization. Compatible with
   jquery templates. Includes
@@ -95,10 +96,6 @@ Commands
 Less important library contents
 ===============================
 
-- **bag.bytes_box** -- Wraps an Image in another object that can
-  instantiate it from a number of sources (bytes, files etc.) and then
-  copy, resize or write it. The interface is experimental but
-  seems to be very convenient.
 - `bag.check_rst <https://github.com/nandoflorestan/bag/blob/master/bag/check_rst.py>`_
   -- Verifies reStructuredText content for correctness.
 - `bag.console <https://github.com/nandoflorestan/bag/blob/master/bag/console.py>`_
@@ -107,9 +104,6 @@ Less important library contents
   -- Read image files and do something if they are corrupt.
 - `bag.file_existence_manager <https://github.com/nandoflorestan/bag/blob/master/bag/file_existence_manager.py>`_
   -- Tools for finding duplicate files using hashes.
-- **bag.file_watcher** -- Watches a bunch of files and
-  when one of them is modified, runs a callback. Also useful for
-  reloading Python modules when they are altered.
 - `bag.log <https://github.com/nandoflorestan/bag/blob/master/bag/log.py>`_
   -- Convenient logging initialization.
 - **bag.html** -- Encode and decode HTML and XML entities.

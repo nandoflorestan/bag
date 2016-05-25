@@ -29,6 +29,7 @@ def subcommand(fn):
 
 
 def main():
+    """Uses argh to dispatch to your subcommands."""
     from argh import ArghParser  # sudo apt-get install python3-argh
     parser = ArghParser()
     # Sorting makes the output of --help better:

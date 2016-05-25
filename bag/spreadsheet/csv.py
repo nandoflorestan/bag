@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """This module is for Python 3 only.
-See the bag.csv2 module if you use Python 2.
+See the :py:mod:`bag.csv2` module if you use Python 2.
+
+The most important things here are:
+
+- The :py:func:`csv_with_headers_reader` generator
+- The :py:class:`DecodingCsvWithHeaders` class
 """
 
 from codecs import BOM_UTF8, BOM_UTF16
@@ -13,12 +18,12 @@ from . import (
 def decoding(stream, encoding='utf8'):
     """
     If you have a stream that yields bytes, use this wrapper to decode them
-    into str objects. Example:
+    into str objects. Example::
 
-    f = open('filepath.csv', 'br')
-    for line in decode(f, encoding='utf8'):
-        print(line)
-    f.close()
+        f = open('filepath.csv', 'br')
+        for line in decode(f, encoding='utf8'):
+            print(line)
+        f.close()
 
     This generator removes the UTF8 BOM if the file contains it.
     http://en.wikipedia.org/wiki/Byte_order_mark
@@ -63,7 +68,7 @@ def setup_reader(stream, required_headers=[], **k):
 
 
 def csv_with_headers_reader(stream, required_headers=[], **k):
-    """Returns an iterator over a CSV reader that uses *stream* with the
+    """Return an iterator over a CSV reader that uses *stream* with the
     options passed as keyword arguments. The iterator yields objects so you
     can access the values conveniently.
 
@@ -92,9 +97,9 @@ def decoding_csv_with_headers(bytestream, encoding='utf8', **k):
 
 class DecodingCsvWithHeaders(object):
     """The advantage of using the class instead of the generator is that
-        any errors related to the headers happen when the class is
-        instantiated, so they can be catched separately.
-        """
+    any errors related to the headers happen when the class is
+    instantiated, so they can be catched separately.
+    """
 
     def __init__(self, stream, encoding=None, **k):
         if encoding:

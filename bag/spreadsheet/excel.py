@@ -18,26 +18,27 @@ from . import (
 
 
 def excel_reader(stream, worksheet_name=None, required_headers=[]):
-    """Reads an XLSX file (from ``stream``) and yields objects so you can
-        access the values conveniently.
+    """Read an XLSX file (from ``stream``) and yield objects.
 
-        You can pass in the ``worksheet_name`` to be read.  If not passed in or
-        not present in the file, the first worksheet will be read.
+    Objects? Yes, so you can access the values conveniently.
 
-        In addition, you may pass a sequence of *required_headers*, and if they
-        aren't all present, KeyError is raised.
+    You can pass in the ``worksheet_name`` to be read.  If not passed in or
+    not present in the file, the first worksheet will be read.
 
-        Let's see an example. Suppose you are reading some Excel file and
-        all you know is it contains the columns "E-mail", "Full Name" and
-        "Gender", not necessarily in that order::
+    In addition, you may pass a sequence of *required_headers*, and if they
+    aren't all present, KeyError is raised.
 
-            reader = excel_reader(
-                open('contacts.xlsx', mode='rb'),
-                worksheet_name='Mailing',
-                required_headers=['E-mail', 'Full Name', 'Gender'])
-            for o in reader:
-                print(o.full_name, o.e_mail, o.gender)
-        """
+    Let's see an example. Suppose you are reading some Excel file and
+    all you know is it contains the columns "E-mail", "Full Name" and
+    "Gender", not necessarily in that order::
+
+        reader = excel_reader(
+            open('contacts.xlsx', mode='rb'),
+            worksheet_name='Mailing',
+            required_headers=['E-mail', 'Full Name', 'Gender'])
+        for o in reader:
+            print(o.full_name, o.e_mail, o.gender)
+    """
     try:
         wb = load_workbook(stream, data_only=True)
     except (BadZipFile, InvalidFileException) as e:

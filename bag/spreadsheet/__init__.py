@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 
-"""Spreadsheet importers in CSV and Excel formats."""
+"""Spreadsheet importers in CSV and Excel formats.
+
+The basic premise is that the spreadsheet to be imported will have
+headers on the first row -- some of which are mandatory.
+
+The headers are used to map the data to a dynamically-generated class so
+**each spreadsheet row is seen, in your code, as an object
+(mapping columns to their values)**.
+
+The code in this __init__ module is used in the inner modules.
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -30,10 +40,12 @@ class MissingHeaders(Exception):
                 '"{}"'.format(h) for h in self.missing_headers])
 
 
-def raise_if_missing_required_headers(headers, required_headers=[], case_sensitive=False):
-    """Raises MissingHeaders if the ``required_headers`` aren't all
-        present in ``headers``.
-        """
+def raise_if_missing_required_headers(headers, required_headers=[],
+                                      case_sensitive=False):
+    """Ensure all ``required_headers`` are present in ``headers``.
+
+    Else raise MissingHeaders.
+    """
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
         missing_headers = [h for h in required_headers
@@ -45,15 +57,16 @@ def raise_if_missing_required_headers(headers, required_headers=[], case_sensiti
         raise MissingHeaders(missing_headers)
 
 
-def get_corresponding_variable_names(headers, required_headers, case_sensitive=False):
-    """If happy, returns the corresponding variable names.
+def get_corresponding_variable_names(headers, required_headers,
+                                     case_sensitive=False):
+    """Return variable names corresponding to the legible headers.
 
-        The parameter ``required_headers`` may be a map or a sequence. If map,
-        the keys should be the legible header names and the values should be
-        the corresponding variable names.  For headers absent from the map,
-        or if ``required_headers`` is a list, the variable names returned
-        are the result of string conversion.
-        """
+    The parameter ``required_headers`` may be a map or a sequence. If map,
+    the keys should be the legible header names and the values should be
+    the corresponding variable names.  For headers absent from the map,
+    or if ``required_headers`` is a list, the variable names returned
+    are the result of string conversion.
+    """
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
         required_headers = [h.lower() for h in required_headers]

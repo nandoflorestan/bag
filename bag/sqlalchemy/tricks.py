@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Functions that help define SQLAlchemy models.
-These have been separated from SQLAlchemy initialization modules because
-there are many different ways to initialize SQLAlchemy.
-"""
+"""Functions that help define SQLAlchemy models."""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -35,8 +32,9 @@ def now_column(nullable=False, **k):
 
 
 def get_col(model, attribute_name):
-    """Introspects the SQLAlchemy model *model* and returns the column object
-    for *attribute_name*. E.g.: ``get_col(User, 'email')``
+    """Introspect the SQLAlchemy ``model``; return the column object.
+
+    ...for ``attribute_name``. E.g.: ``get_col(User, 'email')``
     """
     return model._sa_class_manager.mapper.columns[attribute_name]
 
@@ -46,26 +44,28 @@ def _get_length(col):
 
 
 def get_length(model, field):
-    """Return the length of column *field* of a SQLAlchemy model *model*."""
+    """Return the length of column ``field`` of a SQLAlchemy ``model``."""
     return _get_length(get_col(model, field))
 
 
 def col(attrib):
-    """Given a sqlalchemy.orm.attributes.InstrumentedAttribute
+    """Return the column that stores an ``attrib`` of a model.
+
+    Given a sqlalchemy.orm.attributes.InstrumentedAttribute
     (type of the attributes of model classes),
-    returns the corresponding column. E.g.: ``col(User.email)``
+    return the corresponding column. E.g.: ``col(User.email)``
     """
     return attrib.property.columns[0]
 
 
 def length(attrib):
-    """Returns the length of the attribute *attrib*."""
+    """Return the length of the ``attrib``."""
     return _get_length(col(attrib))
 
 
 def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
        ondelete='CASCADE'):
-    """Returns a ForeignKey column while automatically setting the type."""
+    """Return a ForeignKey column while automatically setting the type."""
     assert ondelete in (
         'CASCADE',   # Creates ON DELETE CASCADE
         'SET NULL',  # Creates ON DELETE SET NULL
@@ -121,7 +121,7 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
                  backref=None):
     """Easily set up a many-to-many relationship between 2 existing models.
 
-    Returns an association table and the relationship itself.
+    Return an association table and the relationship itself.
 
     Usage:
 
@@ -162,9 +162,9 @@ def is_model_class(val):
 
 
 def models_and_tables_in(arg):
-    """``arg`` may be a resource spec, a module or a dictionary.
+    """Return 2 lists containing the model classes and tables in ``arg``.
 
-    Returns 2 lists containing the model classes and tables in it::
+    ``arg`` may be a resource spec, a module or a dictionary::
 
         models, tables = models_and_tables_in(globals())
     """
@@ -214,14 +214,18 @@ def foreign_keys_in(cls):
 
 
 def models_from_ids(sas, cls, ids):
-    """Generator that, given a sequence of IDs, yields model instances."""
+    """Generator that, given a sequence of IDs, yields model instances.
+
+        Performance is poor. TODO SOMEONE IMPROVE THIS PLEASE
+        """
     for id in ids:
         yield sas.query(cls).get(id)
 
 
 def persistent_attribute_names_of(cls):
-    """Returns a list of the names of the persistent attributes of ``cls``,
-        except collections."""
+    """Return a list of the names of the persistent attributes of ``cls``.
+    ...except collections.
+    """
     # return [x for x in dir(cls) if isinstance(
     #     getattr(cls, x), InstrumentedAttribute)]
     return [
@@ -279,10 +283,12 @@ class MinimalBase(object):
         return self
 
     def update_from_schema(self, schema, adict):
-        """Validates the information in the dictionary ``adict`` against
-            a Colander ``schema``. If validation fails, colander.Invalid
-            is raised. If happy, returns the updated model instance.
-            """
+        """Validate ``adict`` against ``schema``; return updated entity.
+
+        Validates the information in the dictionary ``adict`` against
+        a Colander ``schema``. If validation fails, colander.Invalid
+        is raised. If happy, returns the updated model instance.
+        """
         schema._model_instance = self  # makes some validations easier
         clean = schema.deserialize(adict)  # May raise colander.Invalid
         self.update(clean)
@@ -290,12 +296,14 @@ class MinimalBase(object):
 
     @classmethod
     def query(cls, sas, *predicates, what=None, **filters):
+        """Convenient way to start building a query."""
         return sas.query(what or cls).filter(*predicates).filter_by(**filters)
 
     @classmethod
     def get_or_create(cls, session, **filters):
-        """Returns a tuple (object, is_new). *is_new* is True if the
-        object already exists in the database.
+        """Retrieve or add object; return a tuple (object, is_new).
+
+        ``is_new`` is True if the object already exists in the database.
         """
         instance = session.query(cls).filter_by(**filters).first()
         is_new = not instance
@@ -307,7 +315,7 @@ class MinimalBase(object):
     @classmethod
     def create_or_update(cls, session, values={}, **filters):
         """First obtains either an existing object or a new one, based on
-        *filters*. Then applies *values* and returns a tuple (object, is_new).
+        ``filters``. Then applies ``values`` and returns a tuple (object, is_new).
         """
         instance, is_new = cls.get_or_create(session, **filters)
         for k, v in values.items():
@@ -405,7 +413,7 @@ class ID(object):
 
 
 class CreatedChanged(object):
-    """Mixin; updates *created* and *changed* columns automatically.
+    """Mixin; updates ``created`` and ``changed`` columns automatically.
 
     If you define __mapper_args__ in your model, you have to readd the
     mapper extension:

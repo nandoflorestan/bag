@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""The stuff in this module is for Python 2 only.
-See the bag.spreadsheet.csv module if you use Python 3.
+"""The content of this module is for Python 2 only.
+See the :py:mod:`bag.spreadsheet.csv` module if you use Python 3.
 """
 
 from __future__ import (absolute_import, division, print_function)
@@ -53,13 +53,13 @@ class CsvWriter(object):
 
 def decoding_csv(csv_stream, encoding='utf8'):
     """Generator that wraps a simple CSV reader in order to give you
-    unicode objects in the returned rows. Example:
+    unicode objects in the returned rows. Example::
 
-    f = open('filepath.csv', 'r')
-    for vals in decoding_csv(csv.reader(f, delimiter=b','), \
-                             encoding='utf8'):
-        print(vals)
-    f.close()
+        f = open('filepath.csv', 'r')
+        for vals in decoding_csv(csv.reader(f, delimiter=b','), \
+                                 encoding='utf8'):
+            print(vals)
+        f.close()
 
     This generator removes the UTF8 BOM if the file contains it.
     """
