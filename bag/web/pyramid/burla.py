@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 
-"""Burla integration for Pyramid"""
+"""Integration of :py:mod:`bag.web.burla` into Pyramid.
+
+Burla provides powerful URL generation independent of web frameworks.
+
+From this module you can import the variable ``ops`` and then use it to
+register your burla pages and operations.
+
+TODO: Use the registry instead of a global variable
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -11,9 +19,11 @@ from pyramid.response import Response
 
 class PyramidBurla(Burla):
     def op(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
-        """Decorator for view handlers that registers an operation with Burla
-            as well as with Pyramid.
-            """
+        """Decorator to register an API operation.
+
+        Decorate your view handlers with this to register an operation
+        with Burla as well as with Pyramid.
+        """
         def wrapper(view_handler):
             self._add_op(
                 op_name,
@@ -28,9 +38,11 @@ class PyramidBurla(Burla):
         return wrapper
 
     def page(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
-        """Decorator for view handlers that registers a page with Burla
-            as well as with Pyramid.
-            """
+        """Decorator to register a page.
+
+        Decorate your view handlers with this to register a page
+        with Burla as well as with Pyramid.
+        """
         def wrapper(view_handler):
             self._add_page(
                 name=op_name,
@@ -55,9 +67,7 @@ def add_http_operations_list_url(config, url='/http_operations'):
     @ops.op(NAME, section='Infrastructure', url_templ=url,
             request_method='GET', route_name=NAME, renderer='json')
     def list_http_operations(context, request):
-        """Returns objects containing the available application pages and
-            HTTP API operations in JSON format.
-            """
+        """Describe all available application pages and HTTP API operations."""
         return ops.to_dict()
 
 
@@ -78,7 +88,8 @@ def add_view_for_javascript_file(config, url='/burla'):
         return js_content
 
 
-def add_view_for_documentation(config, url='/api_docs', title=None, prefix=None, suffix=None):
+def add_view_for_documentation(config, url='/api_docs', title=None,
+                               prefix=None, suffix=None):
     from docutils.core import publish_string
     config.add_route(DOC_TITLE, url)
 
@@ -95,6 +106,11 @@ def add_view_for_documentation(config, url='/api_docs', title=None, prefix=None,
 
 
 def includeme(config):
+    """Hook for Pyramid; adds 2 URLs to your application.
+
+    - **/http_operations**: JSON list of endpoints.
+    - **/burla**: Javascript library to generate URLs using the above.
+    """
     ops.config = config
 
     # The request object will be able to generate URLs

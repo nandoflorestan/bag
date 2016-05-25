@@ -1,52 +1,53 @@
 # -*- coding: utf-8 -*-
 
-"""Burla: Powerful URL generation independent of web frameworks.
+"""Powerful URL generation independent of web frameworks.
 
-    Burla stores a collection of page URL templates, separate from a
-    collection of API method URL templates.  The only difference between
-    them is that operations have a request method (GET, POST, PUT etc.).
+**Burla** stores a collection of page URL templates, separate from a
+collection of API method URL templates.  The only difference between
+them is that operations have a request method (GET, POST, PUT etc.).
 
-    Burla also facilitates generating documentation about pages and
-    API operations in the Python server.
+Burla also facilitates generating documentation about pages and
+API operations in the Python server.
 
-    No matter what web framework you are using, you are better off
-    generating URLs with Burla because this makes your application more
-    independent of web frameworks so you can switch more easily.
+No matter what web framework you are using, you are better off
+generating URLs with Burla because this makes your application more
+independent of web frameworks so you can switch more easily.
 
-    Another advantage is that, based on the URL templates, burla generates
-    URLs in the Python server as well as in the Javascript client.  It
-    generates a short Javascript library that takes care of this.
+Another advantage is that, based on the URL templates, burla generates
+URLs in the Python server as well as in the Javascript client.  It
+generates a short Javascript library that takes care of this.
 
-    Maintenance of your web app becomes easier because you register your
-    URLs only once (in the Python server code) and then the URLs can be
-    used in the entire stack.  When you change your URLs, you only do it
-    in one place.
+Maintenance of your web app becomes easier because you register your
+URLs only once (in the Python server code) and then the URLs can be
+used in the entire stack.  When you change your URLs, you only do it
+in one place.
 
-    URL templates (for matching views) stop at the left of the question mark,
-    but when generating URLs, burla supports both query params
-    (to the right of the question mark) and fragments (to the right of the #),
+URL templates (for matching views) stop at the left of the question mark,
+but when generating URLs, burla supports both query params
+(to the right of the question mark) and fragments (to the right of the #),
 
-    Here are a few examples of usage in the Javascript client::
+Here are a few examples of usage in the Javascript client::
 
-        // Let's see a previously registered URL template:
-        burla.page('User details')
-        "/users/:user_id/details"
+    // Let's see a previously registered URL template:
+    burla.page('User details')
+    "/users/:user_id/details"
 
-        // Provide a map to generate a real URL from the template:
-        burla.page('User details', {user_id: 1})
-        "/users/1/details"
+    // Provide a map to generate a real URL from the template:
+    burla.page('User details', {user_id: 1})
+    "/users/1/details"
 
-        // Provide another argument to add a fragment (to the right of the #):
-        burla.page('User details', {user_id: 1}, 'tab=aboutme')
-        "/users/1/details#tab=aboutme"
+    // Provide another argument to add a fragment (to the right of the #):
+    burla.page('User details', {user_id: 1}, 'tab=aboutme')
+    "/users/1/details#tab=aboutme"
 
-        // Extra params (not found in the URL template) go in the query:
-        burla.page('User details', {user_id: 1, photos: 'big'}, 'tab=aboutme')
-        "/users/1/details?photos=big#tab=aboutme"
+    // Extra params (not found in the URL template) go in the query:
+    burla.page('User details', {user_id: 1, photos: 'big'}, 'tab=aboutme')
+    "/users/1/details?photos=big#tab=aboutme"
 
-    You can find integration with the Pyramid web framework in the module
-    bag.web.pyramid.burla. Please contribute integration into other frameworks.
-    """
+You can find integration with the Pyramid web framework in
+:py:mod:`bag.web.pyramid.burla`. Please contribute integration into
+other frameworks.
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -63,14 +64,16 @@ urlencode = nimport('urllib.parse:urlencode')
 
 
 class Page(object):
-    """A page is comprised of a descriptive name, a URL template (from which
-        parameters are discovered) and possibly documentation strings.
-        The instance is able to generate its URL.
+    """Class that represents a web page in burla.
 
-        A URL template looks like this (params are preceded by a colon)::
+    A page is comprised of a descriptive name, a URL template (from which
+    parameters are discovered) and possibly documentation strings.
+    The instance is able to generate its URL.
 
-            /cities/:city/streets/:street
-        """
+    A URL template looks like this (params are preceded by a colon)::
+
+        /cities/:city/streets/:street
+    """
 
     def __init__(self, name, url_templ, fn=None, permission=None, section='Miscellaneous', **kw):
         assert isinstance(name, basestring)
@@ -102,7 +105,7 @@ class Page(object):
     PARAM = compile(r':([a-z_]+)')
 
     def url(self, fragment='', **kw):
-        """Given a dictionary, generates an actual URL from the template."""
+        """Given a dictionary, generate an actual URL from the template."""
         astr = self.url_templ
         for param in self.params:
             key = ':' + param
@@ -145,10 +148,10 @@ class Operation(Page):
 
 class Burla(object):
     """Collection of pages and operations. Easily turned into a dict for
-        JSON output.
+    JSON output.
 
-        Generates URLs and provides JS code to generate URLs in the client.
-        """
+    Generates URLs and provides JS code to generate URLs in the client.
+    """
 
     def __init__(self, root='', page_class=Page, op_class=Operation):
         self.map = {}
@@ -165,7 +168,7 @@ class Burla(object):
         self.map[name] = self._op_class(name, **kw)
 
     def url(self, name, **kw):
-        """Returns only the generated URL."""
+        """Return only the generated URL."""
         return self.map[name].url(**kw)
 
     # def item(self, name, **kw):
@@ -206,10 +209,11 @@ class Burla(object):
             }
 
     def gen_documentation(self, title=None, prefix=None, suffix=None):
-        """Generates documentation from 'section', 'name', 'doc' and
-            'permission' attributes of the registered Operation instances,
-            in reStructuredText.
-            """
+        """Generate documentation in reStructuredText.
+
+        Sources of information are the 'section', 'name', 'doc' and
+        'permission' attributes of the registered Operation instances.
+        """
         # Organize the operations inside their respective sections first
         sections = {}
         for op in self.gen_ops():
@@ -264,9 +268,11 @@ class Burla(object):
             yield ''
 
     def get_javascript_code(self):
-        """Returns a JS file that contains the operations and pages and
-            functions to generate URLs from them.
-            """
+        """Return a JS library to generate the application URLs.
+
+        Return JS code containing the registered operations and pages,
+        plus functions to generate URLs from them.
+        """
         return """"use strict";
 
 // Usage:
