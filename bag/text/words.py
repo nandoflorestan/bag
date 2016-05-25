@@ -14,10 +14,11 @@ from random import choice
 
 
 def random_locution(adjectives=1, nouns=1, return_list=False):
+    """Return random text containing adjective(s) and noun(s)."""
     alist = []
-    for x in range(adjectives):
+    for index in range(adjectives):
         alist.append(choice(ADJECTIVES))
-    for x in range(nouns):
+    for index in range(nouns):
         alist.append(choice(NOUNS))
     return alist if return_list else ' '.join(alist)
 

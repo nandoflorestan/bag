@@ -11,11 +11,12 @@ from nine import basestring, str, range
 
 
 def parse_iso_date(txt):
+    """Parse a datetime in ISO format."""
     return datetime.strptime(txt[:19], '%Y-%m-%d %H:%M:%S')
 
 
 def shorten(txt, length=10, ellipsis='…'):
-    """Truncate *txt*, adding *ellipsis* to the end, with total *length*."""
+    """Truncate ``txt``, adding ``ellipsis`` to end, with total ``length``."""
     if len(txt) > length:
         return txt[:length - len(ellipsis)] + ellipsis
     else:
@@ -23,7 +24,7 @@ def shorten(txt, length=10, ellipsis='…'):
 
 
 def shorten_proper(name, length=11, ellipsis='…', min=None):
-    """Shortens a proper name for displaying."""
+    """Shorten a proper name for displaying."""
     min = min or length / 2.0
     words = name.split(' ')
     output = []
@@ -40,7 +41,9 @@ def shorten_proper(name, length=11, ellipsis='…', min=None):
 
 
 def uncommafy(txt, sep=','):
-    """Takes a comma-delimited string and returns a generator of
+    """Generator of the elements of a comma-separated string.
+
+    Takes a comma-delimited string and returns a generator of
     stripped strings. No empty string is yielded.
     """
     for item in txt.split(sep):
@@ -52,7 +55,7 @@ def uncommafy(txt, sep=','):
 def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                                 'abcdefghijklmnopqrstuvwxyz'
                                 '0123456789'):
-    """Returns a random string of some `length`."""
+    """Return a random string of some `length`."""
     return ''.join((random.choice(chars) for i in range(length)))
 
 
@@ -92,10 +95,10 @@ ascii_map.extend(latin1_map)
 
 
 def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
-    """Removes from *txt* (a unicode object) all characters not
-    supported by *encoding*, but using a map to "simplify" some
+    """Removes from ``txt`` (a unicode object) all characters not
+    supported by ``encoding``, but using a map to "simplify" some
     characters instead of just removing them.
-    If *byts* is true, returns a bytestring.
+    If ``byts`` is true, returns a bytestring.
     """
     if amap is None:
         if encoding == 'ascii':
@@ -109,7 +112,7 @@ def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
 
 
 def to_filename(txt, for_web=False, badchars='', maxlength=0):
-    """Massages *txt* until it is a good filename."""
+    """Massage ``txt`` until it is a good filename."""
     illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
     for c in illegal:
         txt = txt.replace(c, '')
@@ -125,7 +128,7 @@ def to_filename(txt, for_web=False, badchars='', maxlength=0):
 def slugify(txt, exists=lambda x: False, badchars='', maxlength=16,
             chars='abcdefghijklmnopqrstuvwxyz23456789',
             min_suffix_length=1, max_suffix_length=4):
-    """Returns a slug that does not yet exist, based on ``txt``.
+    """Return a slug that does not yet exist, based on ``txt``.
 
     You may provide ``exists``, a callback that takes a generated slug and
     checks the database to see if it already exists.
@@ -144,9 +147,11 @@ def slugify(txt, exists=lambda x: False, badchars='', maxlength=16,
 
 
 def find_new_title(dir, filename):
-    """If file *filename* exists in directory *dir*, adds or changes the
+    """Return a path that does not exist yet, in ``dir``.
+
+    If ``filename`` exists in ``dir``, adds or changes the
     end of the file title until a name is found that doesn't yet exist.
-    Returns the new path.
+
     For instance, if file "Image (01).jpg" exists in "somedir",
     returns "somedir/Image (02).jpg".
     """
@@ -168,6 +173,7 @@ def find_new_title(dir, filename):
 
 
 def keep_digits(txt):
+    """return filter(str.isdigit, txt)"""
     return filter(str.isdigit, txt)
 
 
@@ -218,6 +224,10 @@ def capitalize(txt):
 
 
 def content_of(paths, encoding='utf-8', sep='\n'):
+    """Read, join and return the contents of ``paths``.
+
+    Makes it easy to read one or many files.
+    """
     if isinstance(paths, Path):
         paths = [str(paths)]
     elif isinstance(paths, basestring):
