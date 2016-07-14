@@ -242,7 +242,7 @@ class BaseDeformView(object):
                 return dict(errors={'': e.args[0]})
             else:
                 return dict(errors=e.asdict2() if hasattr(e, 'asdict2')
-                    else e.asdict())
+                            else e.asdict())
         else:
             # appstruct.pop('csrf_token', None)  # Discard the CSRF token
             return appstruct
