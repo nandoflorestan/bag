@@ -10,6 +10,9 @@ I use SQLAlchemy and Pyramid a lot.
 The library, tested on Python 2.7, 3.3, 3.4 and 3.5, is hosted at
 https://github.com/nandoflorestan/bag
 
+The last version that supported Python 2.6 is bag 0.8.0.
+And bag 0.9.0 is the last version that supports Python 2.x.
+
 For documentation, please look up the Sphinx documentation, or
 the docstrings of the module.
 

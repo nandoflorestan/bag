@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""web_deps.py
-
+"""
 The problem: script and CSS linking in composite pages
 ======================================================
 
@@ -245,7 +244,7 @@ from ..text import uncommafy
 
 
 def uniquefy(seq, id_fun=lambda x: x):
-    """Return a list of the items in ``seq`` while preserving the order.
+    """Return a list of unique items in ``seq`` while preserving the order.
 
     Why? set(seq) might be more expensive and does not preserve the order.
     """

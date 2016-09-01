@@ -2,7 +2,7 @@
 
 """Advanced flash messages scheme for Pyramid.
 
-    This module integrates ``bag.web.flash_msg`` into Pyramid.
+    This module integrates :py:mod:`bag.web.flash_msg` into Pyramid.
     (That module can be used with any web framework.)
 
     Why?

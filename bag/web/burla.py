@@ -26,7 +26,9 @@ URL templates (for matching views) stop at the left of the question mark,
 but when generating URLs, burla supports both query params
 (to the right of the question mark) and fragments (to the right of the #),
 
-Here are a few examples of usage in the Javascript client::
+Here are a few examples of usage in the Javascript client:
+
+.. code-block:: javascript
 
     // Let's see a previously registered URL template:
     burla.page('User details')

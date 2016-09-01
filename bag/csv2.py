@@ -20,9 +20,9 @@ class CsvWriter(object):
         self._enc = encoding
 
     def close(self):
-        """Close the underlying "file".
+        """Close the underlying ``file``.
 
-        If it has a getvalue() method (StringIO objects do),
+        If it has a ``getvalue()`` method (``StringIO`` objects do),
         the content is returned.
         """
         s = self._file.getvalue() if hasattr(self._file, 'getvalue') \
@@ -52,7 +52,9 @@ class CsvWriter(object):
 
 
 def decoding_csv(csv_stream, encoding='utf8'):
-    """Generator that wraps a simple CSV reader in order to give you
+    """Wrap a CSV reader in order to yield unicode objects.
+
+    This is a generator that wraps a simple CSV reader in order to give you
     unicode objects in the returned rows. Example::
 
         f = open('filepath.csv', 'r')
@@ -76,8 +78,9 @@ def decoding_csv(csv_stream, encoding='utf8'):
 
 
 class UnicodeDictReader(object):
-    """Reads a CSV stream, returning for each row a dictionary where
-    the keys are column headers and the values are unicode objects.
+    """Reads a CSV stream, returning for each row a dictionary.
+
+    The keys are column headers and the values are unicode objects.
 
     Example::
 
@@ -86,7 +89,7 @@ class UnicodeDictReader(object):
         # The constructor has read the first row and memorized the headers,
         # because a 'fieldnames' parameter was not provided.
         for row in csv:
-            print(row) # shows a dictionary
+            print(row)  # shows a dictionary
         csv.close()
 
     It also removes the UTF8 BOM from your data if the file contains it.
@@ -95,7 +98,7 @@ class UnicodeDictReader(object):
     read the file, decode it, then parse it as CSV. That is impossible
     while the Python CSV module does not support unicode objects.
 
-    Apparently, in Python 3 we don't need this class anymore.
+    In Python 3 we don't need this class anymore -- csv supports unicode.
     """
 
     def __iter__(self):

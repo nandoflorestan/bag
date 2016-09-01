@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module contains functions that are easier to use than the
+**subprocess** module of the standard library.
+A quick look on the source should answer any doubts.
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import subprocess

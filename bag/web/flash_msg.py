@@ -8,7 +8,7 @@
     - whatever else you want (you can add instance variables or subclass it).
 
     This can be used in any web framework. We provide integration for Pyramid
-    in the module ``bag.web.pyramid.flash_msg``.
+    in the module :mod:`bag.web.pyramid.flash_msg`.
 
     FlashMessage is able to render itself with Bootstrap styles.
 

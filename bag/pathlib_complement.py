@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-"""This Python-3-only module complements pathlib by defining a subclass."""
+"""Python 3.4 introduces an object-oriented module for path manipulation
+called ``pathlib``. But it is missing certain convenience methods.
+
+This Python-3-only module complements pathlib by defining a subclass.
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -17,15 +21,17 @@ class Path(type(pathlib.Path())):
     """pathlib.Path subclass -- has more methods."""
 
     def ensure_directory(self, parents=True):
+        """Create the directory only if it does not yet exist."""
         if not self.is_dir():
             self.mkdir(parents=parents)
 
     def chgrp(self, gid):
-        """Changes the group of this path."""
+        """Change the UNIX group of this path."""
         uid = self.stat().st_uid
         os.chown(str(self), uid, gid)
 
     def walk(self, filter=None, this=False):
+        """Recursively traverse this directory."""
         for path in self.iterdir():
             if path.is_dir():
                 yield from path.walk(filter=filter)
@@ -47,7 +53,7 @@ class Path(type(pathlib.Path())):
             do(self)'''
 
     def remove(self):
-        """Deletes self, irrespective of whether it's symlink, file or dir."""
+        """Delete self, irrespective of whether it's symlink, file or dir."""
         if self.is_symlink():  # is_symlink() must be evaluated before
             self.unlink()      # is_dir() because is_dir() is true for a
         elif self.is_dir():    # symbolic link pointing to a directory.
@@ -56,15 +62,15 @@ class Path(type(pathlib.Path())):
             self.unlink()
 
     def empty(self):
-        """Removes directory contents without removing the directory itself."""
+        """Remove directory contents without removing the directory itself."""
         for path in self.iterdir():
             path.remove()
 
     def recursive_chgrp(self, group, this=False):
-        """Changes the group of the directory contents.
+        """Change the UNIX group of the directory contents.
 
-            If ``this``, changes the directory itself, too.
-            """
+        If ``this``, changes the directory itself, too.
+        """
         for path in self.walk(this=this):
             path.chgrp(group)
 
@@ -95,24 +101,31 @@ del pathlib
 
 
 def oct2int(number):
-    """Given a (string or int) representation of a file mode, such as "777"
-        -- you have to realize that is actually an octal number --,
-        returns the corresponding integer to be able to chmod.
-        """
+    """Convert 3 numbers to be able to chmod.
+
+    Given a (string or int) representation of a file mode, such as "777"
+    -- you have to realize that is actually an octal number --,
+    returns the corresponding integer to be able to chmod.
+    """
     return eval('0o' + str(number))
 
 
 def corresponding_directory_perm(perm):
-    """Given 4, returns 5. Given 6, returns 7."""
+    """Given 4, returns 5. Given 6, returns 7.
+
+    Based on desired file permissions, returns corresponding dir permissions.
+    """
     perm = int(perm)
     return perm + 1 if perm % 2 == 0 and perm > 3 else perm
 
 
 def default_directory_perms(file_perms):
-    """Most people understand UNIX permissions for files, but not for
-        directories -- if a file has 644 then usually its parent should be 754.
-        We automate this here.
-        """
+    """Given ``file_perms``, return directory permissions.
+
+    Most people understand UNIX permissions for files, but not for
+    directories -- if a file has 644 then usually its parent should be 754.
+    We automate this here.
+    """
     file_perms = str(file_perms)
     assert len(file_perms) == 3
     user_perm = corresponding_directory_perm(file_perms[0])

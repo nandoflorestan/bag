@@ -4,6 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 
 
 class ArgumentError(ValueError):
+    """Use this exception to complain that ``arg`` doesn't accept ``val``."""
+
     def __init__(self, arg, val):
         self.arg = arg
         self.val = val

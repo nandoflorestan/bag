@@ -3,14 +3,14 @@
 
 """What do you do when Python does not know about some exotic encoder or
 decoder that exists out there? Suppose you have some text,
-perhaps an e-mail message, that Python won't decode, saying:
+perhaps an e-mail message, that Python won't decode, saying::
 
     LookupError: unknown encoding: ansi_x3.110-1983
 
 What you do is tell Python to call some UNIX command that does the
 encoding/decoding for you. This module sets that up using the iconv program.
 
-Usage:
+Usage::
 
     import bag.more_codecs
 
@@ -18,11 +18,11 @@ That is it. Importing the module registers a codec. It will convert
 to and from anything in codecs_dict (if iconv supports it).
 
 However, the only possible error modes are 'strict' and 'ignore'. Therefore,
-this raises an exception:
+this raises an exception::
 
     u'hi'.encode('utf32', errors='replace')
 
-The module will look for iconv in the path. You may set a specific location:
+The module will look for iconv in the path. You may set a specific location::
 
     bag.more_codecs.COMMAND = '/usr/bin/iconv'
 
@@ -32,7 +32,7 @@ You can help us by writing code that calls iconv by using ctypes
 or something like that.
 
 Both Python and iconv change over time, so the list of codecs that each
-supports is prolly going to change. The registered codecs are in a dictionary:
+supports is prolly going to change. The registered codecs are in a dictionary::
 
     from oui.more_codecs import codecs_dict
     print(list(codecs_dict.keys()))
@@ -391,6 +391,7 @@ def _iconv_factory(codec_name):
             return output, len(input)
 
         class IncrementalEncoder(codecs.IncrementalEncoder):
+
             def encode(self, input, final=False):
                 return iconvencode(input, self.errors)[0]
 
