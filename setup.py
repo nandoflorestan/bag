@@ -29,7 +29,7 @@ setup(
                 "and stuff for the Pyramid web framework.",
     long_description=long_description,
     zip_safe=False,
-    test_suite='bag.tests',
+    test_suite='tests',
     install_requires=dependencies,
     keywords=["python", 'pyramid', 'sqlalchemy', 'HTML', 'CSV',
                 'translation', 'i18n', 'internationalization', 'file hash',
