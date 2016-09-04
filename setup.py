@@ -22,7 +22,8 @@ setup(
     author='Nando Florestan',
     version='0.8.1.dev1',
     license='MIT',
-    packages=find_packages(),
+    # https://setuptools.readthedocs.io/en/latest/setuptools.html#using-find-packages
+    packages=find_packages(exclude=["tests.*", 'tests']),
     include_package_data=True,
     author_email="nandoflorestan@gmail.com",
     description="A library for several purposes, including javascript i18n "

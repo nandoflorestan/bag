@@ -3,3 +3,7 @@
 include *.rst
 recursive-include bag *
 global-exclude *.pyc
+
+# recursive-exclude tests *
+# global-exclude tests
+# prune tests
