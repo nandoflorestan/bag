@@ -18,7 +18,7 @@ import os
 
 
 def get_version_number(path=''):
-    import re
+    import codecs, re
     VERSION_LINE = re.compile(
         r'\s*_{0,2}version_{0,2}\s*=\s*["\']'
         r'(\d+\.\d+[0123456789\-\.\(\)abcdefghijklmnopqrstuvwxyz]*)["\']\s*')
@@ -29,7 +29,7 @@ def get_version_number(path=''):
         setup_path = '../setup.py'
     else:
         setup_path = 'setup.py'
-    with open(setup_path, 'r', encoding='utf-8') as stream:
+    with codecs.open(setup_path, 'r', encoding='utf-8') as stream:
         text = stream.read()
     match = VERSION_LINE.search(text)
     assert match, 'Could not find version number in Python source code.'
