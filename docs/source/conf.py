@@ -15,7 +15,26 @@
 
 import sys
 import os
-import pkg_resources
+
+
+def get_version_number(path=''):
+    import re
+    VERSION_LINE = re.compile(
+        r'\s*_{0,2}version_{0,2}\s*=\s*["\']'
+        r'(\d+\.\d+[0123456789\-\.\(\)abcdefghijklmnopqrstuvwxyz]*)["\']\s*')
+    current_dir = os.path.realpath(os.path.curdir)
+    if current_dir.endswith('docs/source'):
+        setup_path = '../../setup.py'
+    elif current_dir.endswith('docs'):
+        setup_path = '../setup.py'
+    else:
+        setup_path = 'setup.py'
+    with open(setup_path, 'r', encoding='utf-8') as stream:
+        text = stream.read()
+    match = VERSION_LINE.search(text)
+    assert match, 'Could not find version number in Python source code.'
+    version = match.groups()[0]
+    return version
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -58,7 +77,9 @@ author = 'Nando Florestan'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-current = pkg_resources.get_distribution('bag').version
+# import pkg_resources
+# current = pkg_resources.get_distribution('bag').version
+current = get_version_number()
 
 # The short X.Y version:
 version = '.'.join(current.split('.')[:2])
