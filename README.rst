@@ -6,15 +6,15 @@ bag library
 multiple programs -- so this code must be version-controlled.
 I use SQLAlchemy and Pyramid a lot.
 
+**Documentation** is at http://bag.readthedocs.io/
+
 The library, tested on Python 2.7, 3.3, 3.4 and 3.5, is hosted at
 https://github.com/nandoflorestan/bag
 
-The last version that supported Python 2.6 was bag 0.8.0.
-And bag 0.9.0 is the last version that supports Python 2.x.
+- bag 0.8.0 is the last version that supported Python 2.6.
+- bag 0.9.0 is the last version that supported Python 2.7.
 
-Documentation is at http://bag.readthedocs.io/
-
-This version was published with
+This version of **bag** was published with
 `releaser <https://pypi.python.org/pypi/releaser>`_.
 
 
