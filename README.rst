@@ -12,7 +12,7 @@ https://github.com/nandoflorestan/bag
 The last version that supported Python 2.6 was bag 0.8.0.
 And bag 0.9.0 is the last version that supports Python 2.x.
 
-Documentation is at http://pythonhosted.org/bag
+Documentation is at http://bag.readthedocs.io/
 
 This version was published with
 `releaser <https://pypi.python.org/pypi/releaser>`_.
