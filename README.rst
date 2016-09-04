@@ -6,7 +6,7 @@ bag library
 multiple programs -- so this code must be version-controlled.
 I use SQLAlchemy and Pyramid a lot.
 
-**Documentation** is at http://bag.readthedocs.io/
+**Documentation** is at http://pythonhosted.org/bag
 
 The library, tested on Python 2.7, 3.3, 3.4 and 3.5, is hosted at
 https://github.com/nandoflorestan/bag

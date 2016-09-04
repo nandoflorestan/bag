@@ -54,5 +54,5 @@ Releaser(
     # ErrorStep,  # You can use this step while testing - it causes a rollback.
     GitPush,  # Cannot be undone. If successful, previous steps won't roll back
     GitPushTags,
-    # Warn("Do not forget to upload the documentation!"),
+    Warn("Do not forget to upload the documentation!"),
 ).release()
