@@ -28,8 +28,8 @@ Releaser(
 
     # ==================  Before releasing, do some checks  ===================
     Shell('python setup.py test'),  # First of all ensure tests pass
-    CheckRstFiles,  # Documentation: recursively verify ALL .rst files, or:
-    # CheckRstFiles('README.rst', 'CHANGES.rst', 'LICENSE.rst'),  # just a few.
+    # CheckRstFiles,  # Documentation: recursively verify ALL .rst files, or:
+    CheckRstFiles('README.rst', 'LICENSE.rst'),  # just a few.
     # TODO IMPLEMENT CompileAndVerifyTranslations,
     EnsureGitClean,   # There are no uncommitted changes in tracked files.
     EnsureGitBranch,  # I must be in the branch specified in config

@@ -31,7 +31,8 @@ Most important library contents
   domain validation, as well as an email address harvester.
 - `bag.pathlib_complement <https://github.com/nandoflorestan/bag/blob/master/bag/pathlib_complement.py>`_
   -- A Path subclass that does what pathlib doesn't do.
-- `bag.web.burla <https://github.com/nandoflorestan/bag/blob/master/bag/web/burla.py>`_ -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
+- `bag.web.burla <https://github.com/nandoflorestan/bag/blob/master/bag/web/burla.py>`_
+  -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration for it <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
 - `bag.web.flash_msg <https://github.com/nandoflorestan/bag/blob/master/bag/web/flash_msg.py>`_
   -- Advanced flash messages for any web framework. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/flash_msg.py>`_.
 - `bag.web.subcommand <https://github.com/nandoflorestan/bag/blob/master/bag/subcommand.py>`_
