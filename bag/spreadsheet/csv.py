@@ -12,7 +12,8 @@ The most important things here are:
 from codecs import BOM_UTF8, BOM_UTF16
 import csv
 from . import (
-    get_corresponding_variable_names, raise_if_missing_required_headers)
+    get_corresponding_variable_names, raise_if_missing_required_headers,
+    raise_if_forbidden_headers)
 
 
 def decoding(stream, encoding='utf8'):
@@ -47,7 +48,7 @@ def decoding(stream, encoding='utf8'):
         yield line.decode(encoding)
 
 
-def setup_reader(stream, required_headers=[], **k):
+def setup_reader(stream, required_headers=[], forbidden_headers=[], **k):
     c = csv.reader(stream, **k)
 
     def readline():
@@ -55,6 +56,7 @@ def setup_reader(stream, required_headers=[], **k):
 
     headers = readline()
     raise_if_missing_required_headers(headers, required_headers)
+    raise_if_forbidden_headers(headers, forbidden_headers)
     vars = get_corresponding_variable_names(headers, required_headers)
 
     class CsvRow(object):
@@ -67,7 +69,8 @@ def setup_reader(stream, required_headers=[], **k):
     return c, readline, vars, CsvRow
 
 
-def csv_with_headers_reader(stream, required_headers=[], **k):
+def csv_with_headers_reader(stream, required_headers=[], forbidden_headers=[],
+                            **k):
     """Return an iterator over a CSV reader that uses *stream* with the
     options passed as keyword arguments. The iterator yields objects so you
     can access the values conveniently.
@@ -85,7 +88,8 @@ def csv_with_headers_reader(stream, required_headers=[], **k):
         for o in csv_reader:
             print(o.name, o.email, o.sex)
     """
-    c, readline, headers, CsvRow = setup_reader(stream, required_headers, **k)
+    c, readline, headers, CsvRow = setup_reader(
+        stream, required_headers, forbidden_headers, **k)
     while True:  # eventually, StopIteration is raised by csv.reader
         yield CsvRow(readline())
 

@@ -14,10 +14,12 @@ try:
 except ImportError:
     _ = str  # and i18n is disabled.
 from . import (
-    get_corresponding_variable_names, raise_if_missing_required_headers)
+    get_corresponding_variable_names, raise_if_missing_required_headers,
+    raise_if_forbidden_headers)
 
 
-def excel_reader(stream, worksheet_name=None, required_headers=[]):
+def excel_reader(stream, worksheet_name=None, required_headers=[],
+                 forbidden_headers=[]):
     """Read an XLSX file (from ``stream``) and yield objects.
 
     Objects? Yes, so you can access the values conveniently.
@@ -58,6 +60,7 @@ def excel_reader(stream, worksheet_name=None, required_headers=[]):
             this_is_the_first_row = False
             headers = [cell.value for cell in row]
             raise_if_missing_required_headers(headers, required_headers)
+            raise_if_forbidden_headers(headers, forbidden_headers)
             vars = get_corresponding_variable_names(headers, required_headers)
             index_of_var = {var: i for i, var in enumerate(vars)}
 

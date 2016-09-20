@@ -40,6 +40,24 @@ class MissingHeaders(Exception):
                 '"{}"'.format(h) for h in self.missing_headers])
 
 
+@nine
+class ForbiddenHeaders(Exception):
+    msg1 = _('The spreadsheet contains the forbidden header: ')
+    msg2 = _('The spreadsheet contains the forbidden headers: ')
+
+    def __init__(self, forbidden_headers):
+        self.forbidden_headers = forbidden_headers
+
+    def __repr__(self):
+        return '<{} {}>'.format(type(self).__name__, self.forbidden_headers)
+
+    def __str__(self):
+        if len(self.forbidden_headers) == 1:
+            return self.msg1 + self.forbidden_headers[0]
+        else:
+            return self.msg2 + ', '.join(['"{}"'.format(h) for h in self.forbidden_headers])
+
+
 def raise_if_missing_required_headers(headers, required_headers=[],
                                       case_sensitive=False):
     """Ensure all ``required_headers`` are present in ``headers``.
@@ -55,6 +73,23 @@ def raise_if_missing_required_headers(headers, required_headers=[],
 
     if missing_headers:
         raise MissingHeaders(missing_headers)
+
+
+def raise_if_forbidden_headers(headers, forbidden_headers=[],
+                               case_sensitive=False):
+    """Ensure all ``forbidden_headers`` are not present in ``headers``.
+
+    Else raise ForbiddenHeaders.
+    """
+    if not case_sensitive:
+        headers = [h.lower() if h else None for h in headers]
+        blocked_headers = [
+            h for h in forbidden_headers if h.lower() in headers]
+    else:
+        blocked_headers = [h for h in forbidden_headers if h in headers]
+
+    if blocked_headers:
+        raise ForbiddenHeaders(blocked_headers)
 
 
 def get_corresponding_variable_names(headers, required_headers,
