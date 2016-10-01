@@ -79,7 +79,7 @@ author = 'Nando Florestan'
 # built documents.
 #
 # import pkg_resources
-# current = pkg_resources.get_distribution('bag').version
+# current = pkg_resources.get_distribution(project).version
 current = get_version_number()
 
 # The short X.Y version:
