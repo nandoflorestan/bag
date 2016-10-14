@@ -5,9 +5,16 @@
 Burla provides powerful URL generation independent of web frameworks.
 
 From this module you can import the variable ``ops`` and then use it to
-register your burla pages and operations.
+register pages and operations with burla.
 
-TODO: Use the registry instead of a global variable
+burla can autogenerate documentation for those registered pages and operations.
+
+Finally, burla can register them as Pyramid views. For this you need to add,
+to the bottom of your Pyramid initialization, this call::
+
+    ops.register_pyramid_views()
+
+TODO: Use the registry instead of a global variable "ops".
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -18,7 +25,9 @@ from pyramid.response import Response
 
 
 class PyramidBurla(Burla):
-    def op(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
+    """Subclass of Burla for integration with Pyramid."""
+
+    def op(self, op_name, section='Miscellaneous', **kw):
         """Decorator to register an API operation.
 
         Decorate your view handlers with this to register an operation
@@ -27,17 +36,14 @@ class PyramidBurla(Burla):
         def wrapper(view_handler):
             self._add_op(
                 op_name,
-                url_templ=url_templ,
                 section=section,
                 fn=view_handler,
-                request_method=kw['request_method'],
-                permission=kw.get('permission'),
-                )
-            self.config.add_view(view=view_handler, **kw)
+                **kw,
+            )
             return view_handler
         return wrapper
 
-    def page(self, op_name, url_templ, fn=None, section='Miscellaneous', **kw):
+    def page(self, op_name, section='Miscellaneous', **kw):
         """Decorator to register a page.
 
         Decorate your view handlers with this to register a page
@@ -45,15 +51,25 @@ class PyramidBurla(Burla):
         """
         def wrapper(view_handler):
             self._add_page(
-                name=op_name,
-                url_templ=url_templ,
+                op_name,
                 section=section,
                 fn=view_handler,
-                permission=kw.get('permission'),
-                )
-            self.config.add_view(view=view_handler, **kw)
+                **kw,
+            )
             return view_handler
         return wrapper
+
+    def register_pyramid_views(self):
+        """Optionally register all those URLs with Pyramid as views, too."""
+        for name, obj in self.map.items():
+            if obj.fn:
+                # print('REGISTER', name, obj.url_templ)
+                self.config.add_view(
+                    view=obj.fn,
+                    permission=obj.permission,
+                    **obj.view_args)
+            # else:
+                # print('IGNORE  ', name, obj.url_templ)
 
 
 ops = PyramidBurla()
@@ -79,8 +95,8 @@ def add_view_for_javascript_file(config, url='/burla'):
             request_method='GET', route_name=NAME, renderer='string')
     def javascript_burla_file(context, request):
         """Javascript file that contains the available pages and HTTP API
-            operations as well as functions to generate corresponding URLs.
-            """
+        operations as well as functions to generate corresponding URLs.
+        """
         request.response.content_type = 'application/javascript'
         global js_content
         if not js_content:
