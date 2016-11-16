@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from bag import asbool
+from bag.settings import asbool
 # http://en.wikipedia.org/wiki/Robots_exclusion_standard
 
 

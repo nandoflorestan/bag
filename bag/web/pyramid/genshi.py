@@ -78,7 +78,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from os import path
 from nine import basestring
-from paste.deploy.converters import asbool
+from bag.settings import asbool
 from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
 from pyramid.resource import abspath_from_resource_spec

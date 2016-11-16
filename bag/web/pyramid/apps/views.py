@@ -10,9 +10,9 @@ from nine import basestring, str
 from pyramid.decorator import reify
 from pyramid.i18n import get_localizer
 from pyramid.renderers import get_renderer
-from pyramid.settings import asbool
 from pyramid.url import route_url
-from ....text import uncommafy
+from bag.settings import asbool
+from bag.text import uncommafy
 
 
 class BaseView(object):

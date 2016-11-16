@@ -30,6 +30,27 @@ def resolve_path(resource_spec):
     return Path(module.__path__[0], var)
 
 
+def asbool(s):
+    """Convert the argument to a boolean.
+
+    Return the boolean value ``True`` if the case-lowered value of string
+    input ``s`` is a :term:`truthy string`. If ``s`` is already one of the
+    boolean values ``True`` or ``False``, return it.
+    """
+    if s is None:
+        return False
+    if isinstance(s, bool):
+        return s
+    val = _boolean_states.get(str(s).strip().lower())
+    if val is None:
+        raise ValueError('Not a boolean: "%s"' % s)
+    return val
+
+
+_boolean_states = {'1': True, 'yes': True, 'true': True, 'on': True,
+                   '0': False, 'no': False, 'false': False, 'off': False}
+
+
 class SettingsReader(object):
     """Convenient for reading configuration settings in an app."""
 
@@ -47,6 +68,11 @@ class SettingsReader(object):
             raise RuntimeError(
                 'Settings are missing a "{}" entry.'.format(key))
         return value
+
+    def bool(self, key, default=None, required=False):
+        """Return a boolean setting value."""
+        value = self.read(key, default=default, required=required)
+        return asbool(value)
 
     def resolve(self, key, default=None, required=False):
         """Return the variable or module indicated in the setting value.
