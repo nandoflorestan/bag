@@ -17,7 +17,7 @@ from sqlalchemy.orm.dynamic import DynamicAttributeImpl
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
-from bag import resolve
+from bag.settings import resolve
 from bag.web.exceptions import Problem
 from nine import basestring
 from ..web import gravatar_image

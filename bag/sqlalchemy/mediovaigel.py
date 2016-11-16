@@ -53,7 +53,7 @@ from pprint import pprint
 # from uuid import uuid4
 from nine import nine, str, basestring, IS_PYTHON2
 
-from bag import resolve
+from bag.settings import resolve
 from .tricks import (
     model_property_names, foreign_key_from_col, foreign_keys_in,
     commit_session_or_transaction)
