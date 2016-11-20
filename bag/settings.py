@@ -4,6 +4,14 @@ from importlib import import_module
 from types import ModuleType
 
 
+def read_ini_files(*config_files, encoding='utf-8'):
+    """Get a settings object (dict-like) by reading some ``config_files``."""
+    from configparser import ConfigParser
+    settings = ConfigParser()
+    settings.read(config_files, encoding=encoding)
+    return settings
+
+
 def resolve(resource_spec):
     """Return the variable referred to in the ``resource_spec`` string.
 
