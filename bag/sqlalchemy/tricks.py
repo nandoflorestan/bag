@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 from decimal import Decimal
 import re
 from datetime import date, datetime
+from warnings import warn
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import (
     MapperExtension, backref as _backref,
@@ -216,14 +217,15 @@ def foreign_keys_in(cls):
 def models_from_ids(sas, cls, ids):
     """Generator that, given a sequence of IDs, yields model instances.
 
-        Performance is poor. TODO SOMEONE IMPROVE THIS PLEASE
-        """
+    Performance is poor. TODO SOMEONE IMPROVE THIS PLEASE
+    """
     for id in ids:
         yield sas.query(cls).get(id)
 
 
 def persistent_attribute_names_of(cls):
     """Return a list of the names of the persistent attributes of ``cls``.
+
     ...except collections.
     """
     # return [x for x in dir(cls) if isinstance(
@@ -324,6 +326,8 @@ class MinimalBase(object):
 
     @classmethod
     def count(cls, session, **filters):
+        warn('MinimalBase.count() will be removed in the next version of bag.',
+             DeprecationWarning)
         return session.query(cls).filter_by(**filters).count()
 
     def update_association(self, sas, cls, field, ids, filters={},
@@ -376,11 +380,12 @@ class MinimalBase(object):
         return new_associations
 
     def clone(self, values=None, pk='id', sas=None):
-        """Returns a clone of this model.
-            Optionally updates some of its ``values``.
-            Optionally adds the clone to the ``sas`` session.
-            The name of the primary key column should be given as ``pk``.
-            """
+        """Return a clone of this model.
+
+        Optionally update some of its ``values``.
+        Optionally add the clone to the ``sas`` session.
+        The name of the primary key column should be given as ``pk``.
+        """
         attrs = persistent_attribute_names_of(self.__class__)
         adict = {}
         for attr in attrs:
