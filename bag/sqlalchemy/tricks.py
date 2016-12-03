@@ -298,12 +298,14 @@ class MinimalBase(object):
 
     @classmethod
     def query(cls, sas, *predicates, what=None, **filters):
-        """Convenient way to start building a query."""
+        """Deprecated method which will be removed in the next version."""
+        warn('MinimalBase.query() will be removed in the next version of bag.',
+             DeprecationWarning)
         return sas.query(what or cls).filter(*predicates).filter_by(**filters)
 
     @classmethod
     def get_or_create(cls, session, **filters):
-        """Retrieve or add object; return a tuple (object, is_new).
+        """Retrieve or add object; return a tuple ``(object, is_new)``.
 
         ``is_new`` is True if the object already exists in the database.
         """
@@ -326,6 +328,7 @@ class MinimalBase(object):
 
     @classmethod
     def count(cls, session, **filters):
+        """Deprecated method which will be removed in the next version."""
         warn('MinimalBase.count() will be removed in the next version of bag.',
              DeprecationWarning)
         return session.query(cls).filter_by(**filters).count()
