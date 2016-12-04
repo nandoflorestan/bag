@@ -403,20 +403,12 @@ class MinimalBase(object):
         return clone
 
 
-class PK(object):
-    """Mixin class that includes a primary key column."""
-    @declared_attr
-    def pk(cls):
-        """We use "pk" instead of "id" because "id" is a python builtin."""
-        return Column(Integer, autoincrement=True, primary_key=True)
-
-
 class ID(object):
     """Mixin class that includes a primary key column "id"."""
 
     @declared_attr
     def id(cls):
-        """So many projects out there are using "id" instead of "pk"..."""
+        """Primary key column for your model."""
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
