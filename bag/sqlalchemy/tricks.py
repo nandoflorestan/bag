@@ -509,3 +509,45 @@ def commit_session_or_transaction(sas):
             transaction.commit()
         else:
             raise
+
+
+class SubtransactionTrick(object):
+    """Encloses your code in a subtransaction. Good for writing tests.
+
+    Usage::
+
+        trick = SubtransactionTrick(my_engine, sessionmaker)
+        # Be sure to use the session provided as the ``sas`` variable:
+        my_session = trick.sas
+        # Finally, call ``close()`` to roll back the changes:
+        trick.close()
+    """
+
+    def __init__(self, engine, sessionmaker):
+        """Constructor.
+
+        - ``engine`` should be a completely configured SQLAlchemy engine.
+        - ``sessionmaker`` should be a session factory that can be bound
+          to a specific connection.
+        """
+        self.connection = engine.connect()
+
+        # begin a non-ORM transaction
+        self.transaction = self.connection.begin()
+        # Base.metadata.bind = connection
+
+        # bind an individual Session to the connection
+        if hasattr(sessionmaker, 'query'):  # scoped session detected
+            sessionmaker.configure(bind=self.connection)
+            self.sas = sessionmaker
+        else:  # not a scoped session
+            self.sas = sessionmaker()(bind=self.connection)
+
+    def close(self):
+        """Roll back everything that happened with the session.
+
+        ...including calls to commit().
+        """
+        self.transaction.rollback()
+        self.sas.close()
+        # self.connection.close()
