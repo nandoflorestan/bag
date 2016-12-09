@@ -2,21 +2,21 @@
 
 """FlashMessage is the natural class to store UI notifications since it knows:
 
-    - the content of a flash message in either plain or rich form(s)
-    - the kind (color) of the message, such as info, danger, success etc.
-    - different ways of rendering the message on the page
-    - whatever else you want (you can add instance variables or subclass it).
+- the content of a flash message in either plain or rich form(s)
+- the kind (color) of the message, such as info, danger, success etc.
+- different ways of rendering the message on the page
+- whatever else you want (you can add instance variables or subclass it).
 
-    This can be used in any web framework. We provide integration for Pyramid
-    in the module :mod:`bag.web.pyramid.flash_msg`.
+This can be used in any web framework. We provide integration for Pyramid
+in the module :mod:`bag.web.pyramid.flash_msg`.
 
-    FlashMessage is able to render itself with Bootstrap styles.
+FlashMessage is able to render itself with Bootstrap styles.
 
-    If you are not using Bootstrap, or if you don't like that I am
-    generating HTML in Python, or if you want some additional content or style,
-    you can still use this class and just render the messages yourself.
-    You can even override the ``bootstrap_alert`` property in a subclass.
-    """
+If you are not using Bootstrap, or if you don't like that I am
+generating HTML in Python, or if you want some additional content or style,
+you can still use this class and just render the messages yourself.
+You can even override the ``bootstrap_alert`` property in a subclass.
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -42,7 +42,7 @@ def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
                   'aria-label="Close"><span aria-hidden="true">×</span>'
                   '</button>' if close else '',
             body=rich or escape(plain),
-            )
+        )
 
 
 @nine
@@ -51,7 +51,8 @@ class FlashMessage(object):
 
     KINDS = {'danger', 'warning', 'info', 'success'}
 
-    def __init__(self, plain=None, rich=None, kind='warning', close=True, allow_duplicate=False):
+    def __init__(self, plain=None, rich=None, kind='warning', close=True,
+                 allow_duplicate=False):
         assert (plain and not rich) or (rich and not plain)
         if kind == 'error':
             kind = 'danger'
@@ -69,9 +70,10 @@ class FlashMessage(object):
         return self.rich or self.plain
 
     def to_dict(self, whitelist=None):
-        """A returns a new dictionary containing all values in this instance,
-            or the subset indicated in the ``whitelist`` argument.
-            """
+        """A returns a new dictionary containing all values in this instance.
+
+        ...or the subset indicated in the ``whitelist`` argument.
+        """
         if whitelist:
             return {k: v for k, v in self.__dict__.items() if k in whitelist}
         else:
