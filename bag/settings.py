@@ -42,7 +42,7 @@ def asbool(s):
     """Convert the argument to a boolean.
 
     Return the boolean value ``True`` if the case-lowered value of string
-    input ``s`` is a :term:`truthy string`. If ``s`` is already one of the
+    input ``s`` is a truthy string. If ``s`` is already one of the
     boolean values ``True`` or ``False``, return it.
     """
     if s is None:
