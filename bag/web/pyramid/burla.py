@@ -34,12 +34,7 @@ class PyramidBurla(Burla):
         with Burla as well as with Pyramid.
         """
         def wrapper(view_handler):
-            self._add_op(
-                op_name,
-                section=section,
-                fn=view_handler,
-                **kw,
-            )
+            self._add_op(op_name, section=section, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
@@ -50,12 +45,7 @@ class PyramidBurla(Burla):
         with Burla as well as with Pyramid.
         """
         def wrapper(view_handler):
-            self._add_page(
-                op_name,
-                section=section,
-                fn=view_handler,
-                **kw,
-            )
+            self._add_page(op_name, section=section, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
