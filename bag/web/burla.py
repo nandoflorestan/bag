@@ -93,7 +93,7 @@ class Page(object):
         if doc:
             alist = []
             for line in doc.split('\n'):
-                alist.append(line[8:] if line.startswith(' ' * 8) else line)
+                alist.append(line[4:] if line.startswith(' ' * 4) else line)
             doc = '\n'.join(alist)
         self.doc = doc  # description of the page or HTTP operation
 
