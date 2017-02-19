@@ -7,8 +7,9 @@ from nine import iteritems
 
 
 def find_subclasses(cls, path):
-    """Finds all subclasses of `cls` in .py files located below `path`
-    (does look in subdirectories).
+    """Find subclasses of `cls` in .py files located below `path`.
+
+    (This does look in subdirectories).
 
     Usage::
 

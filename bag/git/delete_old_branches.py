@@ -32,7 +32,7 @@ obsolete tracking branches (see them with "git branch -a").
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from datetime import date, timedelta
-from nine.decorator import reify
+from bag.reify import reify
 from nine import nine
 from argh import ArghParser, arg  # easy_install argh
 from bag.command import checked_execute  # , CommandError
