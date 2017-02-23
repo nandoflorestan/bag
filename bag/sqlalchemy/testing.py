@@ -50,8 +50,19 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.sql.elements import BindParameter, ColumnElement
 
 
+class FakeNoAutoFlush:
+
+    def __enter__(self, *a):
+        pass
+
+    def __exit__(self, *a):
+        pass
+
+
 class BaseFakeSession(object):
     """Base class for fake SQLAlchemy sessions. Look at the subclasses."""
+
+    no_autoflush = FakeNoAutoFlush()
 
     def __init__(self):
         self.flush_called = 0
@@ -116,9 +127,11 @@ class BaseFakeQuery(object):
 
 
 class FakeSessionByType(BaseFakeSession):
-    """This mock session can be configured to return the results you want
-        based on the model type being queried.
-        """
+    """Mock session that returns query results based on the model type.
+
+    This mock session can be configured to return the results you want
+    based on the model type being queried.
+    """
 
     def __init__(self, *a, query_cls=None, **kw):
         super().__init__(*a, **kw)
