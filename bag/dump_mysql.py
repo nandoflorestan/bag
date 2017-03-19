@@ -25,6 +25,12 @@ The example assumes you are using WordPress; read it carefully::
     destination_path = str(datetime.utcnow())[:19] + '.sql.gz'
     dumper.dump(destination_path)
 
+    # It is also possible to send the backup to an S3 bucket,
+    # but please remember to secure access to the bucket:
+    result = dumper.copy_to_s3(
+        destination_path, aws_id='REDACTED', aws_secret='REDACTED',
+        aws_region='REDACTED', bucket_name='production-db-backups')
+
 Give permission for the above script to be executed::
 
     chmod +x dump_db.py
@@ -50,7 +56,6 @@ Then add a cronjob for it with the command `crontab -e`::
     # The above creates a database backup every 8 hours.
 """
 
-# TODO Send each to S3 bucket
 from subprocess import check_call
 from bag.log import setup_rotating_logger
 from bag.pathlib_complement import Path
@@ -118,3 +123,25 @@ class DumpMySQL:
             user=wp_setting('DB_USER').search(content).group(1),
             password=wp_setting('DB_PASSWORD').search(content).group(1),
             **kw)
+
+    def copy_to_s3(self, path, aws_id, aws_secret, aws_region,
+                   bucket_name, namespace=''):
+        """Send the file ``path`` to an S3 bucket."""
+        self.log.debug('Sending to S3 bucket...')
+        # http://botocore.readthedocs.org/en/latest/
+        from botocore.exceptions import ClientError  # easy_install -UZ boto3
+        from boto3.session import Session  # easy_install -UZ boto3
+        session = Session(
+            aws_access_key_id=aws_id,
+            aws_secret_access_key=aws_secret,
+            region_name=aws_region)
+        s3 = session.resource('s3')
+        bucket = s3.Bucket(bucket_name)
+        if namespace and not namespace.endswith('/'):
+            namespace = namespace + '/'
+
+        with open(path, 'br') as content:
+            result = bucket.put_object(
+                Key=namespace + Path(path).name, Body=content)
+        self.log.info(result)
+        return result
