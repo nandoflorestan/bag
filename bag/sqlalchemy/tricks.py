@@ -79,7 +79,8 @@ def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
 
 
 def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
-           doc=None, ondelete='CASCADE', backref=None, order_by=None):
+           doc=None, ondelete='CASCADE', backref=None, order_by=None,
+           lazy=None):
     """Return a ForeignKey column and a relationship.
 
     Automatically sets the type of the foreign key.
@@ -114,7 +115,7 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
                primary_key=primary_key, doc=doc, ondelete=ondelete),
             relationship(cls, backref=_backref(
                 backref, cascade=cascade, passive_deletes=passive_deletes,
-                order_by=order_by))
+                order_by=order_by, lazy=lazy))
             if backref else relationship(cls))
 
 
