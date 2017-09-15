@@ -80,7 +80,7 @@ def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
 
 def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
            doc=None, ondelete='CASCADE', backref=None, order_by=None,
-           lazy=None):
+           lazy='select'):
     """Return a ForeignKey column and a relationship.
 
     Automatically sets the type of the foreign key.
@@ -98,6 +98,9 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
     ``ondelete`` is "CASCADE" by default, but you can set it to "SET NULL",
     or None which translates to "NO ACTION" (less interesting).
     If provided, ``order_by`` is used on the backref.
+
+    To load the backref greedily, use ``lazy='joined'`` as per
+    http://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
 
     You may also pass an ``attrib`` which is the column name for
     the foreign key.
