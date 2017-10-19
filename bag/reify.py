@@ -11,9 +11,7 @@ class reify(object):
     decorates into the instance dict after the first call, effectively
     replacing the function it decorates with an instance variable.  It is, in
     Python parlance, a non-data descriptor.  The following is an example and
-    its usage:
-
-    .. doctest::
+    its usage::
 
         >>> from bag.reify import reify
 
