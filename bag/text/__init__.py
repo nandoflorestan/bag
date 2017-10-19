@@ -227,6 +227,14 @@ def capitalize(txt):
     return val
 
 
+def to_lower(text):
+    """Colander preparer that converts text to lower case."""
+    if isinstance(text, str):
+        return text.lower()
+    else:  # Handle the null case
+        return text
+
+
 def content_of(paths, encoding='utf-8', sep='\n'):
     """Read, join and return the contents of ``paths``.
 
