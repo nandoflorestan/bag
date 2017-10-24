@@ -66,17 +66,22 @@ def get_json_or_raise(request, expect=None, dict_has=None):
 
 
 def ajax_view(view_function):
-    """Decorator for AJAX views that grabs certain exceptions and turns them
-        into an error JSON response that contains:
+    """Decorate AJAX views to...
 
-        - "error_msg": the string to be displayed to end users
-        - "error_title": the string to be displayed as a header
-        - "validation": a dictionary of validation errors where keys are
-          field names and values are the respective errors
-        - possibly other variables, too
+    - treat certain exceptions
+    - convert the result to a dictionary if necessary.
 
-        The transaction is not committed because we **raise** HTTPError.
-        """
+    This decorator grabs certain exceptions and turns them
+    into an error JSON response that contains:
+
+    - "error_msg": the string to be displayed to end users
+    - "error_title": the string to be displayed as a header
+    - "validation": a dictionary of validation errors where keys are
+      field names and values are the respective errors
+    - possibly other variables, too
+
+    The transaction is not committed because we **raise** HTTPError.
+    """
     @wraps(view_function)
     def wrapper(context, request):
         try:
