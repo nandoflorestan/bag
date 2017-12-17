@@ -337,34 +337,35 @@ class MinimalBase(object):
              DeprecationWarning)
         return session.query(cls).filter_by(**filters).count()
 
-    def update_association(self, sas, cls, field, ids, filters={},
-                           synchronize_session=False):
+    def update_association(
+        self, sas, cls, field, ids, filters={}, synchronize_session=False,
+    ):
         """When you have a many-to-many relationship, there is an association
-            table between 2 main tables. The problem of setting the data in
-            this case is a recurring one and it is solved here.
-            Some associations might be deleted and some might be created.
+        table between 2 main tables. The problem of setting the data in
+        this case is a recurring one and it is solved here.
+        Some associations might be deleted and some might be created.
 
-            Example usage::
+        Example usage::
 
-                user = session.query(User).get(1)
-                # Suppose there's a many-to-many relationship to Address,
-                # named UserAddress.
-                new_associations = user.update_association(
-                    sas,                 # the SQLAlchemy session
-                    cls=UserAddress,      # the association class
-                    field='address_id'     # name of the remote foreign key
-                    ids=[5, 42, 89],        # the IDs of the user's addresses
-                    filters={"user": user},  # to load existing associations
-                    )
-                for item in new_associations:
-                    print(item)
+            user = session.query(User).get(1)
+            # Suppose there's a many-to-many relationship to Address,
+            # named UserAddress.
+            new_associations = user.update_association(
+                sas,                 # the SQLAlchemy session
+                cls=UserAddress,      # the association class
+                field='address_id'     # name of the remote foreign key
+                ids=[5, 42, 89],        # the IDs of the user's addresses
+                filters={"user": user},  # to load existing associations
+                )
+            for item in new_associations:
+                print(item)
 
-            This method returns a list of any new association instances
-            because you might want to finish the job by doing something
-            more with them (e. g. setting other attributes).
+        This method returns a list of any new association instances
+        because you might want to finish the job by doing something
+        more with them (e. g. setting other attributes).
 
-            A new query is needed to retrieve the totality of the associations.
-            """
+        A new query is needed to retrieve the totality of the associations.
+        """
         # Fetch eventually existing association IDs
         existing_ids = frozenset([
             o[0] for o in sas.query(getattr(cls, field)).filter_by(**filters)])
