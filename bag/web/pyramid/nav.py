@@ -1,19 +1,24 @@
-# -*- coding: utf-8 -*-
-"""A simple navigation menu system for web apps. Example::
+"""A simple navigation menu system for web apps.
 
-    from bag.web.pyramid.nav import Item
+The menu structure can be defined in advance, before any http requests come.
+Example::
+
+    from bag.web.pyramid.nav import NavEntry, Route, Static
 
     menu = [
-        Item('Home', route='home'),
-        Item('Support', 'support'),
-        Item('Terms and conditions', static='my_app:static/terms.html'),
-        Item('Account', 'account', children=[
-            Item('Settings', 'settings'),
-            Item('Log out', 'logout'),
-            ]),
-        ]
+        NavEntry('Home', url=Route('home')),
+        NavEntry('Support', url=Route('support')),
+        NavEntry('Terms and conditions',
+                 url=Static('my_app:static/terms.html')),
+        NavEntry('Account', children=[
+            NavEntry('Settings', url=Route('settings')),
+            NavEntry('Log out', url=Route('logout')),
+        ]),
+        NavEntry('What the world is saying about us',
+                 url='https://www.google.com/search?q=about+us')
+    ]
 
-A simple Kajiki template using the Pure CSS framework:
+A Kajiki template using the Pure CSS framework, without submenus:
 
 .. code-block:: html
 
@@ -26,7 +31,7 @@ A simple Kajiki template using the Pure CSS framework:
       </ul>
     </div>
 
-Another example template using Mako and bootstrap:
+Another example template using Mako and Bootstrap 3:
 
 .. code-block:: html
 
@@ -51,37 +56,81 @@ Another example template using Mako and bootstrap:
     </ul>
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from warnings import warn
+
+class Route:
+    """A link that is defined by a Pyramid route name."""
+
+    def __init__(self, route_name):
+        """Instantiate."""
+        self.url = route_name
+
+    def href(self, request):
+        """Return the route_path() of this instance."""
+        return request.route_path(self.url)
 
 
-class Item(object):
-    """Represents a navigation menu item."""
+class Static:
+    """A link that is defined by a Pyramid static URL spec."""
+
+    def __init__(self, static_url):
+        """Instantiate."""
+        self.url = static_url
+
+    def href(self, request):
+        """Return the static_url() of this instance."""
+        return request.static_url(self.url)
+
+
+class NavEntry:
+    """Represents a navigation menu item, possibly with children."""
+
     # This constant can be overridden in subclasses:
     ACTIVE_ITEM_CSS_CLASS = 'active'
 
-    def __init__(self, label, route=None, static=None, children=None):
-        self.label = label
-        self.route = route
-        self.static = static
-        self.children = children
+    def __init__(
+        self, label=None, img=None, icon=None, tooltip=None, url='##',
+        children=None, **kw
+    ):
+        """Instantiate, without depending on a request yet.
 
-    def href(self, request):
-        if self.route:
-            try:
-                return request.route_path(self.route)
-            except KeyError:
-                warn('Menu needs an undefined route: ' + self.route)
-                return '#'
-        if self.static:
-            try:
-                return request.static_url(self.static)
-            except ValueError:
-                warn('Menu needs an undefined static route: ' + self.static)
-                return '#'
-        return '#'
+        The param *url* can be:
+
+        - a ``Route`` instance,
+        - a ``Static`` instance,
+        - or a string to be output directly.
+        """
+        assert label or img, "Need either a label or an img"
+        self.label = label
+        self.img = img  # usually for a logo in the navbar
+        self.icon = icon
+        self.tooltip = tooltip
+        self.url = url
+        self.children = children if children else []
+        self.__dict__.update(kw)
+
+    def href(self, value, request):
+        """Compute the link previously planned in this instance."""
+        if value is None:
+            return None
+        elif isinstance(value, str):
+            return value
+        else:
+            return value.href(request)
 
     def css_class(self, request):
-        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == self.href(
+        """Return "active" if this NavEntry corresponds to the current URL."""
+        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == self.route(
             request) else ''
+
+    def __repr__(self):
+        return '<NavEntry: {}>'.format(self.label or self.img)
+
+    def to_dict(self, request):
+        """Convert this instance into a dict, usually for JSON output."""
+        adict = self.__dict__.copy()
+        adict['url'] = self.href(adict['url'], request)
+        adict['img'] = self.href(adict['img'], request)
+        if self.children:
+            adict['children'] = [
+                child.to_dict(request) for child in self.children]
+        return adict
