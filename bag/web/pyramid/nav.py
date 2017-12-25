@@ -119,8 +119,8 @@ class NavEntry:
 
     def css_class(self, request):
         """Return "active" if this NavEntry corresponds to the current URL."""
-        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == self.route(
-            request) else ''
+        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == self.href(
+            self.url, request).split('#')[0] else ''
 
     def __repr__(self):
         return '<NavEntry: {}>'.format(self.label or self.img)
