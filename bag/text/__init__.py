@@ -235,6 +235,14 @@ def to_lower(text):
         return text
 
 
+def strip_preparer(value):
+    """Colander preparer that trims whitespace around argument *value*."""
+    if isinstance(value, str):
+        return value.strip()
+    else:
+        return value
+
+
 def content_of(paths, encoding='utf-8', sep='\n'):
     """Read, join and return the contents of ``paths``.
 
