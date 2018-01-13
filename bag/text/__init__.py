@@ -214,13 +214,14 @@ def make_title(txt):
 
 
 def capitalize(txt):
-    """Alter only the first character in ``txt`` to make it upper case.
+    """Trim, then turn only the first character into upper case.
 
     This function can be used as a colander preparer.
     """
     if txt in (None, '') or (
             not isinstance(txt, str) and repr(txt) == '<colander.null>'):
         return txt
+    txt = txt.strip()
     val = txt[0].upper()
     if len(txt) > 1:
         val += txt[1:]
