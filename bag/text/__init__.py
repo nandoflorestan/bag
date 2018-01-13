@@ -227,18 +227,18 @@ def capitalize(txt):
     return val
 
 
-def to_lower(text):
-    """Colander preparer that converts text to lower case."""
-    if isinstance(text, str):
-        return text.lower()
-    else:  # Handle the null case
-        return text
-
-
 def strip_preparer(value):
     """Colander preparer that trims whitespace around argument *value*."""
     if isinstance(value, str):
         return value.strip()
+    else:
+        return value
+
+
+def strip_lower_preparer(value):
+    """Colander preparer that trims whitespace and converts to lowercase."""
+    if isinstance(value, str):
+        return value.strip().lower()
     else:
         return value
 
