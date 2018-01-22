@@ -5,9 +5,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from itertools import count
-from pyramid_deform import CSRFSchema
+from deform.schema import CSRFSchema
 from pyramid.decorator import reify
-from pyramid.httpexceptions import HTTPForbidden
 from pyramid.i18n import get_localizer
 from pyramid.threadlocal import get_current_request
 import colander as c
@@ -38,13 +37,13 @@ class BaseDeformView(object):
 
     Subclasses must provide at least:
 
-    * a static *schema*. (This should subclass pyramid_deform's CSRFSchema.)
+    * a static *schema*. (This should subclass deform's CSRFSchema.)
     * one or more view methods that use the methods in this ABC, especially
       *_deform_workflow()* or *_colander_workflow()*.
 
     Example usage::
 
-        from pyramid_deform import CSRFSchema
+        from deform.schema import CSRFSchema
         from bag.web.pyramid.deform_view import BaseDeformView
 
         class InvitationView(BaseDeformView):
@@ -92,7 +91,9 @@ class BaseDeformView(object):
 
     @reify
     def schema_instance(self):
-        """Give subclasses a chance to mutate the schema. Example::
+        """Give subclasses a chance to mutate the schema.
+
+        Example::
 
             @reify
             def schema_instance(self):
@@ -128,26 +129,6 @@ class BaseDeformView(object):
         if ajax_options:
             adict['ajax_options'] = ajax_options
         return adict
-
-    CSRF_ERROR = _(
-        "You do not pass our CSRF protection. "
-        "Maybe your session expired? In any case, you must reload "
-        "that page (and probably fill out the form again). Sorry...")
-
-    def _check_csrf(self, exception):
-        """This is called when there is a validation error. If the schema
-        being validated is an instance of CSRFSchema, check the posted
-        CSRF token, and if there is a problem, raise HTTPForbidden.
-
-        If we didn't do this, the form would be redisplayed with an error
-        message at the top, but the user would have no idea what is going on,
-        because the CSRF token is in a hidden field.
-        """
-        # if issubclass(self.schema, CSRFSchema) and \
-        if isinstance(exception.error.node, CSRFSchema) and \
-            self.request.session.get_csrf_token() != \
-                (exception.cstruct or self.request.POST).get('csrf_token'):
-            raise HTTPForbidden(translator(self.CSRF_ERROR))
 
     def _template_dict(self, form=None, controls=None, **k):
         """Override this method to fill in the dictionary that is returned
@@ -213,10 +194,8 @@ class BaseDeformView(object):
 
     def _invalid(self, exception, controls):
         """Override this to change what happens upon ValidationFailure.
-        By default, we raise if there is a CSRF problem, so the user will
-        know what's up. Otherwise, we simply redisplay the form.
+        By default we simply redisplay the form.
         """
-        self._check_csrf(exception)
         return self._template_dict(form=exception)
 
     def _valid(self, form, controls):
@@ -236,13 +215,8 @@ class BaseDeformView(object):
         try:
             appstruct = self._get_schema().deserialize(controls)
         except c.Invalid as e:
-            try:
-                self._check_csrf(controls)
-            except HTTPForbidden as e:
-                return dict(errors={'': e.args[0]})
-            else:
-                return dict(errors=e.asdict2() if hasattr(e, 'asdict2')
-                            else e.asdict())
+            return dict(errors=e.asdict2() if hasattr(e, 'asdict2')
+                        else e.asdict())
         else:
             # appstruct.pop('csrf_token', None)  # Discard the CSRF token
             return appstruct

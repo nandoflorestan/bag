@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Make Pyramid 1.7+ play ball with AngularJS to achieve CSRF protection.
 
 To use this module, include it in your application configuration::
@@ -8,7 +6,7 @@ To use this module, include it in your application configuration::
     config.include('bag.web.pyramid.angular_csrf')
 
 For any GET requests, this causes the response to have a
-cookie containing the CSRF token, just as Angular 1.3.x wants it.
+cookie containing the CSRF token, just as Angular 1.x wants it.
 
 In subsequent AJAX requests (with verbs different than GET),
 Angular will send the token back in a header 'X-XSRF-Token'.
@@ -22,13 +20,7 @@ Relevant Pyramid documentation is at
 http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html#checking-csrf-tokens-automatically
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from functools import wraps
 from pyramid.events import NewResponse
-from pyramid.exceptions import BadCSRFToken
-from pyramid.httpexceptions import HTTPForbidden
-from . import _
 
 COOKIE_NAME = 'XSRF-TOKEN'
 HEADER_NAME = 'X-XSRF-Token'  # different from Pyramid's default 'X-CSRF-Token'
@@ -43,6 +35,7 @@ def on_GET_request_setup_csrf_cookie(ev):
     """
     if ev.request.method == 'GET':  # and not 'static' in ev.request.path:
         token = ev.request.session.get_csrf_token()
+        # print(ev.request.session.session_id, token)
         if ev.request.cookies.get('XSRF-TOKEN') != token:
             ev.response.set_cookie(COOKIE_NAME, token, overwrite=True)
 
