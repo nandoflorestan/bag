@@ -101,12 +101,15 @@ else:
 
 
 class ValidationException(ValueError):
-    pass
+    """Raised when a domain or email is invalid."""
 
 
 class BaseValidator(object):
+
     def validate_or_raise(self, *a, **k):
-        """Some people would condemn this whole module screaming:
+        """Raise ValidationException if validation fails.
+
+        Some people would condemn this whole module screaming:
         "Don't return success codes, use exceptions!"
         This method allows them to be happy, too.
         """

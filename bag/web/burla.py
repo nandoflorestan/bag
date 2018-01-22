@@ -53,6 +53,7 @@ other frameworks.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from collections import OrderedDict
 from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from json import dumps
 from re import compile
@@ -77,27 +78,29 @@ class Page(object):
         /cities/:city/streets/:street
     """
 
-    def __init__(self, name, url_templ, fn=None, permission=None, section='Miscellaneous', **kw):
-        assert isinstance(name, basestring)
-        assert name
+    def __init__(self, op_name, url_templ, fn=None, permission=None,
+                 section='Miscellaneous', **view_args):
+        assert isinstance(op_name, basestring)
+        assert op_name
         assert isinstance(url_templ, basestring)
         assert url_templ
-        self.name = name
+        self.name = op_name
         self.url_templ = url_templ
+        self.fn = fn
 
         # In Python source the doc will contain extra indentation
         doc = fn.__doc__ if fn else None
         if doc:
             alist = []
             for line in doc.split('\n'):
-                alist.append(line[8:] if line.startswith(' ' * 8) else line)
+                alist.append(line[4:] if line.startswith(' ' * 4) else line)
             doc = '\n'.join(alist)
         self.doc = doc  # description of the page or HTTP operation
 
         self.permission = permission
         self.section = section  # of the documentation
-        for k, v in kw.items():
-            setattr(self, k, v)
+        self.view_args = view_args
+
         self._discover_params_in_url_templ()
 
     def _discover_params_in_url_templ(self):
@@ -122,26 +125,22 @@ class Page(object):
         return astr
 
     def to_dict(self):
+        """Convert this instance into a dictionary, maybe for JSON output."""
         return {
             'url_templ': self.url_templ,
-            'permission': getattr(self, 'permission', None),
-            }
+            'permission': self.permission,
+        }
 
     is_page = True
     is_operation = not is_page
 
 
 class Operation(Page):
-    """Subclass of Page with a ``request_method`` (the HTTP verb)."""
-
-    def __init__(self, name, url_templ, request_method='GET', **kw):
-        assert isinstance(request_method, basestring)
-        super(Operation, self).__init__(name, url_templ, **kw)
-        self.request_method = request_method
+    """Subclass of Page representing an HTTP operation."""
 
     def to_dict(self):
         adict = super(Operation, self).to_dict()
-        adict['request_method'] = self.request_method
+        adict['request_method'] = self.view_args.get('request_method')
         return adict
 
     is_page = False
@@ -149,25 +148,26 @@ class Operation(Page):
 
 
 class Burla(object):
-    """Collection of pages and operations. Easily turned into a dict for
-    JSON output.
+    """Collection of pages and operations. Easily output as JSON.
 
     Generates URLs and provides JS code to generate URLs in the client.
     """
 
     def __init__(self, root='', page_class=Page, op_class=Operation):
-        self.map = {}
+        self.map = OrderedDict()
         self.root = root
         self._page_class = page_class
         self._op_class = op_class
 
-    def _add_page(self, name, **kw):
-        assert name not in self.map, 'Already registered: {}'.format(name)
-        self.map[name] = self._page_class(name, **kw)
+    def _add_page(self, op_name, **kw):
+        assert op_name not in self.map, 'Already registered: {}'.format(
+            op_name)
+        self.map[op_name] = self._page_class(op_name, **kw)
 
-    def _add_op(self, name, **kw):
-        assert name not in self.map, 'Already registered: {}'.format(name)
-        self.map[name] = self._op_class(name, **kw)
+    def _add_op(self, op_name, **kw):
+        assert op_name not in self.map, 'Already registered: {}'.format(
+            op_name)
+        self.map[op_name] = self._op_class(op_name, **kw)
 
     def url(self, name, **kw):
         """Return only the generated URL."""
@@ -178,18 +178,18 @@ class Burla(object):
     #     op = self.map[name]
     #     return {'url': op.url(**kw), 'request_method': op.request_method}
 
-    def add_op(self, name, **kw):
+    def add_op(self, op_name, **kw):
         """Decorator for view handlers that registers an operation with Burla.
-            """
+        """
         def wrapper(view_handler):
-            self._add_op(name, fn=view_handler, **kw)
+            self._add_op(op_name, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
-    def add_page(self, name, **kw):
+    def add_page(self, op_name, **kw):
         """Decorator for view handlers that registers a page with Burla."""
         def wrapper(view_handler):
-            self._add_page(name, fn=view_handler, **kw)
+            self._add_page(op_name, fn=view_handler, **kw)
             return view_handler
         return wrapper
 
@@ -251,8 +251,9 @@ class Burla(object):
                     yield ''
                 if op.url_templ:
                     yield '::\n'
-                    if op.request_method:
-                        url_line = op.request_method + ' ' + op.url_templ
+                    method = op.view_args.get('request_method')
+                    if method:
+                        url_line = method + ' ' + op.url_templ
                     else:
                         url_line = op.url_templ
                     yield '    ' + url_line

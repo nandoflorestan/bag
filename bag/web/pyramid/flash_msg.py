@@ -113,7 +113,7 @@ def make_templates_able_to_render_flash_msgs(config):
     config.bag_flash_msg_included = True
 
     from pyramid.events import BeforeRender
-    from pyramid.settings import asbool
+    from bag.settings import asbool
     use_queues = config.registry.settings.get('bag.flash.use_queues', False)
     fn = render_flash_messages_from_queues if asbool(use_queues) \
         else render_flash_messages

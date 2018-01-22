@@ -97,6 +97,7 @@ class Path(type(pathlib.Path())):
             raise RuntimeError(
                 '"{}" is not a file or directory!'.format(self.src))
 
+
 del pathlib
 
 

@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 from decimal import Decimal
 import re
 from datetime import date, datetime
+from warnings import warn
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import (
     MapperExtension, backref as _backref,
@@ -17,7 +18,7 @@ from sqlalchemy.orm.dynamic import DynamicAttributeImpl
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
-from bag import resolve
+from bag.settings import resolve
 from bag.web.exceptions import Problem
 from nine import basestring
 from ..web import gravatar_image
@@ -78,7 +79,8 @@ def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
 
 
 def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
-           doc=None, ondelete='CASCADE', backref=None, order_by=None):
+           doc=None, ondelete='CASCADE', backref=None, order_by=None,
+           lazy='select'):
     """Return a ForeignKey column and a relationship.
 
     Automatically sets the type of the foreign key.
@@ -97,6 +99,9 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
     or None which translates to "NO ACTION" (less interesting).
     If provided, ``order_by`` is used on the backref.
 
+    To load the backref greedily, use ``lazy='joined'`` as per
+    http://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
+
     You may also pass an ``attrib`` which is the column name for
     the foreign key.
     """
@@ -113,7 +118,7 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
                primary_key=primary_key, doc=doc, ondelete=ondelete),
             relationship(cls, backref=_backref(
                 backref, cascade=cascade, passive_deletes=passive_deletes,
-                order_by=order_by))
+                order_by=order_by, lazy=lazy))
             if backref else relationship(cls))
 
 
@@ -216,14 +221,15 @@ def foreign_keys_in(cls):
 def models_from_ids(sas, cls, ids):
     """Generator that, given a sequence of IDs, yields model instances.
 
-        Performance is poor. TODO SOMEONE IMPROVE THIS PLEASE
-        """
+    Performance is poor. TODO SOMEONE IMPROVE THIS PLEASE
+    """
     for id in ids:
         yield sas.query(cls).get(id)
 
 
 def persistent_attribute_names_of(cls):
     """Return a list of the names of the persistent attributes of ``cls``.
+
     ...except collections.
     """
     # return [x for x in dir(cls) if isinstance(
@@ -296,12 +302,14 @@ class MinimalBase(object):
 
     @classmethod
     def query(cls, sas, *predicates, what=None, **filters):
-        """Convenient way to start building a query."""
+        """Deprecated method which will be removed in the next version."""
+        warn('MinimalBase.query() will be removed in the next version of bag.',
+             DeprecationWarning)
         return sas.query(what or cls).filter(*predicates).filter_by(**filters)
 
     @classmethod
     def get_or_create(cls, session, **filters):
-        """Retrieve or add object; return a tuple (object, is_new).
+        """Retrieve or add object; return a tuple ``(object, is_new)``.
 
         ``is_new`` is True if the object already exists in the database.
         """
@@ -324,36 +332,40 @@ class MinimalBase(object):
 
     @classmethod
     def count(cls, session, **filters):
+        """Deprecated method which will be removed in the next version."""
+        warn('MinimalBase.count() will be removed in the next version of bag.',
+             DeprecationWarning)
         return session.query(cls).filter_by(**filters).count()
 
-    def update_association(self, sas, cls, field, ids, filters={},
-                           synchronize_session=False):
+    def update_association(
+        self, sas, cls, field, ids, filters={}, synchronize_session=False,
+    ):
         """When you have a many-to-many relationship, there is an association
-            table between 2 main tables. The problem of setting the data in
-            this case is a recurring one and it is solved here.
-            Some associations might be deleted and some might be created.
+        table between 2 main tables. The problem of setting the data in
+        this case is a recurring one and it is solved here.
+        Some associations might be deleted and some might be created.
 
-            Example usage::
+        Example usage::
 
-                user = session.query(User).get(1)
-                # Suppose there's a many-to-many relationship to Address,
-                # named UserAddress.
-                new_associations = user.update_association(
-                    sas,                 # the SQLAlchemy session
-                    cls=UserAddress,      # the association class
-                    field='address_id'     # name of the remote foreign key
-                    ids=[5, 42, 89],        # the IDs of the user's addresses
-                    filters={"user": user},  # to load existing associations
-                    )
-                for item in new_associations:
-                    print(item)
+            user = session.query(User).get(1)
+            # Suppose there's a many-to-many relationship to Address,
+            # named UserAddress.
+            new_associations = user.update_association(
+                sas,                 # the SQLAlchemy session
+                cls=UserAddress,      # the association class
+                field='address_id'     # name of the remote foreign key
+                ids=[5, 42, 89],        # the IDs of the user's addresses
+                filters={"user": user},  # to load existing associations
+                )
+            for item in new_associations:
+                print(item)
 
-            This method returns a list of any new association instances
-            because you might want to finish the job by doing something
-            more with them (e. g. setting other attributes).
+        This method returns a list of any new association instances
+        because you might want to finish the job by doing something
+        more with them (e. g. setting other attributes).
 
-            A new query is needed to retrieve the totality of the associations.
-            """
+        A new query is needed to retrieve the totality of the associations.
+        """
         # Fetch eventually existing association IDs
         existing_ids = frozenset([
             o[0] for o in sas.query(getattr(cls, field)).filter_by(**filters)])
@@ -376,11 +388,12 @@ class MinimalBase(object):
         return new_associations
 
     def clone(self, values=None, pk='id', sas=None):
-        """Returns a clone of this model.
-            Optionally updates some of its ``values``.
-            Optionally adds the clone to the ``sas`` session.
-            The name of the primary key column should be given as ``pk``.
-            """
+        """Return a clone of this model.
+
+        Optionally update some of its ``values``.
+        Optionally add the clone to the ``sas`` session.
+        The name of the primary key column should be given as ``pk``.
+        """
         attrs = persistent_attribute_names_of(self.__class__)
         adict = {}
         for attr in attrs:
@@ -395,20 +408,12 @@ class MinimalBase(object):
         return clone
 
 
-class PK(object):
-    """Mixin class that includes a primary key column."""
-    @declared_attr
-    def pk(cls):
-        """We use "pk" instead of "id" because "id" is a python builtin."""
-        return Column(Integer, autoincrement=True, primary_key=True)
-
-
 class ID(object):
     """Mixin class that includes a primary key column "id"."""
 
     @declared_attr
     def id(cls):
-        """So many projects out there are using "id" instead of "pk"..."""
+        """Primary key column for your model."""
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
@@ -509,3 +514,45 @@ def commit_session_or_transaction(sas):
             transaction.commit()
         else:
             raise
+
+
+class SubtransactionTrick(object):
+    """Encloses your code in a subtransaction. Good for writing tests.
+
+    Usage::
+
+        trick = SubtransactionTrick(my_engine, sessionmaker)
+        # Be sure to use the session provided as the ``sas`` variable:
+        my_session = trick.sas
+        # Finally, call ``close()`` to roll back the changes:
+        trick.close()
+    """
+
+    def __init__(self, engine, sessionmaker):
+        """Constructor.
+
+        - ``engine`` should be a completely configured SQLAlchemy engine.
+        - ``sessionmaker`` should be a session factory that can be bound
+          to a specific connection.
+        """
+        self.connection = engine.connect()
+
+        # begin a non-ORM transaction
+        self.transaction = self.connection.begin()
+        # Base.metadata.bind = connection
+
+        # bind an individual Session to the connection
+        if hasattr(sessionmaker, 'query'):  # scoped session detected
+            sessionmaker.configure(bind=self.connection)
+            self.sas = sessionmaker
+        else:  # not a scoped session
+            self.sas = sessionmaker()(bind=self.connection)
+
+    def close(self):
+        """Roll back everything that happened with the session.
+
+        ...including calls to commit().
+        """
+        self.transaction.rollback()
+        self.sas.close()
+        # self.connection.close()

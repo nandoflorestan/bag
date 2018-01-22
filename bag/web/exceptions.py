@@ -7,23 +7,25 @@ from nine import nine
 
 @nine
 class Problem(Exception):
-    """Service (or "action") layers should be independent of web frameworks;
-        however, often I feel I want the service layer to determine the
-        HTTP code returned by a web service, instead of the controller layer.
-        So I raise this exception in the service layer and capture it in the
-        controller layer.
+    """Great exception class for application-level errors.
 
-        Very useful when coupled with the
-        `ajax_view decorator <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/views.py>`_, which does the capture part.
+    Service (or "action") layers should be independent of web frameworks;
+    however, often I feel I want the service layer to determine the
+    HTTP code returned by a web service, instead of the controller layer.
+    So I raise this exception in the service layer and capture it in the
+    controller layer.
 
-        When developing a user interface of any kind, it is great when all the
-        webservices respect a standardized interface for returning errors.
-        This class outputs these fields by convention:
+    Very useful when coupled with the
+    `ajax_view decorator <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/views.py>`_, which does the capture part.
 
-        - error_msg: the string to be displayed to the end user
-        - error_title: by default the HTTP error title
-        - error_debug: should NOT be shown to end users; for devs only
-        """
+    When developing a user interface of any kind, it is great when all the
+    webservices respect a standardized interface for returning errors.
+    This class outputs these fields by convention:
+
+    - error_msg: the string to be displayed to the end user
+    - error_title: by default the HTTP error title
+    - error_debug: should NOT be shown to end users; for devs only
+    """
 
     HTTP = {  # http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
         # TODO Complete this map with the remaining 4xx and 5xx
@@ -38,9 +40,10 @@ class Problem(Exception):
         422: 'Unprocessable entity',
         # 5xx Server error
         500: 'Internal server error',
-        }
+    }
 
-    def __init__(self, error_msg, status_int=400, error_title=None, error_debug=None, **kw):
+    def __init__(self, error_msg, status_int=400, error_title=None,
+                 error_debug=None, **kw):
         self.status_int = int(status_int)
         assert str(self.status_int)[0] in ('4', '5')
 
@@ -78,13 +81,14 @@ def ensure(condition, *a, **kw):
 
 
 class Unprocessable(Exception):
-    """Exception that mimics Colander's Invalid, because both have an
-        ``asdict()`` method. However, this one can be instantiated
-        without a schema. Example usage::
+    """Exception that mimics Colander's Invalid.
 
-            if not data.get('user_email'):
-                raise Unprocessable(user_email='This field is required.')
-        """
+    ...because both have an ``asdict()`` method. However, this one can be
+    instantiated without a schema. Example usage::
+
+        if not data.get('user_email'):
+            raise Unprocessable(user_email='This field is required.')
+    """
 
     def __init__(self, **adict):
         self.adict = adict

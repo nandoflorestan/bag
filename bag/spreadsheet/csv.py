@@ -145,10 +145,15 @@ def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
 
 def pyramid_download_csv(response, file_title, rows, encoding='utf8', **k):
     response.headers["Content-Type"] = "text/csv"
-    response.headers["Content-Disposition"] = \
-        "attachment;filename={}.{}.csv".format(file_title, encoding)
+    response.headers["Content-Disposition"] = content_disposition_value(
+        '{}.{}.csv'.format(file_title, encoding))
     response.app_iter = buffered_csv_writing(rows, encoding=encoding, **k)
     return response
+
+
+def content_disposition_value(file_name):
+    """Return the value of a Content-Disposition HTTP header."""
+    return 'attachment;filename="{}"'.format(file_name.replace('"', '_'))
 
 
 """
