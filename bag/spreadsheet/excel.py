@@ -18,8 +18,9 @@ from . import (
     raise_if_forbidden_headers)
 
 
-def excel_reader(stream, worksheet_name=None, required_headers=[],
-                 forbidden_headers=[]):
+def excel_reader(
+    stream, worksheet_name=None, required_headers=[], forbidden_headers=[],
+):
     """Read an XLSX file (from ``stream``) and yield objects.
 
     Objects? Yes, so you can access the values conveniently.
@@ -59,15 +60,18 @@ def excel_reader(stream, worksheet_name=None, required_headers=[],
         if this_is_the_first_row:  # Read and validate the headers
             this_is_the_first_row = False
             headers = [cell.value for cell in row]
+            headers = [h.strip() if isinstance(h, str) else h for h in headers]
             raise_if_missing_required_headers(headers, required_headers)
             raise_if_forbidden_headers(headers, forbidden_headers)
             vars = get_corresponding_variable_names(headers, required_headers)
             index_of_var = {var: i for i, var in enumerate(vars)}
 
             class SpreadsheetRow(object):
-                """View on a spreadsheet row so you can access data as if
-                    they were instance variables.
-                    """
+                """A view on a spreadsheet row.
+
+                You can access data as if they were instance variables.
+                """
+
                 __slots__ = ('__cells',)
 
                 def __init__(self, cells):

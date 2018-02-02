@@ -54,7 +54,7 @@ def setup_reader(stream, required_headers=[], forbidden_headers=[], **k):
     def readline():
         return c.__next__()
 
-    headers = readline()
+    headers = [h.strip() if isinstance(h, str) else h for h in readline()]
     raise_if_missing_required_headers(headers, required_headers)
     raise_if_forbidden_headers(headers, forbidden_headers)
     vars = get_corresponding_variable_names(headers, required_headers)
@@ -69,11 +69,13 @@ def setup_reader(stream, required_headers=[], forbidden_headers=[], **k):
     return c, readline, vars, CsvRow
 
 
-def csv_with_headers_reader(stream, required_headers=[], forbidden_headers=[],
-                            **k):
-    """Return an iterator over a CSV reader that uses *stream* with the
-    options passed as keyword arguments. The iterator yields objects so you
-    can access the values conveniently.
+def csv_with_headers_reader(
+    stream, required_headers=[], forbidden_headers=[], **k
+):
+    """Return an iterator over a CSV reader.
+
+    It uses *stream* with the options passed as keyword arguments.
+    The iterator yields objects so you can access the values conveniently.
 
     In addition, you may pass a sequence of *required_headers*, and if they
     aren't all present, KeyError is raised.
