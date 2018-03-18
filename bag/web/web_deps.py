@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
+"""Load only the CSS and the scripts your page really needs.
 
-"""
 The problem: script and CSS linking in composite pages
 ======================================================
 
@@ -235,10 +234,6 @@ This module, "web_deps", is superior to my previous attempt, called
 * It has more comprehensive unit tests.
 """
 
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import basestring, iteritems, itervalues, nine
 from ..memoize import memoize
 from ..text import uncommafy
 
@@ -259,8 +254,7 @@ def uniquefy(seq, id_fun=lambda x: x):
     return result
 
 
-@nine
-class Dependency(object):
+class Dependency:
     """Represents a dependency.
 
     You can store whatever attributes you like by providing keyword
@@ -268,11 +262,11 @@ class Dependency(object):
     """
 
     def __init__(self, handle, deps='', **kw):
-        assert isinstance(handle, basestring)
+        assert isinstance(handle, str)
         self.handle = handle
         self.dep_handles = list(uncommafy(deps))
         self.deps = None  # This is only computed on close()
-        for k, v in iteritems(kw):
+        for k, v in kw.items():
             setattr(self, k, v)
 
     def __repr__(self):
@@ -293,6 +287,7 @@ class Dependency(object):
 
 
 class DepsRegistry(object):
+
     def __init__(self):
         self.items = {}
 
@@ -305,7 +300,7 @@ class DepsRegistry(object):
 
     def close(self):
         # Find every actual dependency object from declared handle strings
-        for item in itervalues(self.items):
+        for item in self.items.values():
             item.deps = \
                 uniquefy([self.items[d] for d in item.dep_handles])
                 # , id_fun=lambda d: d.handle)
@@ -330,7 +325,7 @@ class DepsRegistry(object):
         This method can only be called after close().
         """
         flat = []
-        if isinstance(items, basestring):
+        if isinstance(items, str):
             items = (self.items[h] for h in uncommafy(items))
         for item in items:
             flat.extend(item.recursive_deps())
@@ -355,6 +350,7 @@ class CallableRegistry(DepsRegistry):
 
 
 class WebDepsRegistry(CallableRegistry):
+
     def __init__(self, url_provider, tag_format):
         super(WebDepsRegistry, self).__init__()
         self.url_provider = url_provider
@@ -420,6 +416,7 @@ class WebDeps(object):
 
 
 class PageDepsComponent(object):
+
     def __init__(self, registry):
         self._items = []
         self.registry = registry
@@ -448,6 +445,7 @@ class PageDepsComponent(object):
 
 
 class ScriptComponent(list):
+
     def __call__(self, script):  # Included just to keep a common API
         if not script in self:
             self.append(script)
@@ -482,7 +480,6 @@ class PackageComponent(object):
     Later - in a request - you can require all the package elements at once::
 
         deps.package('deform')
-
     """
 
     def __init__(self, packages, deps):
@@ -490,8 +487,8 @@ class PackageComponent(object):
         self._deps = deps
 
     def __call__(self, handles):
-        """Adds one or more package requirements to this page or request."""
-        if isinstance(handles, basestring):
+        """Add one or more package requirements to this page or request."""
+        if isinstance(handles, str):
             handles = uncommafy(handles)
         for handle in handles:
             package = self._packages.items[handle]
@@ -505,10 +502,10 @@ class PackageComponent(object):
                 self._deps.script(package.script)
 
 
-@nine
-class PageDeps(object):
-    """Represents the dependencies of a page;
-    an instance must be used on each request.
+class PageDeps:
+    """Represents the dependencies of a page.
+
+    An instance must be used on each request.
     Makes it easy to declare dependencies and provides the HTML tag soup.
     """
 
@@ -590,7 +587,8 @@ $(function() {
     )
 
     def is_ie(self, request):
-        """Returns True if the browser is Internet Explorer.
+        """Return True if the browser is Internet Explorer.
+
         Written for the Pyramid web framework. If you are using another
         framework, you can override this method.
         """

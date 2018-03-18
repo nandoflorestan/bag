@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
-"""Functions that use streams (open files)"""
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Functions that use streams (open files)."""
 
 
 def get_file_size(stream):
+    """Given a seekable file, return its size."""
     assert stream.seekable(), 'Streams of type {} are not seekable'.format(
         type(stream))
     stream.seek(0, 2)  # Seek to the end of the stream

@@ -1,26 +1,23 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""Generate funny test data by combining adjectives and nouns.
 
-"""A list of nouns, a list of adjectives, and a function that returns a
-    random combination.
+A list of nouns, a list of adjectives, and a function that returns a
+random combination.
 
-    Please be aware that importing this module consumes 1-2 MB RAM.
-    """
+Please be aware that importing this module consumes 1-2 MB RAM.
+"""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from random import choice
+from typing import List
 
 
-def random_locution(adjectives=1, nouns=1, return_list=False):
-    """Return random text containing adjective(s) and noun(s)."""
+def random_locution(adjectives: int=1, nouns: int=1) -> List:
+    """Return a random combination of adjective(s) and noun(s)."""
     alist = []
     for index in range(adjectives):
         alist.append(choice(ADJECTIVES))
     for index in range(nouns):
         alist.append(choice(NOUNS))
-    return alist if return_list else ' '.join(alist)
+    return alist
 
 
 NOUNS = [

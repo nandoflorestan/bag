@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Functions that help define SQLAlchemy models."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from decimal import Decimal
 import re
 from datetime import date, datetime
@@ -20,7 +16,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
 from bag.settings import resolve
 from bag.web.exceptions import Problem
-from nine import basestring
 from ..web import gravatar_image
 
 # http://docs.sqlalchemy.org/en/latest/orm/cascades.html
@@ -267,7 +262,7 @@ class MinimalBase(object):
             elif for_json and isinstance(obj, Decimal):
                 props[key] = float(str(obj))
             elif for_json and not isinstance(obj, (
-                    basestring, int, float, list, dict, bool, type(None))):
+                    str, int, float, list, dict, bool, type(None))):
                 continue
             else:
                 props[key] = obj
@@ -301,13 +296,6 @@ class MinimalBase(object):
         return self
 
     @classmethod
-    def query(cls, sas, *predicates, what=None, **filters):
-        """Deprecated method which will be removed in the next version."""
-        warn('MinimalBase.query() will be removed in the next version of bag.',
-             DeprecationWarning)
-        return sas.query(what or cls).filter(*predicates).filter_by(**filters)
-
-    @classmethod
     def get_or_create(cls, session, **filters):
         """Retrieve or add object; return a tuple ``(object, is_new)``.
 
@@ -329,13 +317,6 @@ class MinimalBase(object):
         for k, v in values.items():
             setattr(instance, k, v)
         return instance, is_new
-
-    @classmethod
-    def count(cls, session, **filters):
-        """Deprecated method which will be removed in the next version."""
-        warn('MinimalBase.count() will be removed in the next version of bag.',
-             DeprecationWarning)
-        return session.query(cls).filter_by(**filters).count()
 
     def update_association(
         self, sas, cls, field, ids, filters={}, synchronize_session=False,
@@ -491,7 +472,7 @@ class EmailParts(object):
         return self.email_local + '@' + self.email_domain
 
     @email.setter
-    def email(self, val):
+    def set_email(self, val):
         self.email_local, self.email_domain = val.split('@')
         if not self.email_local:
             raise Problem('Missing the local part of the email address.')

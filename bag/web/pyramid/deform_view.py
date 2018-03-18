@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-
 """Abstract base classes for creating deform views in Pyramid."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from itertools import count
-from deform.schema import CSRFSchema
 from pyramid.decorator import reify
 from pyramid.i18n import get_localizer
 from pyramid.threadlocal import get_current_request
@@ -32,6 +27,7 @@ def button(title=_('Submit'), name=None, icon=None):
 
 class BaseDeformView(object):
     """An abstract base class (ABC) for Pyramid views that use deform.
+
     The workflow is divided into several methods so you can change details
     easily in subclasses.
 
@@ -68,6 +64,7 @@ class BaseDeformView(object):
 
         def _preprocess_controls(self, controls):
     """
+
     button_text = _("Submit")
     button_icon = None
     formid = 'form'
@@ -76,15 +73,17 @@ class BaseDeformView(object):
     use_ajax = False
 
     def __init__(self, context, request):
-        """Sets ``status`` to the request method. Later, ``status``
-        becomes 'valid' or 'invalid'.
+        """Set ``status`` to the request method.
+
+        Later, ``status`` becomes 'valid' or 'invalid'.
         """
         self.context = context
         self.request = request
         self.status = request.method
 
     def _get_buttons(self):
-        """Returns the buttons tuple for instantiating the form.
+        """Return the buttons tuple for instantiating the form.
+
         If this doesn't do what you want, override this method!
         """
         return [button(self.button_text, icon=self.button_icon)]
@@ -177,8 +176,9 @@ class BaseDeformView(object):
         return self._template_dict(form=form, controls=self._load_controls())
 
     def _post(self, form, controls=None):
-        """You may override this method in subclasses to do something special
-        when the request method is POST.
+        """You may override this method in subclasses to do something special.
+
+        ...when the request method is POST.
         """
         controls = peppercorn.parse(controls or self.request.POST.items())
         controls = self._preprocess_controls(controls)
@@ -194,6 +194,7 @@ class BaseDeformView(object):
 
     def _invalid(self, exception, controls):
         """Override this to change what happens upon ValidationFailure.
+
         By default we simply redisplay the form.
         """
         return self._template_dict(form=exception)

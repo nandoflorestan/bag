@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
-"""Transecma is a Python solution for javascript internationalization,
-written in 2012 by Nando Florestan.
+"""Transecma is a Python solution for javascript internationalization.
+
+It was written in 2012 by Nando Florestan.
 
 Babel already has a javascript extractor (a function that goes through
 javascript code finding translation strings and writing them to a
@@ -104,8 +104,6 @@ its functions, especially interpol().
 """
 
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import os
 import re
 
@@ -123,7 +121,7 @@ def exists(path):
 
 
 def extract_jquery_templates(fileobj, keywords, comment_tags, options):
-    """Extracts translation messages from query template files.
+    """Extract translation messages from query template files.
 
     This is a plugin to Babel, written according to
      http://babel.edgewall.org/wiki/Documentation/0.9/messages.html#writing-extraction-methods

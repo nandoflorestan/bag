@@ -1,15 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""Tests for the module email_validator.py."""
 
-"""Tests the module email_validator.py"""
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import unittest
 from bag.email_validator import DomainValidator, EmailValidator
 
 
 class TestEmailValidator(unittest.TestCase):
+
     def test_domain_validator(self):
         d = DomainValidator()
         domain, err = d.validate('acentuação.com')
@@ -60,8 +56,7 @@ class TestEmailValidator(unittest.TestCase):
 if __name__ == '__main__':  # Interactive test
     v = EmailValidator(lookup_dns='a')
     while True:
-        email = \
-            raw_input('Type an email or CTRL-C to quit: ').decode('utf8')
+        email = input('Type an email or CTRL-C to quit: ')
         email, err = v.validate(email)
         if err:
             print('Error: ' + err)

@@ -27,6 +27,8 @@ alert(tests.join('\n'));
 
 */
 
+"use strict";
+
 String.prototype.interpol = function () {
     // String interpolation for format strings like "Item [0] of [1]".
     // May receive strings or numbers as arguments.
@@ -39,21 +41,21 @@ String.prototype.interpol = function () {
             return args[arguments[1]];
         });
     } catch (e) {
-        if (window.console) console.log(['Exception on interpol() called on',
+        if (window.console) window.console.log(['Exception on interpol() called on',
             this, 'with arguments', arguments]);
         throw (e);
     }
 };
 String.prototype.interpol.test = function () {
-    if ('Item #[0] of [1]. Really, item [0].'.interpol(5, 7)
-        != "Item #5 of 7. Really, item 5.")  throw('Blimey -- oh no!');
+    if ('Item #[0] of [1]. Really, item [0].'.interpol(5, 7) !=
+        "Item #5 of 7. Really, item 5.")  throw('Blimey -- oh no!');
 };
 
-if (!window.translations)  translations = {};
+if (!window.translations)  window.translations = {};
 
-gettext = tr = _ = function (msg1, msg2, n) {
-    if (n == null || n == 1)
-        return translations[msg1] || msg1;
+var gettext = tr = _ = function (msg1, msg2, n) {
+    if (n === null || n === 1)
+        return window.translations[msg1] || msg1;
     else
-        return translations[msg2] || msg2;
+        return window.translations[msg2] || msg2;
 };

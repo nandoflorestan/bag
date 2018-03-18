@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """A solution to the problem of cleaning old git branches.
 
@@ -29,11 +28,8 @@ after deleting remote branches. Other machines may still have
 obsolete tracking branches (see them with "git branch -a").
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from datetime import date, timedelta
 from bag.reify import reify
-from nine import nine
 from argh import ArghParser, arg  # easy_install argh
 from bag.command import checked_execute  # , CommandError
 from bag.console import bool_input
@@ -68,8 +64,8 @@ def merged_branches(remote=None, ignore=IGNORE):
         yield branch
 
 
-@nine
 class Branch(object):
+
     def __init__(self, name, remote=''):
         self.name = name
         self.remote = remote
@@ -80,8 +76,9 @@ class Branch(object):
 
     @reify
     def merge_date(self):
-        """Returns the date when the specified branch was merged into the
-        current git branch. On the console, you can try this command:
+        """Return the date when the specified branch was merged.
+
+        ...into the current branch. On the console, you can try this command:
 
             git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" BRANCH | head -n 1
         """

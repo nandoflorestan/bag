@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-"""This module is for Python 3 only.
-See the :py:mod:`bag.csv2` module if you use Python 2.
+"""Easily import a CSV file with headers on the top row.
 
 The most important things here are:
 
@@ -101,7 +98,7 @@ def decoding_csv_with_headers(bytestream, encoding='utf8', **k):
     return csv_with_headers_reader(decoding(bytestream, encoding), **k)
 
 
-class DecodingCsvWithHeaders(object):
+class DecodingCsvWithHeaders:
     """The advantage of using the class instead of the generator is that
     any errors related to the headers happen when the class is
     instantiated, so they can be catched separately.
@@ -121,7 +118,8 @@ class DecodingCsvWithHeaders(object):
 
 
 def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
-    """Generator that yields CSV lines using a buffer of size *buffer_rows*.
+    """Generate CSV lines using a buffer of size *buffer_rows*.
+
     The values for the first CSV line may be provided as *headers*, and
     the remaining ones as *rows*, which is preferrably another generator.
 

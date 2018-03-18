@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+"""Genshi integration for Pyramid.
 
-"""This module allows the Genshi templating language --
+This module allows the Genshi templating language --
 http://pypi.python.org/pypi/Genshi/
 -- to be used in the Pyramid web framework --
 http://docs.pylonshq.com/
@@ -74,10 +74,7 @@ From anywhere in your web app you can use the renderer like this::
         'myapp:templates/menu.genshi', template_context_dict)
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from os import path
-from nine import basestring
 from bag.settings import asbool
 from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
@@ -85,10 +82,7 @@ from pyramid.resource import abspath_from_resource_spec
 
 
 def to_list(sequence):
-    if isinstance(sequence, basestring):
-        return [sequence]
-    else:
-        return sequence
+    return [sequence] if isinstance(sequence, str) else sequence
 
 
 def load_template(asset):
@@ -110,7 +104,7 @@ def load_template(asset):
 
 
 @implementer(ITemplateRenderer)
-class GenshiTemplateRenderer(object):
+class GenshiTemplateRenderer:
     def __init__(self, settings):
         dirs = settings.get('genshi.directories', [])
         paths = [abspath_from_resource_spec(p) for p in to_list(dirs)]
@@ -185,7 +179,7 @@ class GenshiTemplateRenderer(object):
 
 
 def includeme(config):
-    """Easily integrates Genshi template rendering into Pyramid."""
+    """Easily integrate Genshi template rendering into Pyramid."""
     if hasattr(config, 'bag_genshi_included'):
         return  # Include only once per config
     config.bag_genshi_included = True

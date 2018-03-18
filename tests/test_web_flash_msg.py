@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """Tests the *bag.web.flash_msg* module."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import unittest
 from bag.web.flash_msg import FlashMessage
 
 
 class TestFlashMessage(unittest.TestCase):
+
     def test_plain(self):
         f = FlashMessage(plain='Albatross!!!', kind='error')
         assert f.to_dict() == dict(

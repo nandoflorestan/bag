@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
+"""bag library."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from typing import Callable, Dict, Iterable
 import pkg_resources
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution('bag').version
 del pkg_resources
 
 
-def first(iterable):
+def first(iterable: Iterable):
     """Return the first object in ``iterable``."""
     for o in iterable:
         return o
 
 
-def dict_subset(adict, predicate):
+def dict_subset(adict: Dict, predicate: Callable):
     """Return a dict that is a subset of ``adict`` using a filter function.
 
     The signature of the filter is: ``predicate(key, val) -> bool``

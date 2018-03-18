@@ -1,21 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import unittest
-from nine import str, IS_PYTHON2
 from bag.web.web_deps import DepsRegistry, Dependency, WebDeps
 
 
 class TestDepsRegistry(unittest.TestCase):
+
     def test_summon(self):
         reg = DepsRegistry()
         all = Dependency('montão', deps='n, m, b, a')
 
-        if IS_PYTHON2:
-            self.assertEqual(repr(all), b'Dependency("mont\xc3\xa3o")')
-        else:
-            self.assertEqual(repr(all), 'Dependency("montão")')
-
+        self.assertEqual(repr(all), 'Dependency("montão")')
         self.assertEqual(str(all), 'montão')
         n = Dependency('n', deps='b, m')
         m = Dependency('m', deps='a')
@@ -33,6 +26,7 @@ class TestDepsRegistry(unittest.TestCase):
 
 
 class TestPageDeps(unittest.TestCase):
+
     def setUp(self):
         deps = WebDeps()
         deps.lib(

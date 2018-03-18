@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """What do you do when Python does not know about some exotic encoder or
 decoder that exists out there? Suppose you have some text,
@@ -49,7 +48,7 @@ import subprocess
 import os
 
 COMMAND = 'iconv'
-codecs_dict = [
+codecs_dict = {c: c for c in [
     '500v1', '851', '856', '866nav', '874', '904', '1046', '1047', '8859_1',
     '8859_2', '8859_3', '8859_4', '8859_5', '8859_6', '8859_7', '8859_8',
     '8859_9', '10646-1:1993', '10646-1:1993/ucs4', 'ansi_x3.4',
@@ -216,8 +215,7 @@ codecs_dict = [
     'utf32', 'utf32be', 'utf32le', 'viscii', 'wchar_t', 'win-sami-2',
     'winbaltrim', 'windows-31j', 'windows-874', 'windows-936', 'winsami2',
     'ws2', 'yu']
-
-codecs_dict = dict(zip(codecs_dict, codecs_dict))
+}
 
 
 def get_supported_codecs():

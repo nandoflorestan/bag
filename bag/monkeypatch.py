@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
+"""A decorator to add a method to an existing class."""
 
 
-def monkeypatch(cls, name=None):
+def monkeypatch(cls: type, name: str=None):
     """Decorator. Applied to a function, sets it as a method in a class.
 
     This can be used above a property, too. Example::

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Powerful URL generation independent of web frameworks.
 
 **Burla** stores a collection of page URL templates, separate from a
@@ -51,22 +49,18 @@ You can find integration with the Pyramid web framework in
 other frameworks.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from collections import OrderedDict
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from json import dumps
 from re import compile
+from urllib.parse import urlencode
 
 try:
     from bag.web.pyramid import _
 except ImportError:
     _ = str  # and i18n is disabled.
 
-urlencode = nimport('urllib.parse:urlencode')
 
-
-class Page(object):
+class Page:
     """Class that represents a web page in burla.
 
     A page is comprised of a descriptive name, a URL template (from which
@@ -80,9 +74,9 @@ class Page(object):
 
     def __init__(self, op_name, url_templ, fn=None, permission=None,
                  section='Miscellaneous', **view_args):
-        assert isinstance(op_name, basestring)
+        assert isinstance(op_name, str)
         assert op_name
-        assert isinstance(url_templ, basestring)
+        assert isinstance(url_templ, str)
         assert url_templ
         self.name = op_name
         self.url_templ = url_templ
@@ -147,7 +141,7 @@ class Operation(Page):
     is_operation = not is_page
 
 
-class Burla(object):
+class Burla:
     """Collection of pages and operations. Easily output as JSON.
 
     Generates URLs and provides JS code to generate URLs in the client.
@@ -179,8 +173,7 @@ class Burla(object):
     #     return {'url': op.url(**kw), 'request_method': op.request_method}
 
     def add_op(self, op_name, **kw):
-        """Decorator for view handlers that registers an operation with Burla.
-        """
+        """Decorate view handlers to register an operation with Burla."""
         def wrapper(view_handler):
             self._add_op(op_name, fn=view_handler, **kw)
             return view_handler
@@ -325,5 +318,6 @@ window.burla = {
                 {o.name: o.to_dict() for o in self.gen_ops()},
                 sort_keys=True)) \
             .replace('ROOT', dumps(self.root))
+
 
 DOC_TITLE = _('HTTP API Documentation')

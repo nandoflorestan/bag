@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Convenient, encapsulated SQLALchemy initialization.
 
 Usage::
@@ -25,14 +23,11 @@ Usage::
     sa2 = sa.clone('sqlite://')
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from functools import wraps
 from sqlalchemy import Table, create_engine
 from sqlalchemy.ext.declarative import declarative_base  # , declared_attr
 from sqlalchemy.orm import sessionmaker, scoped_session
 from types import ModuleType
-from nine import str
 
 __all__ = ('SAContext',)
 

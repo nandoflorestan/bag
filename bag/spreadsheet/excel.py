@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-
 """Easily import an Excel spreadsheet with headers on the top row."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from zipfile import BadZipFile
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from openpyxl import load_workbook  # easy_install -UZ openpyxl
 from openpyxl.utils.exceptions import InvalidFileException
 from bag.web.exceptions import Problem

@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
+"""A subclass of Path from pathlib.
 
-"""Python 3.4 introduces an object-oriented module for path manipulation
+Python 3.4 introduces an object-oriented module for path manipulation
 called ``pathlib``. But it is missing certain convenience methods.
-
-This Python-3-only module complements pathlib by defining a subclass.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import os
-import pathlib  # We need Python 3.4 or later
+import pathlib  # present in Python 3.4 or later
 import shutil
 # https://docs.python.org/3/distutils/apiref.html#distutils.dir_util.copy_tree
 from distutils.dir_util import copy_tree
@@ -17,7 +13,7 @@ from distutils.dir_util import copy_tree
 
 # pathlib's class hierarchy is poorly designed, but here's how to subclass it.
 # http://stackoverflow.com/questions/29850801/subclass-pathlib-path-fails
-class Path(type(pathlib.Path())):
+class Path(type(pathlib.Path())):  # type: ignore
     """pathlib.Path subclass -- has more methods."""
 
     def ensure_directory(self, parents=True):

@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Manage plugins for your Python software."""
+
 import os
 from pyramid.decorator import reify
-from nine import iteritems
 
 
 def find_subclasses(cls, path):
@@ -66,6 +64,7 @@ class BasePlugin(object):
 
 
 class PluginsManager(object):
+
     def __init__(self, settings):
         self.settings = settings
         self.all = {}
@@ -95,7 +94,7 @@ class PluginsManager(object):
         # for name, plugin in iteritems(self.config.registry.all_plugins):
             # if settings['plugins.' + name].lower() != 'disabled':
                 # yield name, plugin
-        return {name: plugin for name, plugin in iteritems(self.all)
+        return {name: plugin for name, plugin in self.all.items()
                 if self.is_enabled(name)}
 
     def is_enabled(self, name):
@@ -114,7 +113,7 @@ class PluginsManager(object):
         from .pyramid_starter import makedirs
         destination_dir = os.path.abspath(destination_dir)
         makedirs(destination_dir)
-        for name, gilpun in iteritems(self.all):
+        for name, gilpun in self.all.items():
             source = getattr(gilpun, 'static_dir', None)
             if source is None:
                 # Calculate the static dir if not provided

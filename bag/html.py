@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Deal with HTML markup."""
+
 import re
-from nine import chr, nimport
-name2codepoint = nimport('html.entities:name2codepoint')
+from html.entities import name2codepoint
 
 
 def encode_xml_char_refs(s):

@@ -1,19 +1,11 @@
-# -*- coding: utf-8 -*-
+"""Simplifying usage of the **subprocess** module of the standard library."""
 
-"""This module contains functions that are easier to use than the
-**subprocess** module of the standard library.
-A quick look on the source should answer any doubts.
-"""
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import subprocess
 from sys import platform
-from nine import nine
 
 
-@nine
 class CommandError(Exception):
+
     def __init__(self, error_message, code, out=''):
         self.error_message = error_message
         self.code = code

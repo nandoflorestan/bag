@@ -1,4 +1,4 @@
-"""Utility module for the poor souls who have to deal with MySQL.
+r"""Utility module for the poor souls who have to deal with MySQL.
 
 How to set this up on your server::
 
@@ -129,7 +129,7 @@ class DumpMySQL:
         """Send the file ``path`` to an S3 bucket."""
         self.log.debug('Sending to S3 bucket...')
         # http://botocore.readthedocs.org/en/latest/
-        from botocore.exceptions import ClientError  # easy_install -UZ boto3
+        # from botocore.exceptions import ClientError  # easy_install -UZ boto3
         from boto3.session import Session  # easy_install -UZ boto3
         session = Session(
             aws_access_key_id=aws_id,

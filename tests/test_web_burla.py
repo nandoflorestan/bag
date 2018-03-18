@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
+"""Tests for bag.web.burla."""
 
-"""Tests for bag.web.burla"""
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from bag.web.burla import Page
 
 

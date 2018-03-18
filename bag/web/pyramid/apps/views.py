@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
+"""Useful base views, functions and decorators for Pyramid."""
 
-"""Useful base views, functions and decorators for the view layer of
-apps that use the Pyramid web framework.
-"""
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import basestring, str
+from typing import Any, Dict  # noqa
 from pyramid.decorator import reify
 from pyramid.i18n import get_localizer
 from pyramid.renderers import get_renderer
@@ -15,7 +9,7 @@ from bag.settings import asbool
 from bag.text import uncommafy
 
 
-class BaseView(object):
+class BaseView:
     """Base class for views."""
 
     def __init__(self, request):
@@ -35,6 +29,7 @@ undefined = object()
 
 
 class BaseViewForDeform(BaseView):
+
     def model_to_dict(self, model, key_provider):
         """Return an appstruct dict with values taken from the ``model``.
 
@@ -47,7 +42,7 @@ class BaseViewForDeform(BaseView):
         import colander as c
         d = {}
 
-        if isinstance(key_provider, basestring):
+        if isinstance(key_provider, str):
             key_provider = uncommafy(key_provider)
         elif not issubclass(key_provider, list):
             key_provider = [n.name for n in key_provider.__all_schema_nodes__]
@@ -66,9 +61,10 @@ class BaseViewForDeform(BaseView):
         return model
 
 
-class ChameleonBaseView(object):
+class ChameleonBaseView:
     """Base view mixin class for projects that use Chameleon with macros."""
-    macro_cache = {}  # Global cache for Chameleon template macros
+
+    macro_cache = {}  # type: Dict[str, Any]  # for Chameleon template macros
 
     def macro(self, template, macro_name):
         """Load macros from any Chameleon template.

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Construction kit for Pyramid resource classes.
 
 Example usage::
@@ -60,16 +58,13 @@ Example usage::
     UserResource.factories['addresses'] = AddressesResource
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from bag import first
-from nine import nine, str
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
 
 
 def ancestor_finder(resource, predicate, include_self=False):
-    """Generator of ancestors that satisfy ``predicate``.
+    """Generate ancestors that satisfy ``predicate``.
 
     Generator that climbs the tree yielding resources for which
     ``predicate(current_resource)`` returns True.
@@ -126,7 +121,6 @@ def model_property(sas, model_cls, **ancestors):
     return reify(wrapped)
 
 
-@nine
 class BaseRootResource(object):
     """Base class for your Root resource."""
 
@@ -157,7 +151,6 @@ class BaseRootResource(object):
         raise KeyError(name)
 
 
-@nine
 class BaseResource(BaseRootResource):
     """Base class for Pyramid traversal resources.
 
@@ -182,7 +175,7 @@ class BaseResource(BaseRootResource):
     """
 
     def __init__(self):
-        """Constructor without arguments."""
+        """Construct without arguments."""
 
     def __str__(self):
         return '<{} "{}">'.format(type(self).__name__, self.__name__)

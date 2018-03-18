@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """The ultimate functions for domain validation and e-mail address validation.
 
 Why not just use a regular expression?
@@ -81,13 +79,8 @@ There is also an EmailHarvester class to
 collect e-mail addresses from any text.
 
 See also tests/test_email_validator.py
-
-Authors: Nando Florestan, Marco Ferreira
-Code written in 2009 and donated to the public domain.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import re
 try:
     import DNS
@@ -104,7 +97,7 @@ class ValidationException(ValueError):
     """Raised when a domain or email is invalid."""
 
 
-class BaseValidator(object):
+class BaseValidator:
 
     def validate_or_raise(self, *a, **k):
         """Raise ValidationException if validation fails.
@@ -126,6 +119,7 @@ class DomainValidator(BaseValidator):
     http://en.wikipedia.org/wiki/Internationalized_domain_name
     http://en.wikipedia.org/wiki/Top-level_domain
     """
+
     # non_international_regex = re.compile(r"^[a-z0-9][a-z0-9\.\-]*\.[a-z]+$",
     domain_pattern = r'[\w][\w\.\-]+?\.[\w]+'
     domain_regex = \
@@ -291,6 +285,7 @@ class EmailValidator(DomainValidator):
 
 
 class EmailHarvester(EmailValidator):
+
     def __init__(self, *a, **k):
         super(EmailHarvester, self).__init__(*a, **k)
         # Regular expression for harvesting:

@@ -1,69 +1,64 @@
-# -*- coding: utf-8 -*-
-
 """Advanced flash messages scheme for Pyramid.
 
-    This module integrates :py:mod:`bag.web.flash_msg` into Pyramid.
-    (That module can be used with any web framework.)
+This module integrates :py:mod:`bag.web.flash_msg` into Pyramid.
+(That module can be used with any web framework.)
 
-    Why?
-    ====
+Why?
+====
 
-    It is natural to have a single class that knows:
+It is natural to have a single class that knows:
 
-    - the content of a flash message in either plain or rich form(s)
-    - the kind (color) of the message, such as info, danger, success etc.
-    - different ways of rendering the message on the page
-    - whatever else you want.
+- the content of a flash message in either plain or rich form(s)
+- the kind (color) of the message, such as info, danger, success etc.
+- different ways of rendering the message on the page
+- whatever else you want.
 
-    The queue problem
-    =================
+The queue problem
+=================
 
-    Some Pyramid applications have used flash message queues to separate
-    them by level (danger, warning, info or success) in code such as this::
+Some Pyramid applications have used flash message queues to separate
+them by level (danger, warning, info or success) in code such as this::
 
-        request.session.flash(str(e), 'danger')
+    request.session.flash(str(e), 'danger')
 
-    The problem with this is that messages won't appear in the order in which
-    they were created. Because each queue is processed separately in the
-    template, order is lost and messages are grouped by kind.
-    This is undesirable and confusing to the user.
+The problem with this is that messages won't appear in the order in which
+they were created. Because each queue is processed separately in the
+template, order is lost and messages are grouped by kind.
+This is undesirable and confusing to the user.
 
-    Our solution stores the level *with* the message, so you can add all
-    messages to the default queue and process only that queue in templates.
+Our solution stores the level *with* the message, so you can add all
+messages to the default queue and process only that queue in templates.
 
-    Installation
-    ============
+Installation
+============
 
-    At web server startup time, add this simple line::
+At web server startup time, add this simple line::
 
-        config.include('bag.web.pyramid.flash_msg')
+    config.include('bag.web.pyramid.flash_msg')
 
-    Usage
-    =====
+Usage
+=====
 
-    Add messages to the queue like this::
+Add messages to the queue like this::
 
-        request.add_flash(
-            plain="Your password has been changed, thanks.",
-            kind='warning',
-            close=False,  # user will NOT see an X button to close the alert
-            allow_duplicate=False,  # do not bother the user with repeated text
-            )
+    request.add_flash(
+        plain="Your password has been changed, thanks.",
+        kind='warning',
+        close=False,  # user will NOT see an X button to close the alert
+        allow_duplicate=False,  # do not bother the user with repeated text
+        )
 
-    Then you can simply do, in templates:
+Then you can simply do, in templates:
 
-        ${render_flash_messages()}
+    ${render_flash_messages()}
 
-    ...to render the messages with Bootstrap styling.
-    The Jinja2 version is ``{{ render_flash_messages() | safe }}``.
+...to render the messages with Bootstrap styling.
+The Jinja2 version is ``{{ render_flash_messages() | safe }}``.
 
-    If you don't like the result in any way, just loop over the flash messages
-    yourself and do what you want -- no need to use this feature.
-    """
+If you don't like the result in any way, just loop over the flash messages
+yourself and do what you want -- no need to use this feature.
+"""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import nine, basestring
 from bag.web.flash_msg import FlashMessage, bootstrap_alert
 
 
@@ -76,12 +71,13 @@ def add_flash(request, allow_duplicate=False, **kw):
 def render_flash_messages(request):
     msgs = request.session.pop_flash()  # Pops from the '' queue
     return ''.join((
-        bootstrap_alert(m) if isinstance(m, basestring)
+        bootstrap_alert(m) if isinstance(m, str)
         else m.bootstrap_alert for m in msgs))
 
 
 def render_flash_messages_from_queues(request):
     """This method is for compatibility with other systems only.
+
     Some developers are using queues named after bootstrap message flavours.
     I think my system (using only the default queue '') is better,
     because FlashMessage already supports a ``kind`` attribute,
@@ -96,6 +92,7 @@ def render_flash_messages_from_queues(request):
                 else bootstrap_alert(m, q)
             msgs.append(html)
     return ''.join(msgs)
+
 
 QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
@@ -125,5 +122,6 @@ def make_templates_able_to_render_flash_msgs(config):
 
 
 def includeme(config):
+    """Integrate into Pyramid web apps."""
     config.add_request_method(add_flash, 'add_flash')
     make_templates_able_to_render_flash_msgs(config)

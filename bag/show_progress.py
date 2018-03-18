@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """2 solutions for showing progress periodically on the console.
+
 To use them, encapsulate your iterable with these generators.
 
 When you know how many items you're going to process, you can print the
@@ -33,15 +32,13 @@ Both solutions decide when to print out a progress message based on time, not
 on the number of iterations, so updates tend to appear steadily on the screen.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from datetime import datetime, timedelta
-from nine import range
 
 
 class ShowingProgress(object):
-    """A generator that encapsulates your iterable, printing the progress
-    every so many seconds. Usage::
+    """A generator that encapsulates your iterable.
+
+    It prints the progress every so many seconds. Usage::
 
         p = ShowingProgress(iterable, seconds=6)
         # Then use p instead of your iterable:
@@ -75,6 +72,7 @@ class PercentageDone(object):
     This class helps do that in the console, without creating too
     much output.
     """
+
     def __init__(self, max, granularity=6):
         """Parameters:
         *max*: The number of elements that shall be processed.
@@ -135,6 +133,7 @@ class ShowingPercentage(PercentageDone):
         for index, something in p:
             process(something)
     """
+
     def __init__(self, iterable, max, **k):
         super(ShowingPercentage, self).__init__(max, **k)
         self.iterable = iterable
@@ -146,12 +145,14 @@ class ShowingPercentage(PercentageDone):
 
 
 def test_percentage():
+    """Demonstration of ShowingPercentage usage."""
     from time import sleep
     for index, item in ShowingPercentage(range(100), max=100, granularity=4):
         sleep(.5)
 
 
 def test_progress():
+    """Demonstration of ShowingProgress usage."""
     from time import sleep
     for index, item in ShowingProgress(range(100), seconds=4):
         sleep(.237)

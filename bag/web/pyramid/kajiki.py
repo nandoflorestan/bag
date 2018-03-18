@@ -1,31 +1,29 @@
-# -*- coding: utf-8 -*-
+"""Kajiki integration for Pyramid.
 
-"""This module allows the Kajiki templating language --
-    http://pypi.python.org/pypi/Kajiki/
-    -- to be used in the Pyramid web framework --
-    http://docs.pylonshq.com/
+This module allows the Kajiki templating language --
+http://pypi.python.org/pypi/Kajiki/
+-- to be used in the Pyramid web framework --
+http://docs.pylonshq.com/
 
-    To enable the pyramid_kajiki extension, do this:
+To enable the pyramid_kajiki extension, do this:
 
-    .. code-block:: python
+.. code-block:: python
 
-        config.include('bag.web.pyramid.kajiki')
+    config.include('bag.web.pyramid.kajiki')
 
-    Once the template loader is active, add the following to the
-    application section of your Pyramid application’s .ini file::
+Once the template loader is active, add the following to the
+application section of your Pyramid application’s .ini file::
 
-        [app:yourapp]
-        # ... other stuff ...
-        kajiki.directory = myapp:templates
-        kajiki.extensions = .kajiki .genshi .html
+    [app:yourapp]
+    # ... other stuff ...
+    kajiki.directory = myapp:templates
+    kajiki.extensions = .kajiki .genshi .html
 
-    The Kajiki FileLoader class supports searching only one directory for
-    templates. If you want a search path, you must roll your own.
-    If you do... let us know.
-    """
+The Kajiki FileLoader class supports searching only one directory for
+templates. If you want a search path, you must roll your own.
+If you do... let us know.
+"""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from bag.settings import asbool
 from zope.interface import implementer
 from pyramid.interfaces import ITemplateRenderer
@@ -37,6 +35,7 @@ warn('Kajiki now has kajiki.integration.pyramid!', DeprecationWarning)
 
 @implementer(ITemplateRenderer)
 class KajikiTemplateRenderer(object):
+
     def __init__(self, info):
         self.loader = info.registry.kajiki_loader
 
@@ -92,9 +91,7 @@ def renderer_factory(info):
 
 
 def includeme(config):
-    """Sets up the Kajiki templating language for the configured
-    file extensions.
-    """
+    """Set up Kajiki templating for the configured file extensions."""
     if hasattr(config, 'bag_kajiki_included'):
         return  # Include only once per config
     config.bag_kajiki_included = True

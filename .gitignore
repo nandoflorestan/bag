@@ -5,6 +5,8 @@ build/
 .cache/
 dist/
 data/
+.mypy_cache/
+.pytest_cache/
 *.egg-info
 .coverage
 .idea

@@ -1,86 +1,79 @@
-# -*- coding: utf-8 -*-
-
 """A little plugin supporting human language alternation in Pyramid.
-    It lets you enable and disable locales (as your translations allow)
-    in the configuration file.
 
-    This module also offers *BaseLocalizedView*, a useful mixin class for
-    your application's base view.
+It lets you enable and disable locales (as your translations allow)
+in the configuration file.
 
-    Enabling the module in 2 steps
-    ------------------------------
+This module also offers *BaseLocalizedView*, a useful mixin class for
+your application's base view.
 
-    1) Add a setting to your .ini file with the locales you want to enable,
-    such as::
+Enabling the module in 2 steps
+------------------------------
 
-        bag.locale.enable = en pt_BR es de fr
+1) Add a setting to your .ini file with the locales you want to enable,
+such as::
 
-    2) Add to your initialization file::
+    bag.locale.enable = en pt_BR es de fr
 
-        config.include('bag.web.pyramid.locale')
+2) Add to your initialization file::
 
-    Effects of enabling this module as described above
-    --------------------------------------------------
+    config.include('bag.web.pyramid.locale')
 
-    1) A view is registered so the user can, for instance, browse to
-    /locale/pt_BR
-    in order to change the locale to Brazilian Portuguese.
-    This works by setting the locale cookie.
+Effects of enabling this module as described above
+--------------------------------------------------
 
-    2) To improve the experience of first-time visitors, a locale negotiator
-    is registered that checks the browser's stated preferred languages
-    against the "bag.locale.enable" setting in the .ini file.
+1) A view is registered so the user can, for instance, browse to
+/locale/pt_BR
+in order to change the locale to Brazilian Portuguese.
+This works by setting the locale cookie.
 
-    3) The "bag.locale.enable" setting
-    is replaced with an OrderedDictionary that is useful
-    for you to build a user interface for locale choice.
+2) To improve the experience of first-time visitors, a locale negotiator
+is registered that checks the browser's stated preferred languages
+against the "bag.locale.enable" setting in the .ini file.
 
-    4) In templates, that dictionary is available as *enabled_locales*.
+3) The "bag.locale.enable" setting
+is replaced with an OrderedDictionary that is useful
+for you to build a user interface for locale choice.
 
-    For instance, you might do this in your template to list the
-    available locales so the user can click and change languages:
+4) In templates, that dictionary is available as *enabled_locales*.
 
-    .. code-block:: html
+For instance, you might do this in your template to list the
+available locales so the user can click and change languages:
 
-        <span class='languages-selector'
-            py:with="locales = enabled_locales.values()">
-          <py:for each="loc in locales">
-            <a href="${url('locale', locale=loc.code)}"
-               title="${loc.title}"
-               py:strip="locale_code == loc.code"
-               py:content="loc.code[:2]" />
-            <span py:if="not loc is locales[-1]" class="separator">|</span>
-          </py:for>
-        </span>
+.. code-block:: html
 
-    5) In your master template, you can set the 2 lang attributes
-    on the <html> tag::
+    <span class='languages-selector'
+        py:with="locales = enabled_locales.values()">
+      <py:for each="loc in locales">
+        <a href="${url('locale', locale=loc.code)}"
+           title="${loc.title}"
+           py:strip="locale_code == loc.code"
+           py:content="loc.code[:2]" />
+        <span py:if="not loc is locales[-1]" class="separator">|</span>
+      </py:for>
+    </span>
 
-        xml:lang="${locale_code[:2]}" lang="${locale_code[:2]}"
+5) In your master template, you can set the 2 lang attributes
+on the <html> tag::
 
-    ...because the variable ``locale_code`` is made available to
-    template context.
-    """
+    xml:lang="${locale_code[:2]}" lang="${locale_code[:2]}"
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-try:
-    from collections import OrderedDict
-except ImportError:  # It's time people using Python 2.6 would upgrade already
-    from ordereddict import OrderedDict
+...because the variable ``locale_code`` is made available to
+template context.
+"""
+
+from collections import OrderedDict
 from babel import Locale
 from babel.numbers import (
     format_number as as_number, format_currency as as_currency)
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.i18n import get_locale_name, default_locale_negotiator
-from nine import basestring, native_str, iterkeys, iteritems, nine
 from . import _
 
 SETTING_NAME = 'bag.locale.enable'
 
 
-@nine
 class LocaleInfo(object):
+
     def __init__(self, code, display_name, english_name, title=None,
                  babel_locale=None):
         self.code = code
@@ -143,14 +136,11 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
 
 
 def locale_cookie_headers(locale_code):
-    """Returns HTTP headers setting the cookie that stores the
-    Pyramid locale.
-    """
-    # native_str() calls below are because waitress expects
-    # bytes in Python 2 and unicode in Python 3.
-    return [(native_str('Set-Cookie'), native_str(
+    """Return HTTP header setting the cookie that stores the Pyramid locale."""
+    return [(
+        'Set-Cookie',
         '_LOCALE_={0}; expires='
-        'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code)))]
+        'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code))]
 
 
 def locale_view(request):
@@ -180,8 +170,8 @@ def locale_from_browser(request):
     # first = enabled_locales[0]
     # return request.accept_language.best_match(enabled_locales,
     #     default_match=settings.get("pyramid.default_locale_name", first))
-    return request.accept_language.best_match(iterkeys(
-        request.registry.settings[SETTING_NAME]))
+    return request.accept_language.best_match(
+        request.registry.settings[SETTING_NAME].keys())
 
 
 def locale_negotiator(request):
@@ -204,6 +194,7 @@ def add_template_globals(event):
 
 
 def includeme(config):
+    """Integrate this module into a Pyramid app."""
     if hasattr(config, 'bag_locale_included'):
         return  # Include only once per config
     config.bag_locale_included = True
@@ -241,15 +232,15 @@ def sorted_countries(arg, top_entry=True):  # TODO memoized version
     Returns a list of tuples like ``('BR', 'Brazil')``, already sorted,
     ready for inclusion in your web form.
     """
-    code = arg if isinstance(arg, basestring) else get_locale_name(arg)
+    code = arg if isinstance(arg, str) else get_locale_name(arg)
 
     def generator(territories):
         if top_entry:
-            yield (native_str(''), _("- Choose -"))  # TODO translate somehow
+            yield ('', _("- Choose -"))  # TODO translate somehow
         for tup in territories:
             if len(tup[0]) == 2:  # Keep only countries
                 yield tup
-    return sorted(generator(iteritems(Locale(code).territories)),
+    return sorted(generator(Locale(code).territories.items()),
                   key=lambda x: x[1])
 
 
@@ -274,8 +265,9 @@ def locale_exists_validator(settings):
 
 def language_dropdown(settings, title=_('Locale'), name='locale',
                       blank_option_at_top=True):
-    """If you use Deform, you can use this to get a SchemaNode that lets
-    the user select a locale from the enabled ones.
+    """Let the user select a locale from the enabled ones.
+
+    If you use Deform, you can use this to get a SchemaNode for that.
     """
     import colander as c
     import deform as d

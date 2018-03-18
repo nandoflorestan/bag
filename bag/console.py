@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Functions for user interaction at the terminal/console."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import str, input
+from typing import Optional
 
 
-def ask(prompt='', default=None):
+def ask(prompt: str='', default: str='') -> str:
     """Print the ``prompt``, get user's answer, return it -- or a default."""
     if prompt:
         if default:
@@ -21,7 +17,7 @@ def ask(prompt='', default=None):
     return answer
 
 
-def bool_input(prompt, default=None):
+def bool_input(prompt: str, default: Optional[bool]=None) -> bool:
     """Print ``prompt``; return True or False based on the user's choice."""
     if default is None:
         choices = ' (y/n) '
@@ -59,7 +55,7 @@ def pick_one_of(options, prompt='Pick one: ', to_str=None):
         return alist[opt - 1]
 
 
-def screen_header(text, decor='=', max=79):
+def screen_header(text: str, decor: str='=', max: int=79) -> str:
     """Return a header to be displayed on screen, by decorating ``text``."""
     text = str(text)
     available = max - len(text)

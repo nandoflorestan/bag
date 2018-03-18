@@ -1,21 +1,20 @@
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Functions to manipulate strings."""
+
 import codecs
 import random
 import os
 import re
 from datetime import datetime
 from pathlib import Path
-from nine import basestring, str, range
+from typing import Callable, Generator, List, Optional, Tuple  # noqa
 
 
-def parse_iso_date(txt):
+def parse_iso_date(txt: str) -> datetime:
     """Parse a datetime in ISO format."""
     return datetime.strptime(txt[:19], '%Y-%m-%d %H:%M:%S')
 
 
-def shorten(txt, length=10, ellipsis='…'):
+def shorten(txt: str, length: int=10, ellipsis: str='…') -> str:
     """Truncate ``txt``, adding ``ellipsis`` to end, with total ``length``."""
     if len(txt) > length:
         return txt[:length - len(ellipsis)] + ellipsis
@@ -23,25 +22,27 @@ def shorten(txt, length=10, ellipsis='…'):
         return txt
 
 
-def shorten_proper(name, length=11, ellipsis='…', min=None):
+def shorten_proper(
+    name: str, length: int=11, ellipsis: str='…', min: int=None
+) -> str:
     """Shorten a proper name for displaying."""
-    min = min or length / 2.0
+    min = min or int(length / 2.0)
     words = name.split(' ')
-    output = []
-    l = -1
+    output = []  # type: List[str]
+    ln = -1
     while words:
         word = words.pop(0)
-        l += len(word) + 1
-        if l > length:
+        ln += len(word) + 1
+        if ln > length:
             break
         output.append(word)
-    output = ' '.join(output)
-    return output if output and len(output) >= min \
+    short = ' '.join(output)
+    return short if short and len(short) >= min \
         else shorten(name, length=length, ellipsis=ellipsis)
 
 
-def uncommafy(txt, sep=','):
-    """Generator of the elements of a comma-separated string.
+def uncommafy(txt: str, sep: str=',') -> Generator[str, None, None]:
+    """Generate the elements of a comma-separated string.
 
     Takes a comma-delimited string and returns a generator of
     stripped strings. No empty string is yielded.
@@ -52,9 +53,10 @@ def uncommafy(txt, sep=','):
             yield item
 
 
-def random_string(length, chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                                'abcdefghijklmnopqrstuvwxyz'
-                                '0123456789'):
+def random_string(
+    length: int,
+    chars: str='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+) -> str:
     """Return a random string of some `length`."""
     return ''.join((random.choice(chars) for i in range(length)))
 
@@ -72,7 +74,7 @@ latin1_map = (('"', '“”'),
               ('EUR', '\u20ac'),
               )  # chars that ISO-8859-1 does not support
 
-ascii_map = [('a', 'áàâãäå\u0101'),
+ascii_map = (('a', 'áàâãäå\u0101'),
              ('e', 'éèêẽë'),
              ('i', "íìîĩï"),
              ('o', 'óòôõöø'),
@@ -90,17 +92,18 @@ ascii_map = [('a', 'áàâãäå\u0101'),
              ('ss', "ß"),
              ('ae', "æ"),
              ('oe', 'œ'),
-             ]
-ascii_map.extend(latin1_map)
+             ) + latin1_map
 
 
 def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
-    """Removes from ``txt`` (a unicode object) all characters not
-    supported by ``encoding``, but using a map to "simplify" some
-    characters instead of just removing them.
-    If ``byts`` is true, returns a bytestring.
+    """Remove from ``txt`` all characters not supported by ``encoding``...
+
+    but using a map to "simplify" some characters instead of
+    just removing them.
+
+    If ``byts`` is true, return a bytestring.
     """
-    if amap is None:
+    if not amap:
         if encoding == 'ascii':
             amap = ascii_map
         elif encoding.replace('-', '') in ('latin1', 'iso88591'):
@@ -111,7 +114,9 @@ def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
     return txt.encode(encoding, 'ignore') if byts else txt
 
 
-def to_filename(txt, for_web=False, badchars='', maxlength=0):
+def to_filename(
+    txt: str, for_web: bool=False, badchars: str='', maxlength: int=0
+) -> str:
     """Massage ``txt`` until it is a good filename."""
     illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
     for c in illegal:
@@ -125,9 +130,11 @@ def to_filename(txt, for_web=False, badchars='', maxlength=0):
     return txt
 
 
-def slugify(txt, exists=lambda x: False, badchars='', maxlength=16,
-            chars='abcdefghijklmnopqrstuvwxyz23456789',
-            min_suffix_length=1, max_suffix_length=4):
+def slugify(
+    txt: str, exists: Callable[[str], bool]=lambda x: False, badchars: str='',
+    maxlength: int=16, chars: str='abcdefghijklmnopqrstuvwxyz23456789',
+    min_suffix_length: int=1, max_suffix_length: int=4,
+) -> str:
     """Return a slug that does not yet exist, based on ``txt``.
 
     You may provide ``exists``, a callback that takes a generated slug and
@@ -146,7 +153,7 @@ def slugify(txt, exists=lambda x: False, badchars='', maxlength=16,
     return slug
 
 
-def find_new_title(dir, filename):
+def find_new_title(dir: str, filename: str) -> str:
     """Return a path that does not exist yet, in ``dir``.
 
     If ``filename`` exists in ``dir``, adds or changes the
@@ -172,9 +179,9 @@ def find_new_title(dir, filename):
     return p
 
 
-def keep_digits(txt):
-    """return filter(str.isdigit, txt)"""
-    return filter(str.isdigit, txt)
+def keep_digits(txt: str) -> str:
+    """Discard from ``txt`` all non-numeric characters."""
+    return ''.join(filter(str.isdigit, txt))
 
 
 def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
@@ -191,26 +198,6 @@ def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
         if len(temp) > len(best):
             best = temp
     return best
-
-
-must_be_lowercase = [
-    ' ' + s + ' ' for s in
-    'De Do Da Dos Das Em No Na Nos Nas E Para Por Com Sem Sobre '
-    'O A Os As Um Uma Uns Umas Num Numa Nuns Numas Dum Duma Duns Dumas '
-    'Que À Às Ao Aos Of The And For To With Without In On'.split()]
-must_be_uppercase = [
-    ' ' + s + ' ' for s in
-    'CD DVD MP3 I II III IV V VII VIII IX X SP RG CPF OAB CREA'
-    'CRM SAP PHP LINQ VBA XML'.split()]
-
-
-def make_title(txt):
-    txt = txt.title()
-    for word in must_be_lowercase:
-        txt = txt.replace(word, word.lower())
-    for word in must_be_uppercase:
-        txt = txt.replace(word.title(), word)
-    return txt
 
 
 def capitalize(txt):
@@ -251,7 +238,7 @@ def content_of(paths, encoding='utf-8', sep='\n'):
     """
     if isinstance(paths, Path):
         paths = [str(paths)]
-    elif isinstance(paths, basestring):
+    elif isinstance(paths, str):
         paths = [paths]
     content = []
     for path in paths:
@@ -260,8 +247,7 @@ def content_of(paths, encoding='utf-8', sep='\n'):
     return sep.join(content)
 
 
-
-def pluralize(singular):
+def pluralize(singular: Optional[str]) -> str:
     """Return plural form of given lowercase singular word (English only).
 
     Based on ActiveState recipe http://code.activestate.com/recipes/413172/

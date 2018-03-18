@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration of :py:mod:`bag.web.burla` into Pyramid.
 
 Burla provides powerful URL generation independent of web frameworks.
@@ -17,9 +15,6 @@ to the bottom of your Pyramid initialization, this call::
 TODO: Use the registry instead of a global variable "ops".
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 from bag.web.burla import Burla, DOC_TITLE
 from pyramid.response import Response
 

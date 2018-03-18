@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Spreadsheet importers in CSV and Excel formats.
 
 The basic premise is that the spreadsheet to be imported will have
@@ -12,17 +10,14 @@ The headers are used to map the data to a dynamically-generated class so
 The code in this __init__ module is used in the inner modules.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import IS_PYTHON2, nimport, nine, range, str, basestring
 try:
     from bag.web.pyramid import _
 except ImportError:
     _ = str  # and i18n is disabled.
 
 
-@nine
 class MissingHeaders(Exception):
+
     msg1 = _('The spreadsheet is missing the required header: ')
     msg2 = _('The spreadsheet is missing the required headers: ')
 
@@ -40,8 +35,8 @@ class MissingHeaders(Exception):
                 '"{}"'.format(h) for h in self.missing_headers])
 
 
-@nine
 class ForbiddenHeaders(Exception):
+
     msg1 = _('The spreadsheet contains the forbidden header: ')
     msg2 = _('The spreadsheet contains the forbidden headers: ')
 

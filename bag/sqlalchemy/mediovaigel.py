@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Complete solution for database fixtures using only SQLAlchemy.
 
 Important features:
@@ -43,22 +41,17 @@ As you can see, Mediovaigel is strogonofically stainless.
 Cabriocaric, really.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from codecs import open
 from copy import copy
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from pprint import pprint
 # from uuid import uuid4
-from nine import nine, str, basestring, IS_PYTHON2
 
 from bag.settings import resolve
 from .tricks import (
     model_property_names, foreign_key_from_col, foreign_keys_in,
     commit_session_or_transaction)
-
-EMPTY = []
 
 
 class _IndentWriter(object):
@@ -84,13 +77,9 @@ class _IndentWriter(object):
 # TODO Ability to register callbacks to be run after loading each instance.
 
 
-REPRESENTABLE = (int, basestring, float, Decimal,
-                 date, datetime, timedelta)
-if IS_PYTHON2:
-    REPRESENTABLE = REPRESENTABLE + (long, )
+REPRESENTABLE = (int, str, float, Decimal, date, datetime, timedelta)
 
 
-@nine
 class Mediovaigel(_IndentWriter):
     """Use this to generate SQLAlchemy fixtures from an existing database.
 
@@ -162,7 +151,7 @@ class Mediovaigel(_IndentWriter):
         should not be passed to the constructor when instantiating an entity.
         """
         assert cls and (sas or query)
-        if isinstance(cls, basestring):
+        if isinstance(cls, str):
             return self._process_table(
                 cls, ignore_attribs or [self.pk], sas=sas)
         else:
@@ -354,17 +343,17 @@ class load_fixtures(object):
 
     def _get_new_id(self, fk, old_id):
         """Given a ForeignKey object and its value in the old database,
-            looks up the cache and returns the value for the new database.
-            """
+        looks up the cache and returns the value for the new database.
+        """
         table_name = fk.target_fullname.split('.')[0]
         return self.mapp[table_name + str(old_id)]
 
     def _delay_creation(self, wanted, method, *args):
         """When an entity cannot be created yet because it references another
-            entity that doesn't exist yet, we store the job for retrying later.
-            In the dict, the key is the non-existent entity key, and the value
-            is a tuple with the arguments to the creation method.
-            """
+        entity that doesn't exist yet, we store the job for retrying later.
+        In the dict, the key is the non-existent entity key, and the value
+        is a tuple with the arguments to the creation method.
+        """
         val = (method, args)
         if wanted in self.delayed:
             self.delayed[wanted].append(val)

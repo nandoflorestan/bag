@@ -1,26 +1,22 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""Installer for the "bag" Python package."""
 
 # http://peak.telecommunity.com/DevCenter/setuptools#developer-s-guide
 # from distutils.core import setup
 from codecs import open
-from sys import version_info
 from setuptools import setup, find_packages
 
 with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
-dependencies = ['nine>=0.3.4', 'polib', 'argh']
-if version_info[:2] < (3, 4):
-    dependencies.append('pathlib')
-if version_info[:2] == (2, 6):
-    dependencies.append('ordereddict')
+dependencies = ['polib', 'argh']
 
 setup(
     url='https://github.com/nandoflorestan/bag',
     name="bag",
     author='Nando Florestan',
-    version='1.3.1.dev1',
+    version='2.0.0dev',
     license='MIT',
     # https://setuptools.readthedocs.io/en/latest/setuptools.html#using-find-packages
     packages=find_packages(exclude=["tests.*", 'tests']),
@@ -44,7 +40,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         'Programming Language :: Python :: Implementation :: CPython',

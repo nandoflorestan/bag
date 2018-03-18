@@ -1,14 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Decorator for caching computed values."""
+
 from functools import wraps
 # Instead of wrapper.__doc__ = f.__doc__ and wrapper.__name__ = f.__name__,
 # use functools.wraps.
 
 
 def memoize(limit=None, keymaker=None, cache_type=dict, debug=False):
-    """memoize decorator with a lru cache.
+    """Memoize decorator with an LRU cache.
+
     When full, the cache discards the least recently used value.
     You can pass cache_type=WeakValueDictionary (not tested).
     """

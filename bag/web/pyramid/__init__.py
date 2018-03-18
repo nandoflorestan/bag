@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Reusable code that might be useful for Pyramid apps."""
 
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('bag')

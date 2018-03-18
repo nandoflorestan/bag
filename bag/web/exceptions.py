@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from nine import nine
+"""Exceptions for web development."""
 
 
-@nine
 class Problem(Exception):
     """Great exception class for application-level errors.
 

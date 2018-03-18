@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """Tests the *html* module."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from unittest import TestCase
 from bag.html import decode_entities, encode_xml_char_refs
 
 
 class TestHtml(TestCase):
+
     def test_entities(self):
         s = "© áéíóú ãẽõ ôâ à ü"
         t = encode_xml_char_refs(s)

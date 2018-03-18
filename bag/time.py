@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Functions to make it easier to work with datetimes.
 
 By the way, some ways of constructing a datetime instance::
@@ -9,29 +7,28 @@ By the way, some ways of constructing a datetime instance::
     datetime.utcnow() -> datetime(2015, 7, 17, 5, 18, 39, 255543)
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from time import sleep
+from typing import Optional
 from pytz import timezone
 utc = timezone('utc')
 
 
-def now_with_tz():
+def now_with_tz() -> datetime:
     """Like datetime.utcnow(), but including tzinfo."""
     return datetime.now(utc)
     return utc.localize(datetime.utcnow())
 
 
-def naive(dt):
+def naive(dt: datetime) -> datetime:
     """Remove the timezone from a datetime instance."""
     return datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,
                     dt.second, dt.microsecond)
 
 
-def parse_iso_datetime(text):
+def parse_iso_datetime(text: str) -> datetime:
     """Convert the given string to a naive (no tzinfo) datetime."""
     text = text.strip()
     if 'T' in text:
@@ -39,9 +36,9 @@ def parse_iso_datetime(text):
     elif ' ' in text:
         sep = ' '
     else:
-        sep = None
+        sep = ''
     DATE_FMT = "%Y-%m-%d"
-    if sep is None:
+    if not sep:
         return datetime.strptime(text, DATE_FMT)
     elif len(text) == 16:
         return datetime.strptime(text, DATE_FMT + sep + '%H:%M')
@@ -54,7 +51,7 @@ def parse_iso_datetime(text):
         return datetime.strptime(text, fmt)
 
 
-def simplify_datetime(val, granularity='minute'):
+def simplify_datetime(val: datetime, granularity: str='minute') -> datetime:
     """Notice this throws away any tzinfo."""
     if granularity == 'hour':
         return datetime(val.year, val.month, val.day, val.hour)
@@ -133,8 +130,10 @@ def djson_renderer_factory(info):
     return _render
 
 
-def now_or_future(dt, timezone=utc, now=None):
-    """Default to now if the given datetime is in the past.
+def now_or_future(
+    dt: Optional[datetime], timezone: tzinfo=utc, now: Optional[datetime]=None,
+) -> datetime:
+    """If given datetime is in the past, default to now.
 
     Given a datetime, returns it as long as it is not in the past;
     otherwise, returns now.  You may pass the ``timezone`` instance

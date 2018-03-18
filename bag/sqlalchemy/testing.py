@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Fake objects for unit testing code that uses SQLAlchemy.
 
 **Problem:** SQLAlchemy is the main thing making our automated tests slow.
@@ -42,8 +40,6 @@ repository will contain one function per operation or query --
 thus it must be easy to mock. We'll see.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import operator
 from bag import first
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
@@ -59,7 +55,7 @@ class FakeNoAutoFlush:
         pass
 
 
-class BaseFakeSession(object):
+class BaseFakeSession:
     """Base class for fake SQLAlchemy sessions. Look at the subclasses."""
 
     no_autoflush = FakeNoAutoFlush()
@@ -82,8 +78,9 @@ class BaseFakeSession(object):
         return self.query_cls(self, typs)
 
 
-class BaseFakeQuery(object):
+class BaseFakeQuery:
     """Base class for Query objects. Look at the subclasses."""
+
     def __init__(self, sas, typs):
         self.sas = sas
         self.typs = typs
@@ -149,6 +146,7 @@ class FakeSessionByType(BaseFakeSession):
 
 
 class FakeQueryByType(BaseFakeQuery):
+
     def __iter__(self):
         return self.sas._results[self.typs].__iter__()
 
@@ -231,6 +229,7 @@ class FakeSession(BaseFakeSession):
 
 
 class FakeQuery(BaseFakeQuery):
+
     def __init__(self, sas, typs):
         super(FakeQuery, self).__init__(sas, typs)
         self.filters = {}

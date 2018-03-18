@@ -1,14 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Easily set up logging."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import os
 import logging
 from logging.handlers import (RotatingFileHandler, TimedRotatingFileHandler,
                               WatchedFileHandler)
-from nine import basestring
 
 FORMAT = '%(asctime)s %(levelname)s %(message)s'
 
@@ -36,9 +31,9 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
         error=logging.ERROR,                            # 40
         critical=logging.CRITICAL, fatal=logging.FATAL,  # 50
     )
-    if isinstance(disk_level, basestring):
+    if isinstance(disk_level, str):
         disk_level = levels[disk_level.lower()]
-    if isinstance(screen_level, basestring):
+    if isinstance(screen_level, str):
         screen_level = levels[screen_level.lower()]
     # Set up logging
     log = logging.getLogger(name)
@@ -70,7 +65,7 @@ def setup_rotating_logger(logger=None, backups=4, size=250000000,
     This attaches a RotatingFileHandler to the specified logger.
     Returns the logger object.
     """
-    if isinstance(logger, basestring):
+    if isinstance(logger, str):
         filename = '.'.join((logger, encoding, 'log'))
         logger = logging.getLogger(logger)
     else:
@@ -92,7 +87,7 @@ def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
     This attaches a TimedRotatingFileHandler to the specified logger.
     Returns the logger object.
     """
-    if isinstance(logger, basestring):
+    if isinstance(logger, str):
         filename = '.'.join((logger, encoding, 'log'))
         logger = logging.getLogger(logger)
     else:
@@ -116,7 +111,7 @@ def setup_watched_file_handler(logger=None, level=logging.DEBUG, format=FORMAT,
     The WatchedFileHandler detects when the log file is moved, so it is
     compatible with the logrotate daemon.
     """
-    if isinstance(logger, basestring):
+    if isinstance(logger, str):
         filename = '.'.join((logger, encoding, 'log'))
         logger = logging.getLogger(logger)
     else:

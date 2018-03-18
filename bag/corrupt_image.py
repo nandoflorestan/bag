@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """Read image files and do something if they are corrupt."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from pathlib import Path
+from typing import Generator, Union  # noqa
 
 
-def is_valid_image(pth):
+def is_valid_image(pth: Union[str, Path]) -> bool:
+    """Read an image file and return whether it is valid."""
     from PIL import Image  # https://pypi.python.org/pypi/Pillow
     try:
         img = Image.open(str(pth))
@@ -22,20 +21,22 @@ def is_valid_image(pth):
     return True
 
 
-def corrupt_images(directory='.', files='*.jpg'):
-    """Generator that, given a ``directory``, goes through all files that
-        pass through the filter ``files``, reads them onto Pillow and
-        yields each corrupt image path.
+def corrupt_images(directory: Union[str, Path]='.', files: str='*.jpg',
+                   ) -> Generator[Path, None, None]:
+    """Find corrupt images in ``directory``.
 
-        Example usage::
+    Generator that, given a ``directory``, goes through all files that
+    pass through the filter ``files``, reads them onto Pillow and
+    yields each corrupt image path.
 
-            target = Path('./images/corrupt/')
-            target.mkdir()
-            for img in corrupt_images('./images/', files='*.png'):
-                # Do something with *img*, which is a Path object:
-                img.rename(target / img.name)  # move it
-        """
-    from pathlib import Path
+    Example usage::
+
+        target = Path('./images/corrupt/')
+        target.mkdir()
+        for img in corrupt_images('./images/', files='*.png'):
+            # Do something with *img*, which is a Path object:
+            img.rename(target / img.name)  # move it
+    """
     directory = Path(directory)
     for p in directory.glob(files):
         if not is_valid_image(p):

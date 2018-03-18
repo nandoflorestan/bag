@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
+"""Easily serve a robots.txt file using Pyramid."""
+
+from typing import List, Tuple
 from bag.settings import asbool
 # http://en.wikipedia.org/wiki/Robots_exclusion_standard
 
 
 def includeme(config):
+    """Integrate. The easiest, but not the only, way to use this module."""
     is_production = asbool(config.registry.settings.get('production', 'false'))
     robot = RobotFile()
     robot.add_rule(user_agent='*',
@@ -20,9 +23,9 @@ def init(config, robot):
     config.add_view(robots_view, route_name='robots', renderer='string')
 
 
-class RobotFile(object):
+class RobotFile:
 
-    rules = []
+    rules = []  # type: List[Rule]
 
     def add_rule(self, user_agent, disallow=[], allow=[]):
         self.rules.append(Rule(user_agent, disallow, allow))
@@ -31,9 +34,9 @@ class RobotFile(object):
         return "\n".join(map(lambda x: str(x), self.rules))
 
 
-class Rule(object):
+class Rule:
 
-    items = []
+    items = []  # type: List[Tuple[str, str]]
 
     def __init__(self, user_agent, disallow, allow):
         assert user_agent

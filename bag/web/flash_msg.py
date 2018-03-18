@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+"""FlashMessage is the natural class to store UI notifications.
 
-"""FlashMessage is the natural class to store UI notifications since it knows:
+Because it knows:
 
 - the content of a flash message in either plain or rich form(s)
 - the kind (color) of the message, such as info, danger, success etc.
@@ -18,18 +18,16 @@ you can still use this class and just render the messages yourself.
 You can even override the ``bootstrap_alert`` property in a subclass.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from cgi import escape
 from copy import copy
-from nine import nine, basestring
 
 
 def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
-    """Renders a bootstrap alert message, optionally with a close button.
-        Provide either ``plain`` or ``rich`` content. The parameter ``v``
-        can be 3 or 2 depending on your bootstrap version (default 3).
-        """
+    """Render a bootstrap alert message, optionally with a close button.
+
+    Provide either ``plain`` or ``rich`` content. The parameter ``v``
+    can be 3 or 2 depending on your bootstrap version (default 3).
+    """
     # In bootstrap 3, the old "error" class becomes "danger":
     if kind == 'danger' and v == 2:
         kind = 'error'
@@ -45,7 +43,6 @@ def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
         )
 
 
-@nine
 class FlashMessage(object):
     ___doc__ = __doc__
 

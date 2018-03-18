@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from functools import wraps
 from json import dumps
-from nine import basestring
 from bag import first
 from bag.web.exceptions import Problem
 from pyramid.httpexceptions import HTTPError
@@ -106,8 +101,8 @@ def ajax_view(view_function):
 
 def maybe_raise_unprocessable(e, **adict):
     """If the provided exception looks like a validation error, raise
-        422 Unprocessable Entity, optionally with additional information.
-        """
+    422 Unprocessable Entity, optionally with additional information.
+    """
     if hasattr(e, 'asdict') and callable(e.asdict):
         error_msg = getattr(
             e, 'error_msg', _('Please correct error(s) in the form.'))
@@ -126,10 +121,10 @@ def maybe_raise_unprocessable(e, **adict):
 
 def xeditable_view(view_function):
     """Decorator for AJAX views that need to be friendly towards x-editable,
-        the famous edit-in-place component for AngularJS. x-editable likes
-        text/plain instead of JSON responses; so it likes
-        us to return either an error string or "204 No content".
-        """
+    the famous edit-in-place component for AngularJS. x-editable likes
+    text/plain instead of JSON responses; so it likes
+    us to return either an error string or "204 No content".
+    """
     @wraps(view_function)
     def wrapper(context, request):
         try:
@@ -148,7 +143,7 @@ def xeditable_view(view_function):
         else:
             if val is None:
                 return Response(status_int=204)  # No content
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 comment = 'View returned error msg as a string'
                 status_int = 400
                 error_msg = val
@@ -164,25 +159,27 @@ def xeditable_view(view_function):
     return wrapper
 
 
-def serve_preloaded(config, route_name, route_path, payload, encoding=None, content_type=None):
-    """Reads a file (such as robots.txt or favicon.ini) into memory,
-        then sets up a view that serves it.  Usage::
+def serve_preloaded(
+    config, route_name, route_path, payload, encoding=None, content_type=None):
+    """Read a file (such as robots.txt or favicon.ini) into memory,
 
-            from bag.web.pyramid.views import serve_preloaded
-            serve_preloaded(
-                config,
-                route_name='robots',
-                route_path='robots.txt',
-                payload='my_package:static/robots.txt',
-                encoding='utf-8')
-            serve_preloaded(
-                config,
-                route_name='favicon',
-                route_path='favicon.ico',
-                payload='my_package:static/favicon.ico',
-                content_type='image/x-icon',
-                )
-        """
+    ...then sets up a view that serves it.  Usage::
+
+        from bag.web.pyramid.views import serve_preloaded
+        serve_preloaded(
+            config,
+            route_name='robots',
+            route_path='robots.txt',
+            payload='my_package:static/robots.txt',
+            encoding='utf-8')
+        serve_preloaded(
+            config,
+            route_name='favicon',
+            route_path='favicon.ico',
+            payload='my_package:static/favicon.ico',
+            content_type='image/x-icon',
+            )
+    """
     from os.path import getmtime, getsize
     from pyramid.resource import abspath_from_resource_spec
     from pyramid.response import Response

@@ -1,27 +1,24 @@
-# -*- coding: utf-8 -*-
+"""Make Pyramid routes and the route_path() function available to JS.
 
-"""Make Pyramid routes and the route_path() function available to JS
-    in the client, under the name "jurl()".
-    """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+...in the client, under the name "jurl()".
+"""
 
 
 def treated_routes(config, base_path='/'):
     """A dict containing each of the routes configured in this application.
-        In your app configuration, ``config.make_wsgi_app()`` must be
-        called *before* routes are extracted::
 
-            app = config.make_wsgi_app()
-            config.registry.app_routes = treated_routes(config)
-            return app
+    In your app configuration, ``config.make_wsgi_app()`` must be
+    called *before* routes are extracted::
 
-        The return value is a dict like this::
+        app = config.make_wsgi_app()
+        config.registry.app_routes = treated_routes(config)
+        return app
 
-             {'__static': '/static',  # static routes start with "__"
-              'activate': '/activate/{user_id}/{code}'}
-        """
+    The return value is a dict like this::
+
+         {'__static': '/static',  # static routes start with "__"
+          'activate': '/activate/{user_id}/{code}'}
+    """
     adict = {}
     for route in config.get_routes_mapper().routes.values():
         name = route.name.rstrip('/')

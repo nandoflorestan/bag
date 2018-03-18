@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Tests the *spreadsheet* module."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from unittest import TestCase
 from bag.spreadsheet import (raise_if_forbidden_headers, ForbiddenHeaders)
 

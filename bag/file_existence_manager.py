@@ -1,7 +1,4 @@
-"""Tools for finding duplicate files.
-
-This module doesn't work in Python 2 anymore.
-"""
+"""Tools for finding duplicate files."""
 
 from hashlib import sha1
 from bag.pathlib_complement import Path
