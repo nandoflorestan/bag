@@ -15,14 +15,21 @@ def read_ini_files(*config_files, encoding='utf-8'):
 def resolve(resource_spec):
     """Return the variable referred to in the ``resource_spec`` string.
 
-    Example resource_spec: ``"my.python.module:some_variable"``.
+    Example resource_spec: ``"my.python.module:some_callable"``.
     """
     if isinstance(resource_spec, ModuleType   # arg is a python module
                   ) or callable(resource_spec):    # arg is a callable
         return resource_spec
-    module, var = resource_spec.split(':')  # arg is assumed to be a string
-    module = import_module(module)
-    return getattr(module, var)
+    parts = resource_spec.split(':')  # arg is assumed to be a string
+    if len(parts) == 1:
+        return import_module(parts[0])
+    elif len(parts) == 2:
+        module = import_module(parts[0])
+        return getattr(module, parts[1])
+    else:
+        raise ValueError(
+            '":" may appear only once in a resource spec, but I received "{}"'
+            .format(resource_spec))
 
 
 def resolve_path(resource_spec):
