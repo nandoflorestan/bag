@@ -1,6 +1,7 @@
 """Abstract base classes for creating deform views in Pyramid."""
 
 from itertools import count
+from typing import Optional
 from pyramid.decorator import reify
 from pyramid.i18n import get_localizer
 from pyramid.threadlocal import get_current_request
@@ -66,7 +67,7 @@ class BaseDeformView(object):
     """
 
     button_text = _("Submit")
-    button_icon = None
+    button_icon = None  # type: Optional[str]
     formid = 'form'
     bootstrap_form_style = 'form-horizontal'
     schema_validator = None  # validator to be applied to the form as a whole

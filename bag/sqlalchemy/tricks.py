@@ -3,7 +3,7 @@
 from decimal import Decimal
 import re
 from datetime import date, datetime
-from warnings import warn
+from typing import List, Union
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import (
     MapperExtension, backref as _backref,
@@ -234,10 +234,12 @@ def persistent_attribute_names_of(cls):
         if isinstance(prop, ColumnProperty)]
 
 
-class MinimalBase(object):
+class MinimalBase:
     """Declarative base class that auto-generates __tablename__."""
 
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+    __table_args__ = dict(
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')  # type: Union[dict, tuple]
 
     @declared_attr
     def __tablename__(cls):
@@ -268,7 +270,7 @@ class MinimalBase(object):
                 props[key] = obj
         return props
     blacklist = ['password']
-    whitelist = None
+    whitelist = []  # type: List[str]
 
     def update(self, adict, transient=False):
         """Merge dictionary into this entity.
