@@ -63,7 +63,7 @@ from bag.web.flash_msg import FlashMessage, bootstrap_alert
 
 
 def add_flash(request, allow_duplicate=False, **kw):
-    """Convenience function that adds a flash message to the user's session."""
+    """Add a flash message to the user's session. For convenience."""
     msg = FlashMessage(**kw)
     request.session.flash(msg, allow_duplicate=allow_duplicate)
 

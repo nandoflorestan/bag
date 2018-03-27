@@ -43,7 +43,7 @@ def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
         )
 
 
-class FlashMessage(object):
+class FlashMessage:
     ___doc__ = __doc__
 
     KINDS = {'danger', 'warning', 'info', 'success'}
