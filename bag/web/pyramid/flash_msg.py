@@ -100,6 +100,10 @@ QUEUES = set(['error', 'warning', 'info', 'success', ''])
 def make_templates_able_to_render_flash_msgs(config):
     """Make a render_flash_messages() function available to every template.
 
+    Also make available in templates a function ``flash_msgs_as_dicts()``
+    which returns a list of the flash messages, each one represented
+    as a dictionary. This is useful to turn the flash messages into JSON.
+
     If you want to use the queues feature (not recommended), add this
     configuration setting:
 
@@ -117,6 +121,8 @@ def make_templates_able_to_render_flash_msgs(config):
 
     def on_before_render(event):
         event['render_flash_messages'] = lambda: fn(event['request'])
+        event['flash_msgs_as_dicts'] = \
+            lambda: [f.to_dict() for f in event['request'].session.pop_flash()]
 
     config.add_subscriber(on_before_render, BeforeRender)
 

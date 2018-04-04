@@ -48,8 +48,10 @@ class FlashMessage:
 
     KINDS = {'danger', 'warning', 'info', 'success'}
 
-    def __init__(self, plain=None, rich=None, kind='warning', close=True,
-                 allow_duplicate=False):
+    def __init__(
+        self, plain=None, rich=None, kind='warning', close=True,
+        allow_duplicate=False,
+    ):
         assert (plain and not rich) or (rich and not plain)
         if kind == 'error':
             kind = 'danger'
