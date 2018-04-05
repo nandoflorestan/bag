@@ -16,6 +16,9 @@ If you are not using Bootstrap, or if you don't like that I am
 generating HTML in Python, or if you want some additional content or style,
 you can still use this class and just render the messages yourself.
 You can even override the ``bootstrap_alert`` property in a subclass.
+
+A more useful version of this module is provided by the *state.py*
+module of the *kerno* library.
 """
 
 from cgi import escape
