@@ -321,7 +321,7 @@ class MinimalBase:
         return instance, is_new
 
     def update_association(
-        self, sas, cls, field, ids, filters={}, synchronize_session=False,
+        self, sas, cls, field, ids, filters={}, synchronize_session=None,
     ):
         """When you have a many-to-many relationship, there is an association
         table between 2 main tables. The problem of setting the data in
@@ -356,9 +356,13 @@ class MinimalBase:
         # Delete association rows that we no longer want
         desired_ids = frozenset(ids)
         to_remove = existing_ids - desired_ids
-        if to_remove:
-            sas.query(cls).filter_by(**filters).filter(getattr(cls, field).in_(
-                to_remove)).delete(synchronize_session=synchronize_session)
+        q_remove = sas.query(cls).filter_by(**filters).filter(
+            getattr(cls, field).in_(to_remove))
+        if to_remove and synchronize_session is not None:
+            q_remove.delete(synchronize_session=synchronize_session)
+        else:
+            for entity in q_remove:
+                sas.delete(entity)
 
         # Create desired associations that do not yet exist
         to_create = desired_ids - existing_ids
