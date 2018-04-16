@@ -248,30 +248,6 @@ class MinimalBase:
         return name[0].lower() + \
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
 
-    def to_dict(self, blacklist=None, whitelist=None, for_json=True):
-        """Dump the properties of the object into a dict."""
-        props = {}
-        blacklist = self.blacklist if blacklist is None else blacklist
-        keys = whitelist or self.whitelist or (
-            key for key in self.__dict__.keys()
-            if not key.startswith('__') and not key.startswith('_sa_'))
-        for key in keys:
-            if key in blacklist:
-                continue
-            obj = getattr(self, key)
-            if for_json and isinstance(obj, datetime) or isinstance(obj, date):
-                props[key] = obj.isoformat()
-            elif for_json and isinstance(obj, Decimal):
-                props[key] = float(str(obj))
-            elif for_json and not isinstance(obj, (
-                    str, int, float, list, dict, bool, type(None))):
-                continue
-            else:
-                props[key] = obj
-        return props
-    blacklist = ['password']
-    whitelist = []  # type: List[str]
-
     def update(self, adict, transient=False):
         """Merge dictionary into this entity.
 
@@ -312,8 +288,11 @@ class MinimalBase:
 
     @classmethod
     def create_or_update(cls, session, values={}, **filters):
-        """First obtains either an existing object or a new one, based on
-        ``filters``. Then applies ``values`` and returns a tuple (object, is_new).
+        """Load and update entity if it exists, else create one.
+
+        First obtains either an existing object or a new one, based on
+        ``filters``. Then applies ``values`` and returns a tuple
+        ``(object, is_new)``.
         """
         instance, is_new = cls.get_or_create(session, **filters)
         for k, v in values.items():

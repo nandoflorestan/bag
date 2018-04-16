@@ -22,11 +22,3 @@ class TestMinimalBase(TestCase):
     def test_tablename(self):
         model = SomeModel()
         assert model.__tablename__ == 'some_model'
-
-    def test_to_dict(self):
-        model = SomeModel()
-        model.transient = 42  # This datum would not be persisted
-        model.start_date = datetime(2016, 12, 4, 8, 46)
-
-        data = {'transient': 42, 'start_date': model.start_date.isoformat()}
-        assert model.to_dict() == data
