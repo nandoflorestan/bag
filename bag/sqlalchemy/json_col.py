@@ -6,14 +6,14 @@ and altered such that the value is never None.
 """
 
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.types import TypeDecorator, VARCHAR
+from sqlalchemy.types import TypeDecorator, Unicode
 import json
 
 
 class JSONEncodedDict(TypeDecorator):
     """Represents an immutable structure as a json-encoded string."""
 
-    impl = VARCHAR
+    impl = Unicode
 
     def process_bind_param(self, value, dialect):
         if value is None:
