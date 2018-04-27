@@ -91,10 +91,10 @@ Here is an example using Pyramid and Genshi:
 .. code-block:: html
 
       <script py:if="not locale_code.startswith('en')" type='text/javascript'
-        src="${static_url('static/js/i18n/{0}.js'.format(locale_code))}"
+        src="${static_path('static/js/i18n/{0}.js'.format(locale_code))}"
         ></script>
       <script py:if="locale_code.startswith('en')" type='text/javascript'
-        src="${static_url('static/js/i18n/transecma.js')}"></script>
+        src="${static_path('static/js/i18n/transecma.js')}"></script>
 
 In the above example, we assume the default language of the application
 is English. So, for languages other than English, we load the

@@ -72,13 +72,13 @@ class Route:
 class Static:
     """A link that is defined by a Pyramid static URL spec."""
 
-    def __init__(self, static_url):
+    def __init__(self, url_spec):
         """Instantiate."""
-        self.url = static_url
+        self.url_spec = url_spec
 
     def href(self, request):
-        """Return the static_url() of this instance."""
-        return request.static_url(self.url)
+        """Return the static_path() of this instance."""
+        return request.static_path(self.url_spec)
 
 
 class NavEntry:
