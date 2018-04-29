@@ -31,7 +31,7 @@ setup(
     keywords=["python", 'pyramid', 'sqlalchemy', 'HTML', 'CSV',
                 'translation', 'i18n', 'internationalization', 'file hash',
                 'encoding', 'codecs', 'text', 'console'],
-    classifiers=[  # http://pypi.python.org/pypi?:action=list_classifiers
+    classifiers=[  # https://pypi.org/pypi?:action=list_classifiers
         "Development Status :: 5 - Production/Stable",
         'Environment :: Console',
         "Environment :: Other Environment",
@@ -43,6 +43,7 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
         "Framework :: Pyramid",
         'Topic :: Database',
         "Topic :: Internet :: WWW/HTTP",
