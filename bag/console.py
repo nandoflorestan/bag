@@ -1,6 +1,6 @@
 """Functions for user interaction at the terminal/console."""
 
-from typing import Optional
+from typing import Any, Callable, Optional, Sequence
 
 
 def ask(prompt: str='', default: str='') -> str:
@@ -36,7 +36,11 @@ def bool_input(prompt: str, default: Optional[bool]=None) -> bool:
         return bool_input(prompt)
 
 
-def pick_one_of(options, prompt='Pick one: ', to_str=None):
+def pick_one_of(
+    options: Sequence[Any],
+    prompt: str='Pick one: ',
+    to_str: Callable=None,
+) -> Any:
     """Let the user choose an item (from a sequence of options) by number.
 
     ``to_str()`` is a callback that must take an item as argument and must

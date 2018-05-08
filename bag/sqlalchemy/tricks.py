@@ -2,7 +2,7 @@
 
 import re
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import (
     MapperExtension, backref as _backref,
