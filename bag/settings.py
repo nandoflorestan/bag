@@ -67,7 +67,11 @@ _boolean_states = {'1': True, 'yes': True, 'true': True, 'on': True,
 
 
 class SettingsReader(object):
-    """Convenient for reading configuration settings in an app."""
+    """Convenient for reading configuration settings in an app.
+
+    However, with Python 3.6+ I have used the **pydantic** library
+    with better results.
+    """
 
     def __init__(self, adict):
         """``adict`` should be a settings dictionary."""

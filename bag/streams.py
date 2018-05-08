@@ -1,7 +1,7 @@
 """Functions that use streams (open files)."""
 
 
-def get_file_size(stream):
+def get_file_size(stream) -> int:
     """Given a seekable file, return its size."""
     assert stream.seekable(), 'Streams of type {} are not seekable'.format(
         type(stream))

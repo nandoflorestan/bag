@@ -24,8 +24,6 @@ This version of **bag** was published with
 Most important library contents
 ===============================
 
-- `bag.csv2 <http://docs.nando.audio/bag/latest/api/bag.csv2.html>`_
-  -- The infamous csv Python module does not support unicode; problem solved.
 - `bag.spreadsheet <http://docs.nando.audio/bag/latest/api/bag.spreadsheet.html>`_
   -- Import CSV and Excel spreadsheets based on headers on the first row.
   There is also a buffered CSV writer for outputting CSV in a web app.

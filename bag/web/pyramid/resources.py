@@ -121,7 +121,7 @@ def model_property(sas, model_cls, **ancestors):
     return reify(wrapped)
 
 
-class BaseRootResource(object):
+class BaseRootResource:
     """Base class for your Root resource."""
 
     __name__ = ''

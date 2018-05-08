@@ -72,7 +72,7 @@ from . import _
 SETTING_NAME = 'bag.locale.enable'
 
 
-class LocaleInfo(object):
+class LocaleInfo:
 
     def __init__(self, code, display_name, english_name, title=None,
                  babel_locale=None):
@@ -207,7 +207,7 @@ def includeme(config):
     config.add_subscriber(add_template_globals, IBeforeRender)
 
 
-class BaseLocalizedView(object):
+class BaseLocalizedView:
     """A mixin class for your application's base view class."""
 
     def format_number(self, n):

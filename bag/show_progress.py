@@ -35,7 +35,7 @@ on the number of iterations, so updates tend to appear steadily on the screen.
 from datetime import datetime, timedelta
 
 
-class ShowingProgress(object):
+class ShowingProgress:
     """A generator that encapsulates your iterable.
 
     It prints the progress every so many seconds. Usage::
@@ -66,7 +66,7 @@ class ShowingProgress(object):
             print(self.done.format(total=index, time=utcnow() - started))
 
 
-class PercentageDone(object):
+class PercentageDone:
     """When you are processing a long iterable and it takes minutes,
     you should let the user know that your application is still working.
     This class helps do that in the console, without creating too

@@ -1,9 +1,8 @@
 """Functions that help define SQLAlchemy models."""
 
-from decimal import Decimal
 import re
-from datetime import date, datetime
-from typing import List, Union
+from datetime import datetime
+from typing import List, Tuple
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import (
     MapperExtension, backref as _backref,
@@ -22,7 +21,7 @@ from ..web import gravatar_image
 CASC = 'all, delete-orphan'
 
 
-def now_column(nullable=False, **k):
+def now_column(nullable: bool=False, **k) -> Column:
     """Return a DateTime column that defaults to utcnow."""
     return Column(DateTime, default=datetime.utcnow, nullable=nullable, **k)
 
@@ -148,7 +147,7 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
     return association, rel
 
 
-def pk(tablename):
+def pk(tablename: str) -> Column:
     """Return a primary key column."""
     # The type must be Integer for Sequences to work, AFAICT.
     # Maybe this problem is in Python only?
@@ -156,12 +155,12 @@ def pk(tablename):
                   primary_key=True, autoincrement=True)
 
 
-def is_model_class(val):
+def is_model_class(val) -> bool:
     """Return whether the parameter is a SQLAlchemy model class."""
     return hasattr(val, '__base__') and hasattr(val, '__table__')
 
 
-def models_and_tables_in(arg):
+def models_and_tables_in(arg) -> Tuple[List, List]:
     """Return 2 lists containing the model classes and tables in ``arg``.
 
     ``arg`` may be a resource spec, a module or a dictionary::
@@ -374,7 +373,7 @@ class MinimalBase:
         return clone
 
 
-class ID(object):
+class ID:
     """Mixin class that includes a primary key column "id"."""
 
     @declared_attr
@@ -383,7 +382,7 @@ class ID(object):
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
-class CreatedChanged(object):
+class CreatedChanged:
     """Mixin; updates ``created`` and ``changed`` columns automatically.
 
     If you define __mapper_args__ in your model, you have to readd the
@@ -409,7 +408,7 @@ class CreatedChanged(object):
 # http://www.devsniper.com/sqlalchemy-tutorial-3-base-entity-class-in-sqlalchemy/
 
 
-class AddressBase(object):
+class AddressBase:
     """Base class for addresses.
 
     In subclasses you can just define ``__tablename__``, ``id``,
@@ -433,7 +432,7 @@ class AddressBase(object):
     # comment = Column(Unicode, default='')
 
 
-class EmailParts(object):
+class EmailParts:
     """Mixin class that stores an email address in 2 columns.
 
     One column contains the local part, another contains the domain.
@@ -469,20 +468,20 @@ class EmailParts(object):
                               cacheable=cacheable)
 
 
-def commit_session_or_transaction(sas):
+def commit_session_or_transaction(sas) -> None:
     """Not sure if using the transaction package or not? No problem."""
     try:
         sas.commit()
     except AssertionError as exc:
         if str(exc) == 'Transaction must be committed using ' \
-                     'the transaction manager':
+                       'the transaction manager':
             import transaction
             transaction.commit()
         else:
             raise
 
 
-class SubtransactionTrick(object):
+class SubtransactionTrick:
     """Encloses your code in a subtransaction. Good for writing tests.
 
     Usage::

@@ -64,7 +64,7 @@ def merged_branches(remote=None, ignore=IGNORE):
         yield branch
 
 
-class Branch(object):
+class Branch:
 
     def __init__(self, name, remote=''):
         self.name = name

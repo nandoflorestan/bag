@@ -56,15 +56,17 @@ Another example template using Mako and Bootstrap 3:
     </ul>
 """
 
+from typing import Any, Dict, List, Optional
+
 
 class Route:
     """A link that is defined by a Pyramid route name."""
 
-    def __init__(self, route_name):
+    def __init__(self, route_name: str) -> None:
         """Instantiate."""
         self.url = route_name
 
-    def href(self, request):
+    def href(self, request) -> str:
         """Return the route_path() of this instance."""
         return request.route_path(self.url)
 
@@ -72,11 +74,11 @@ class Route:
 class Static:
     """A link that is defined by a Pyramid static URL spec."""
 
-    def __init__(self, url_spec):
+    def __init__(self, url_spec: str) -> None:
         """Instantiate."""
         self.url_spec = url_spec
 
-    def href(self, request):
+    def href(self, request) -> str:
         """Return the static_path() of this instance."""
         return request.static_path(self.url_spec)
 
@@ -88,9 +90,9 @@ class NavEntry:
     ACTIVE_ITEM_CSS_CLASS = 'active'
 
     def __init__(
-        self, label=None, img=None, icon=None, tooltip=None, url='##',
-        children=None, **kw
-    ):
+        self, label: str=None, img: str=None, icon: str=None,
+        tooltip: str=None, url='##', children: List['NavEntry']=None, **kw
+    ) -> None:
         """Instantiate, without depending on a request yet.
 
         The param *url* can be:
@@ -108,7 +110,7 @@ class NavEntry:
         self.children = children if children else []
         self.__dict__.update(kw)
 
-    def href(self, value, request):
+    def href(self, value, request) -> Optional[str]:
         """Compute the link previously planned in this instance."""
         if value is None:
             return None
@@ -117,15 +119,17 @@ class NavEntry:
         else:
             return value.href(request)
 
-    def css_class(self, request):
+    def css_class(self, request) -> str:
         """Return "active" if this NavEntry corresponds to the current URL."""
-        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == self.href(
-            self.url, request).split('#')[0] else ''
+        url = self.href(self.url, request)
+        if isinstance(url, str):
+            url = url.split('#')[0]
+        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == url else ''
 
     def __repr__(self):
         return '<NavEntry: {}>'.format(self.label or self.img)
 
-    def to_dict(self, request):
+    def to_dict(self, request) -> Dict[str, Any]:
         """Convert this instance into a dict, usually for JSON output."""
         adict = self.__dict__.copy()
         adict['url'] = self.href(adict['url'], request)

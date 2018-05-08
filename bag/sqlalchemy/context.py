@@ -32,7 +32,7 @@ from types import ModuleType
 __all__ = ('SAContext',)
 
 
-class SAContext(object):
+class SAContext:
     """Provide convenient and encapsulated SQLAlchemy initialization."""
 
     __slots__ = ('base', 'dburi', 'engine', 'Session', '_scoped_session',

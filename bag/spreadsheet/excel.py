@@ -62,7 +62,7 @@ def excel_reader(
             vars = get_corresponding_variable_names(headers, required_headers)
             index_of_var = {var: i for i, var in enumerate(vars)}
 
-            class SpreadsheetRow(object):
+            class SpreadsheetRow:
                 """A view on a spreadsheet row.
 
                 You can access data as if they were instance variables.

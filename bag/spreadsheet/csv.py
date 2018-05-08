@@ -14,7 +14,8 @@ from . import (
 
 
 def decoding(stream, encoding='utf8'):
-    """
+    """Wrap a stream that yields bytes in order to decode it.
+
     If you have a stream that yields bytes, use this wrapper to decode them
     into str objects. Example::
 
@@ -56,7 +57,7 @@ def setup_reader(stream, required_headers=[], forbidden_headers=[], **k):
     raise_if_forbidden_headers(headers, forbidden_headers)
     vars = get_corresponding_variable_names(headers, required_headers)
 
-    class CsvRow(object):
+    class CsvRow:
         __slots__ = vars
 
         def __init__(self, vals):
