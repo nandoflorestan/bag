@@ -62,21 +62,21 @@ yourself and do what you want -- no need to use this feature.
 from bag.web.flash_msg import FlashMessage, bootstrap_alert
 
 
-def add_flash(request, allow_duplicate=False, **kw):
+def add_flash(request, allow_duplicate: bool=False, **kw) -> None:
     """Add a flash message to the user's session. For convenience."""
     msg = FlashMessage(**kw)
     request.session.flash(msg, allow_duplicate=allow_duplicate)
 
 
-def render_flash_messages(request):
+def render_flash_messages(request) -> str:
     msgs = request.session.pop_flash()  # Pops from the '' queue
     return ''.join((
         bootstrap_alert(m) if isinstance(m, str)
         else m.bootstrap_alert for m in msgs))
 
 
-def render_flash_messages_from_queues(request):
-    """This method is for compatibility with other systems only.
+def render_flash_messages_from_queues(request) -> str:
+    """Avoid. This method is for compatibility with other systems only.
 
     Some developers are using queues named after bootstrap message flavours.
     I think my system (using only the default queue '') is better,
@@ -97,7 +97,7 @@ def render_flash_messages_from_queues(request):
 QUEUES = set(['error', 'warning', 'info', 'success', ''])
 
 
-def make_templates_able_to_render_flash_msgs(config):
+def make_templates_able_to_render_flash_msgs(config) -> None:
     """Make a render_flash_messages() function available to every template.
 
     Also make available in templates a function ``flash_msgs_as_dicts()``
@@ -127,7 +127,7 @@ def make_templates_able_to_render_flash_msgs(config):
     config.add_subscriber(on_before_render, BeforeRender)
 
 
-def includeme(config):
+def includeme(config) -> None:
     """Integrate into Pyramid web apps."""
     config.add_request_method(add_flash, 'add_flash')
     make_templates_able_to_render_flash_msgs(config)
