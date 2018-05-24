@@ -36,6 +36,19 @@ def bool_input(prompt: str, default: Optional[bool]=None) -> bool:
         return bool_input(prompt)
 
 
+def int_input(prompt: str) -> Optional[int]:
+    """Print ``prompt``; ensure the user enters an integer and return it."""
+    text = input(prompt + " ")
+    if not text:
+        return None
+    try:
+        number = int(text)
+    except ValueError:
+        print("No, you must type an integer.")
+        return int_input(prompt)
+    return number
+
+
 def pick_one_of(
     options: Sequence[Any],
     prompt: str='Pick one: ',
