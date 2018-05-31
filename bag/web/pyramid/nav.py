@@ -56,10 +56,20 @@ Another example template using Mako and Bootstrap 3:
     </ul>
 """
 
-from typing import Any, Dict, List, Optional
+from abc import abstractmethod, ABCMeta
+from typing import Any, Dict, List, Optional, Union
 
 
-class Route:
+class BaseLink(metaclass=ABCMeta):
+    """Abstract base class for objects that have an href() method."""
+
+    @abstractmethod
+    def href(self, request) -> str:
+        """Compute and return the link."""
+        raise NotImplementedError()
+
+
+class Route(BaseLink):
     """A link that is defined by a Pyramid route name."""
 
     def __init__(self, route_name: str) -> None:
@@ -71,7 +81,7 @@ class Route:
         return request.route_path(self.url)
 
 
-class Static:
+class Static(BaseLink):
     """A link that is defined by a Pyramid static URL spec."""
 
     def __init__(self, url_spec: str) -> None:
@@ -83,6 +93,9 @@ class Static:
         return request.static_path(self.url_spec)
 
 
+hrefable = Union[str, BaseLink, None]
+
+
 class NavEntry:
     """Represents a navigation menu item, possibly with children."""
 
@@ -90,8 +103,9 @@ class NavEntry:
     ACTIVE_ITEM_CSS_CLASS = 'active'
 
     def __init__(
-        self, label: str=None, img: str=None, icon: str=None,
-        tooltip: str=None, url='##', children: List['NavEntry']=None, **kw
+        self, label: str=None, img: hrefable=None, icon: str=None,
+        tooltip: str=None, url: hrefable='##',
+        children: List['NavEntry']=None, **kw
     ) -> None:
         """Instantiate, without depending on a request yet.
 
