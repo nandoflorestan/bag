@@ -1,3 +1,5 @@
+"""Help for Pyramid view development."""
+
 from functools import wraps
 from json import dumps
 from bag import first
@@ -94,14 +96,18 @@ def ajax_view(view_function):
             maybe_raise_unprocessable(e)
             raise  # or let this view-raised exception pass through
         else:
+            if val is None:
+                raise RuntimeError("Error: None returned by {}()".format(
+                    view_function.__qualname__))
             # If *val* is a model instance, convert it to a dict.
             return val.to_dict() if hasattr(val, 'to_dict') else val
     return wrapper
 
 
 def maybe_raise_unprocessable(e, **adict):
-    """If the provided exception looks like a validation error, raise
-    422 Unprocessable Entity, optionally with additional information.
+    """Raise if the provided exception looks like a validation error.
+
+    Raise 422 Unprocessable Entity, optionally with additional information.
     """
     if hasattr(e, 'asdict') and callable(e.asdict):
         error_msg = getattr(
