@@ -33,7 +33,7 @@ or something like that.
 Both Python and iconv change over time, so the list of codecs that each
 supports is prolly going to change. The registered codecs are in a dictionary::
 
-    from oui.more_codecs import codecs_dict
+    from bag.more_codecs import codecs_dict
     print(list(codecs_dict.keys()))
 
 You may add and remove codecs from the codecs_dict.
@@ -219,7 +219,7 @@ codecs_dict = {c: c for c in [
 
 
 def get_supported_codecs():
-    """Returns a list of the codec names that iconv supports."""
+    """Return a list of the codec names that iconv supports."""
     cmd = [COMMAND, '--list']
     iconv = subprocess.Popen(cmd, env={'LANG': 'C'},
                              stdout=subprocess.PIPE,
