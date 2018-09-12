@@ -59,12 +59,13 @@ check_transforms = [
 
 
 def check_rst_document(source, source_path='<string>', settings=None):
-    """Returns a list of objects containing problems in the
-        provided reStructuredText document ``source``.
+    """Return a list of objects containing problems in a rst document.
 
-        ``settings`` is the settings object for the docutils document instance.
-        If None, the default settings are used.
-        """
+    Provide the reStructuredText document through the argument ``source``.
+
+    ``settings`` is the settings object for the docutils document instance.
+    If None, the default settings are used.
+    """
     alist = []
 
     def accumulate(x):
@@ -76,6 +77,7 @@ def check_rst_document(source, source_path='<string>', settings=None):
         document.settings.pep_references = None
         document.settings.rfc_references = None
         document.settings.smart_quotes = True
+        document.settings.smartquotes_locales = ['en']
         document.settings.file_insertion_enabled = True
     parser = Parser()
     parser.parse(source, document)
