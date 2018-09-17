@@ -14,26 +14,28 @@ except ImportError:
 
 
 def get_json_or_raise(request, expect=None, dict_has=None):
-    """If the incoming json cannot be decoded, this is a bad request,
-        so raise 400 instead of 500.
+    """Obtain and validate incoming JSON, raising Problem if necessary.
 
-        Usage examples::
+    If the incoming json cannot be decoded, this is a bad request,
+    so raise 400 instead of 500.
 
-            get_json_or_raise(request)
-            get_json_or_raise(request, expect=list)
-            get_json_or_raise(request, dict_has=[('email', str), ('age', int)])
-            get_json_or_raise(request, dict_has=[('amount', (int, float))])
+    Usage examples::
 
-        The json body, when decoded, may become one of a number of types
-        (usually dict or list). You can validate the type by passing
-        an ``expect`` argument. If the json decodes
-        to the wrong type, also raise 400 instead of 500.
+        get_json_or_raise(request)
+        get_json_or_raise(request, expect=list)
+        get_json_or_raise(request, dict_has=[('email', str), ('age', int)])
+        get_json_or_raise(request, dict_has=[('amount', (int, float))])
 
-        You may also ensure that a decoded dictionary contains some
-        required keys by passing as the ``dict_has`` argument a sequence of
-        2-tuples where each elemaint contains 1) the required key names and
-        2) the accepted value type(s). 400 is raised if a key is missing.
-        """
+    The json body, when decoded, may become one of a number of types
+    (usually dict or list). You can validate the type by passing
+    an ``expect`` argument. If the json decodes
+    to the wrong type, also raise 400 instead of 500.
+
+    You may also ensure that a decoded dictionary contains some
+    required keys by passing as the ``dict_has`` argument a sequence of
+    2-tuples where each elemaint contains 1) the required key names and
+    2) the accepted value type(s). 400 is raised if a key is missing.
+    """
     try:
         payload = request.json_body
     except ValueError as e:
@@ -126,9 +128,10 @@ def maybe_raise_unprocessable(e, **adict):
 
 
 def xeditable_view(view_function):
-    """Decorator for AJAX views that need to be friendly towards x-editable,
-    the famous edit-in-place component for AngularJS. x-editable likes
-    text/plain instead of JSON responses; so it likes
+    """Decorate AJAX views that need to be friendly towards x-editable.
+
+    x-editable is a famous edit-in-place component for AngularJS.
+    x-editable likes text/plain instead of JSON responses; so it likes
     us to return either an error string or "204 No content".
     """
     @wraps(view_function)
@@ -166,10 +169,12 @@ def xeditable_view(view_function):
 
 
 def serve_preloaded(
-    config, route_name, route_path, payload, encoding=None, content_type=None):
-    """Read a file (such as robots.txt or favicon.ini) into memory,
+    config, route_name, route_path, payload,
+    encoding=None, content_type=None,
+):
+    """Read a file (such as robots.txt or favicon.ini) into memory.
 
-    ...then sets up a view that serves it.  Usage::
+    ...then set up a view that serves it.  Usage::
 
         from bag.web.pyramid.views import serve_preloaded
         serve_preloaded(
