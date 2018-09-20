@@ -8,7 +8,7 @@ del pkg_resources
 
 
 def first(iterable: Iterable):
-    """Return the first object in ``iterable``."""
+    """Return the first object in ``iterable``, or None if empty."""
     for o in iterable:
         return o
 
