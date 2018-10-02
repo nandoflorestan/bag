@@ -89,3 +89,8 @@ def screen_header(text: str, decor: str='=', max: int=79) -> str:
             text += decor          # in order to fill the whole screen
             available -= len(decor)
     return text
+
+
+def announce(*a) -> None:
+    """Make this message stand out from all the noise in the console."""
+    print('******** ', *a)
