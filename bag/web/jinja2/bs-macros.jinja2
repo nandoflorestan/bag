@@ -1,16 +1,16 @@
 {# jinja2 macros to more easily create Bootstrap 3 widgets #}
 
 
-{% macro bsalert(kind='info', close=True, icon=None) -%}
+{% macro bsalert(level='info', close=True, icon=None) -%}
 	{# Bootstrap alert. Usage:
 		{% call bsalert('warning', close=False, icon='alert') %}
 			NOBODY expects the Spanish Inquisition!!!
 		{% endcall %}
 		#}
-	<div class="alert alert-{$ kind $} {% if close %}alert-dismissible{% endif %}" role="alert">
+	<div class="alert alert-{$ level $} {% if close %}alert-dismissible{% endif %}" role="alert">
 		{% if close %}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{% endif %}
 		{% if icon %}<span class="glyphicon glyphicon-{$ icon $}" aria-hidden="true"></span>{% endif %}
-		<span class="sr-only">{$ kind $}:</span>
+		<span class="sr-only">{$ level $}:</span>
 		{$ caller() $}
 	</div>
 {%- endmacro %}
