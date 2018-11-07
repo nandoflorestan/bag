@@ -9,7 +9,7 @@ Why?
 It is natural to have a single class that knows:
 
 - the content of a flash message in either plain or rich form(s)
-- the kind (color) of the message, such as info, danger, success etc.
+- the level (color) of the message, such as info, danger, success etc.
 - different ways of rendering the message on the page
 - whatever else you want.
 
@@ -23,7 +23,7 @@ them by level (danger, warning, info or success) in code such as this::
 
 The problem with this is that messages won't appear in the order in which
 they were created. Because each queue is processed separately in the
-template, order is lost and messages are grouped by kind.
+template, order is lost and messages are grouped by level.
 This is undesirable and confusing to the user.
 
 Our solution stores the level *with* the message, so you can add all
@@ -43,7 +43,7 @@ Add messages to the queue like this::
 
     request.add_flash(
         plain="Your password has been changed, thanks.",
-        kind='warning',
+        level='warning',
         close=False,  # user will NOT see an X button to close the alert
         allow_duplicate=False,  # do not bother the user with repeated text
         )
@@ -80,7 +80,7 @@ def render_flash_messages_from_queues(request) -> str:
 
     Some developers are using queues named after bootstrap message flavours.
     I think my system (using only the default queue '') is better,
-    because FlashMessage already supports a ``kind`` attribute,
+    because FlashMessage already supports a ``level`` attribute,
     but this function provides a way to display their flash messages, too.
 
     You can set QUEUES to something else if you like, from user code.

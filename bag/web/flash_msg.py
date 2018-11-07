@@ -3,7 +3,7 @@
 Because it knows:
 
 - the content of a flash message in either plain or rich form(s)
-- the kind (color) of the message, such as info, danger, success etc.
+- the level (color) of the message, such as info, danger, success etc.
 - different ways of rendering the message on the page
 - whatever else you want (you can add instance variables or subclass it).
 
@@ -25,19 +25,19 @@ from cgi import escape
 from copy import copy
 
 
-def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
+def bootstrap_alert(plain=None, rich=None, level='warning', close=True, v=3):
     """Render a bootstrap alert message, optionally with a close button.
 
     Provide either ``plain`` or ``rich`` content. The parameter ``v``
     can be 3 or 2 depending on your bootstrap version (default 3).
     """
     # In bootstrap 3, the old "error" class becomes "danger":
-    if kind == 'danger' and v == 2:
-        kind = 'error'
+    if level == 'danger' and v == 2:
+        level = 'error'
 
-    return '<div class="alert alert-{kind}{cls} fade in">{close}' \
+    return '<div class="alert alert-{level}{cls} fade in">{close}' \
         '{body}</div>\n'.format(
-            kind=escape(kind),
+            level=escape(level),
             cls=' alert-block' if rich else '',
             close='<button type="button" class="close" data-dismiss="alert" '
                   'aria-label="Close"><span aria-hidden="true">×</span>'
@@ -49,18 +49,18 @@ def bootstrap_alert(plain=None, rich=None, kind='warning', close=True, v=3):
 class FlashMessage:
     ___doc__ = __doc__
 
-    KINDS = {'danger', 'warning', 'info', 'success'}
+    LEVELS = {'danger', 'warning', 'info', 'success'}
 
     def __init__(
-        self, plain=None, rich=None, kind='warning', close=True,
+        self, plain=None, rich=None, level='warning', close=True,
         allow_duplicate=False,
     ):
         assert (plain and not rich) or (rich and not plain)
-        if kind == 'error':
-            kind = 'danger'
-        assert kind in self.KINDS, 'Unknown kind of alert: "{0}". ' \
-            "Possible kinds are {1}".format(kind, self.KINDS)
-        self.kind = kind
+        if level == 'error':
+            level = 'danger'
+        assert level in self.LEVELS, 'Unknown alert level: "{0}". ' \
+            "Possible levels are {1}".format(level, self.LEVELS)
+        self.level = level
         self.rich = rich
         self.plain = plain
         self.close = close
@@ -84,4 +84,4 @@ class FlashMessage:
     @property
     def bootstrap_alert(self):
         return bootstrap_alert(
-            self.plain, self.rich, kind=self.kind, close=self.close)
+            self.plain, self.rich, level=self.level, close=self.close)
