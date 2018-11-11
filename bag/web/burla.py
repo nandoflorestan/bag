@@ -310,6 +310,12 @@ window.burla = {
     op: function (name, params, fragment) {
         return this._find(this.ops, name, params, fragment);
     },
+    makeEnvelope: function (name, params, fragment) {
+        return {
+            method: this.ops[name].request_method,
+            url: this.op(name, params, fragment),
+        };
+    }
 }\n""" \
             .replace('PAGES', dumps(
                 {o.name: o.to_dict() for o in self.gen_pages()},
