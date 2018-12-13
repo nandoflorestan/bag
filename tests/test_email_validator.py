@@ -49,7 +49,7 @@ class TestEmailValidator(unittest.TestCase):
         assert err
         email, err = v.validate('ã@example.com')
         assert err
-        email, err = v.validate('\@example.com')
+        email, err = v.validate(r'\@example.com')
         assert err
 
 

@@ -21,7 +21,7 @@ A more useful version of this module is provided by the *state.py*
 module of the *kerno* library.
 """
 
-from cgi import escape
+from html import escape
 from copy import copy
 
 
