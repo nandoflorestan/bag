@@ -115,18 +115,19 @@ def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
 
 
 def to_filename(
-    txt: str, for_web: bool=False, badchars: str='', maxlength: int=0
+    txt: str, for_web: bool=False, badchars: str='', maxlength: int=0,
+    encoding='latin1',
 ) -> str:
     """Massage ``txt`` until it is a good filename."""
+    txt = simplify_chars(txt, encoding=encoding).strip()
     illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
     for c in illegal:
         txt = txt.replace(c, '')
-    txt = simplify_chars(txt).strip()
     if maxlength:
         txt = txt[:maxlength].strip()
     if for_web:
         txt = txt.replace(' ', '-') \
-                 .replace('--', '-').replace('--', '-').lower()
+                 .replace('--', '-').replace('--', '-')
     return txt
 
 
