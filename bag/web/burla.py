@@ -310,6 +310,15 @@ window.burla = {
     op: function (name, params, fragment) {
         return this._find(this.ops, name, params, fragment);
     },
+    pageFragment: function (name) {
+        let o;
+        try {
+            o = this.pages[name];
+        } catch (ex) {
+            throw new Error(`No page named "${name}"!`);
+        }
+        return o.url_templ.split('#')[1];
+    },
     makeEnvelope: function (name, params, fragment) {
         return {
             method: this.ops[name].request_method,
