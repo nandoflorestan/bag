@@ -42,7 +42,7 @@ def decoding(stream, encoding='utf8'):
     while True:  # eventually, StopIteration is raised by *stream*
         line = stream.readline()
         if not line:
-            raise StopIteration()
+            return
         yield line.decode(encoding)
 
 
@@ -90,8 +90,11 @@ def csv_with_headers_reader(
     """
     c, readline, headers, CsvRow = setup_reader(
         stream, required_headers, forbidden_headers, **k)
-    while True:  # eventually, StopIteration is raised by csv.reader
-        yield CsvRow(readline())
+    while True:
+        try:
+            yield CsvRow(readline())
+        except StopIteration:
+            return
 
 
 def decoding_csv_with_headers(bytestream, encoding='utf8', **k):
