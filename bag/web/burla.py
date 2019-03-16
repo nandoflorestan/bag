@@ -272,8 +272,8 @@ class Burla:
         return """"use strict";
 
 // Usage:
-// var url = burla.page(pageName, params, fragment);
-// var url = burla.op(operationName, params, fragment);
+// const url = burla.page(pageName, params, fragment);
+// const url = burla.op(operationName, params, fragment);
 
 window.burla = {
     root: ROOT,
@@ -285,23 +285,37 @@ window.burla = {
             return [key, adict[key]].map(encodeURIComponent).join("=");
         }).join("&");
     },
+    requiredParameterNames: function (spec) {
+        const matches = spec.url_templ.match(/:\\w+/g);  // can be null
+        // Remove the starting colon from each match
+        return matches ? matches.map(s => s.slice(1)) : [];
+    },
     _find: function (map, name, params, fragment) {
-        var s = map[name].url_templ;
-        if (!s)  throw new Error('burla: No item called "' + name + '".');
-        var p = {};
-        for (var key in params) {
-            var placeholder = ':' + key;
-            var val = params[key];
+        const spec = map[name];
+        if (!spec)
+            throw new Error(`burla: No item called "${name}".`);
+        const paramNames = this.requiredParameterNames(spec);
+        for (const paramName of paramNames) {
+            if (params[paramName] == null)
+                throw new Error(
+                    `burla: Operation "${name}" requires parameter "${paramName}".`);
+        }
+        let s = spec.url_templ;
+        const p = {};  // for after the question mark
+        for (const key in params) {
+            const placeholder = ':' + key;
+            const val = params[key];
             if (s.indexOf(placeholder) == -1) {
                 p[key] = val; // accumulate
             } else {
-                if (val == null)  throw new Error('burla: Operation "' + name + '" needs parameter "' + key + '".');
                 s = s.replace(placeholder, val);
             }
         }
-        var strParams = this.urlencode(p);
-        if (strParams) s += '?' + strParams;
-        if (fragment)  s += '#' + fragment;
+        const strParams = this.urlencode(p);
+        if (strParams)
+            s += '?' + strParams;
+        if (fragment)
+            s += '#' + fragment;
         return this.root + s;
     },
     page: function (name, params, fragment) {
@@ -325,7 +339,7 @@ window.burla = {
             url: this.op(name, params, fragment),
         };
     }
-}\n""" \
+};\n""" \
             .replace('PAGES', dumps(
                 {o.name: o.to_dict() for o in self.gen_pages()},
                 sort_keys=True)) \
