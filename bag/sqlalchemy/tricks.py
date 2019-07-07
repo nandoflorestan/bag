@@ -4,9 +4,7 @@ import re
 from datetime import datetime
 from typing import List, Tuple, Union
 from sqlalchemy import Table, Column, ForeignKey, Sequence
-from sqlalchemy.orm import (
-    MapperExtension, backref as _backref,
-    class_mapper, ColumnProperty)
+from sqlalchemy.orm import backref as _backref, class_mapper, ColumnProperty
 from sqlalchemy.orm.attributes import (
     CollectionAttributeImpl, ScalarObjectAttributeImpl)
 from sqlalchemy.orm.dynamic import DynamicAttributeImpl
@@ -380,32 +378,6 @@ class ID:
     def id(cls):
         """Primary key column for your model."""
         return Column(Integer, autoincrement=True, primary_key=True)
-
-
-class CreatedChanged:
-    """Mixin; updates ``created`` and ``changed`` columns automatically.
-
-    If you define __mapper_args__ in your model, you have to readd the
-    mapper extension:
-
-    .. code-block:: python
-
-        __mapper_args__ = dict(order_by=name,
-            extension=CreatedChanged.MapperExt())
-    """
-
-    created = Column(DateTime, nullable=False)
-    changed = Column(DateTime, nullable=False)
-
-    class MapperExt(MapperExtension):
-
-        def before_insert(self, mapper, connection, instance):
-            instance.created = instance.changed = datetime.utcnow()
-
-        def before_update(self, mapper, connection, instance):
-            instance.changed = datetime.utcnow()
-    __mapper_args__ = dict(extension=MapperExt())
-# http://www.devsniper.com/sqlalchemy-tutorial-3-base-entity-class-in-sqlalchemy/
 
 
 class AddressBase:

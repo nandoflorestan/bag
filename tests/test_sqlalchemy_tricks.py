@@ -3,11 +3,12 @@
 TODO: Write more tests!
 """
 
-from datetime import datetime
 from unittest import TestCase
+
 from sqlalchemy import Column
 from sqlalchemy.types import DateTime
-from bag.sqlalchemy.tricks import MinimalBase, ID
+
+from bag.sqlalchemy.tricks import ID, MinimalBase
 
 
 class SomeModel(MinimalBase, ID):
