@@ -1,4 +1,13 @@
-"""SQLAlchemy trick that makes it easy to implement timestamp columns."""
+"""SQLAlchemy trick that makes it easy to implement timestamp columns.
+
+Usage::
+
+    from bag.sqlalchemy.created_changed import created_changed, CreatedChanged
+
+    @created_changed
+    class MyModel(BaseModel, CreatedChanged):
+        ...
+"""
 
 from datetime import datetime
 
