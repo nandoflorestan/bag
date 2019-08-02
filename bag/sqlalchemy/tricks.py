@@ -435,7 +435,10 @@ class EmailParts:
         if not self.email_domain:
             raise Problem('Missing the domain part of the email address.')
 
-    def gravatar_image(self, default='mm', size=80, cacheable=True):
+    def gravatar_image(
+        self, default: str = 'mm', size: int = 80, cacheable: bool = True,
+    ) -> str:
+        """Return the URL for the gravatar image for this email address."""
         return gravatar_image(self.email, default=default, size=size,
                               cacheable=cacheable)
 
