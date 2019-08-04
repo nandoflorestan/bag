@@ -24,10 +24,11 @@ Usage::
 """
 
 from functools import wraps
-from sqlalchemy import Table, create_engine
+from types import ModuleType
+
+from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.ext.declarative import declarative_base  # , declared_attr
 from sqlalchemy.orm import sessionmaker, scoped_session
-from types import ModuleType
 
 __all__ = ('SAContext',)
 
@@ -36,24 +37,33 @@ class SAContext:
     """Provide convenient and encapsulated SQLAlchemy initialization."""
 
     __slots__ = ('base', 'dburi', 'engine', 'Session', '_scoped_session',
-                 'session_extensions')
+                 'use_transaction')
 
-    def __init__(self, base=None, base_class=None, metadata=None,
-                 session_extensions=None, zope_transaction=False, *args, **k):
+    def __init__(
+        self, base=None, base_class=None, metadata=None,
+        use_transaction: bool = False, *args, **k
+    ):  # noqa
         self.dburi = None
         self.engine = None
         self.Session = None
         self._scoped_session = None
+        self.use_transaction = use_transaction
+        metadata = metadata or MetaData(naming_convention={
+            # https://alembic.readthedocs.org/en/latest/naming.html
+            # http://docs.sqlalchemy.org/en/rel_1_0/core/constraints.html#constraint-naming-conventions
+            "ix": 'ix_%(table_name)s_%(column_0_label)s',
+            "uq": "%(table_name)s_%(column_0_name)s_key",
+            "ck": "ck_%(table_name)s_%(column_0_name)s",
+            # could be: "ck": "ck_%(table_name)s_%(constraint_name)s",
+            "fk": "%(table_name)s_%(column_0_name)s_%(referred_table_name)s_fkey",
+            "pk": "%(table_name)s_pkey",
+        })
         if base:
             self.base = base
         elif base_class:
             self.base = declarative_base(cls=base_class, metadata=metadata)
         else:
-            self.base = declarative_base(metadata=metadata)
-        self.session_extensions = session_extensions or []
-        if zope_transaction:
-            from zope.sqlalchemy import ZopeTransactionExtension
-            self.session_extensions.append(ZopeTransactionExtension())
+            self.base = declarative_base(name="Base", metadata=metadata)
         if self.metadata.bind:
             self._set_engine(self.metadata.bind)
         if args or k:
@@ -61,21 +71,25 @@ class SAContext:
 
     def _set_engine(self, engine):
         self.engine = engine
-        self.Session = sessionmaker(bind=engine,
-                                    extension=self.session_extensions)
+        self.Session = sessionmaker(bind=engine)
+        if self.use_transaction:
+            from zope.sqlalchemy import register as _transaction_register
+            _transaction_register(self.Session)
         self.dburi = str(engine.url)
 
-    def create_engine(self, dburi, **k):
+    def create_engine(self, dburi: str, **k):
+        """Set the engine according to ``dburi``."""
         self._set_engine(create_engine(dburi, **k))
         return self
 
     def use_memory(self, tables=None, **k):
+        """Create an in-memory SQLite engine, and create tables."""
         self.create_engine('sqlite:///:memory:', **k)
         self.create_tables(tables=tables)
         return self
 
     @property
-    def ss(self):
+    def scoped_session(self):
         """Return a (memoized) scoped session.
 
         This is created only when first used and then stored.
@@ -87,7 +101,7 @@ class SAContext:
         return self._scoped_session
 
     @property
-    def metadata(self):
+    def metadata(self):  # noqa
         return self.base.metadata
 
     def drop_tables(self, tables=None):
@@ -126,25 +140,25 @@ class SAContext:
         return o
 
     def subtransaction(self, fn):
-        """Decorator that encloses the decorated function in a subtransaction.
+        """Enclose in a subtransaction a decorated function.
 
         Your system must use our ``ss`` scoped session and it
         does not need to call ``commit()`` on the session.
         """
         @wraps(fn)
         def wrapper(*a, **kw):
-            self.ss.begin(subtransactions=True)
+            self.scoped_session.begin(subtransactions=True)
             try:
                 fn(*a, **kw)
-            except:
-                self.ss.rollback()
-                raise
+            except Exception as exc:
+                self.scoped_session.rollback()
+                raise exc
             else:
-                self.ss.commit()
+                self.scoped_session.commit()
         return wrapper
 
     def transaction(self, fn):
-        """Decorator that encloses the decorated function in a transaction.
+        """Enclose a decorated function in a transaction.
 
         Your system must use our ``ss`` scoped session and it
         does not need to call ``commit()`` on the session.
@@ -153,11 +167,11 @@ class SAContext:
         def wrapper(*a, **kw):
             try:
                 fn(*a, **kw)
-            except:
-                self.ss.rollback()
-                raise
+            except Exception as exc:
+                self.scoped_session.rollback()
+                raise exc
             else:
-                self.ss.commit()
+                self.scoped_session.commit()
         return wrapper
 
     def transient(self, fn):
@@ -170,59 +184,10 @@ class SAContext:
         """
         @wraps(fn)
         def wrapper(*a, **kw):
-            self.ss.begin(subtransactions=True)
-            self.ss.begin(subtransactions=True)
+            self.scoped_session.begin(subtransactions=True)
+            self.scoped_session.begin(subtransactions=True)
             try:
                 fn(*a, **kw)  # I assume fn consumes the inner subtransaction.
             finally:
-                self.ss.rollback()  # Revert the outer subtransaction.
+                self.scoped_session.rollback()  # Revert outer subtransaction
         return wrapper
-
-
-'''
-# TYPES FOR SQLITE
-# ================
-import sqlalchemy.types as types
-class AutoDate(types.TypeDecorator):
-    """A SQLAlchemy DateTime type that converts strings to datetime
-    when storing. Prevents TypeError("SQLite Date, Time, and DateTime types
-    only accept Python datetime objects as input.")
-    """
-    impl = types.DateTime
-
-    def process_bind_param(self, value, dialect):
-        if isinstance(value, basestring):
-            if value == '':
-                return None
-            parts = value.split('.')
-            dt = datetime.strptime(parts[0], "%Y-%m-%d %H:%M:%S")
-            if len(parts) > 1:
-                dt.replace(microsecond=int(parts[1]))
-            return dt
-        else:
-            return value
-
-
-class Integer(types.TypeDecorator):
-    impl = types.Integer
-
-    def process_bind_param(self, value, dialect):
-        """Make sure an int is persisted. Otherwise, SQLite might persist
-        things such as empty strings...
-        """
-        # return None if not value else int(value)
-        return None if value is None or value == '' else int(value)
-
-
-class Numeric(types.TypeDecorator):
-    impl = types.Numeric
-
-    def process_bind_param(self, value, dialect):
-        """When you are feeding a CSV file to a SQLite database, you
-        want empty strings to be automatically converted to None,
-        for a Decimal column...
-        """
-        return None if value == '' else value
-
-del types
-'''
