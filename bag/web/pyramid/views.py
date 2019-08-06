@@ -2,15 +2,21 @@
 
 from functools import wraps
 from json import dumps
-from bag import first
-from bag.web.exceptions import Problem
+from typing import Any, Callable
+
+from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPError
 from pyramid.response import Response
+
+from bag import first
+from bag.web.exceptions import Problem
 
 try:
     from bag.web.pyramid import _
 except ImportError:
     _ = str  # and i18n is disabled.
+
+ViewHandler = Callable[[Any, Any], Any]  # context, request, return value
 
 
 def get_json_or_raise(request, expect=None, dict_has=None):
@@ -64,7 +70,7 @@ def get_json_or_raise(request, expect=None, dict_has=None):
     return payload
 
 
-def ajax_view(view_function):
+def ajax_view(view_function: ViewHandler) -> ViewHandler:
     """Decorate AJAX views to...
 
     - treat certain exceptions
@@ -90,6 +96,7 @@ def ajax_view(view_function):
             raise HTTPError(
                 status_int=e.status_int,
                 content_type='application/json',
+                charset='utf-8',
                 body=dumps(adict),
                 detail=e.error_msg,  # could be shown to end users
                 comment=e.error_debug,  # not displayed to end users
@@ -106,28 +113,29 @@ def ajax_view(view_function):
     return wrapper
 
 
-def maybe_raise_unprocessable(e, **adict):
+def maybe_raise_unprocessable(exc: Exception, **adict) -> None:
     """Raise if the provided exception looks like a validation error.
 
     Raise 422 Unprocessable Entity, optionally with additional information.
     """
-    if hasattr(e, 'asdict') and callable(e.asdict):
+    if hasattr(exc, 'asdict') and callable(exc.asdict):  # type: ignore
         error_msg = getattr(
-            e, 'error_msg', _('Please correct error(s) in the form.'))
-        adict['invalid'] = e.asdict()
+            exc, 'error_msg', _('Please correct error(s) in the form.'))
+        adict['invalid'] = exc.asdict()  # type: ignore
         adict.setdefault('error_title', 'Invalid')
         adict.setdefault('error_msg', error_msg)
         raise HTTPError(
             status_int=422,  # Unprocessable Entity
             content_type='application/json',
+            charset='utf-8',
             body=dumps(adict),
             detail=error_msg,  # could be shown to end users
             # *comment* is not displayed to end users:
-            comment=str(e) or 'Form validation error',
+            comment=str(exc) or 'Form validation error',
         )
 
 
-def xeditable_view(view_function):
+def xeditable_view(view_function: ViewHandler) -> ViewHandler:
     """Decorate AJAX views that need to be friendly towards x-editable.
 
     x-editable is a famous edit-in-place component for AngularJS.
@@ -161,6 +169,7 @@ def xeditable_view(view_function):
         raise HTTPError(
             status_int=status_int,
             content_type='text/plain',
+            charset='utf-8',
             body=error_msg,
             detail=error_msg,  # could be shown to end users
             comment=comment,  # not displayed to end users
@@ -169,12 +178,17 @@ def xeditable_view(view_function):
 
 
 def serve_preloaded(
-    config, route_name, route_path, payload,
-    encoding=None, content_type=None,
-):
+    config: Configurator, route_name: str, route_path: str, payload: str,
+    encoding: str = '', content_type: str = '',
+) -> None:
     """Read a file (such as robots.txt or favicon.ini) into memory.
 
-    ...then set up a view that serves it.  Usage::
+    ...then set up a view that serves it.
+
+    Pass no ``encoding`` if the file is binary.  If text, pass the encoding
+    in which the file should be read (usually 'utf-8').
+
+    Usage::
 
         from bag.web.pyramid.views import serve_preloaded
         serve_preloaded(
@@ -189,7 +203,7 @@ def serve_preloaded(
             route_path='favicon.ico',
             payload='my_package:static/favicon.ico',
             content_type='image/x-icon',
-            )
+        )
     """
     from os.path import getmtime, getsize
     from pyramid.resource import abspath_from_resource_spec
@@ -202,10 +216,9 @@ def serve_preloaded(
         content_type = guess_type(path)[0] or 'application/octet-stream'
 
     if encoding:
-        import codecs
-        stream = codecs.open(path, 'r', encoding='utf-8')
+        stream = open(path, 'r', encoding=encoding)
     else:
-        stream = open(path, 'rb')
+        stream = open(path, 'rb')  # type: ignore
 
     kwargs = dict(
         content_type=content_type,
