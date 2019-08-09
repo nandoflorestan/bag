@@ -15,8 +15,13 @@ to the bottom of your Pyramid initialization, this call::
 TODO: Use the registry instead of a global variable "ops".
 """
 
-from bag.web.burla import Burla, DOC_TITLE
 from pyramid.response import Response
+
+from bag.web.burla import Burla
+try:
+    from bag.web.pyramid import _
+except ImportError:
+    _ = str  # and i18n is disabled.
 
 
 class PyramidBurla(Burla):
@@ -62,6 +67,7 @@ js_content = None  # populated lazily
 
 
 def add_http_operations_list_url(config, url='/http_operations'):
+    """Add a view that returns pages and HTTP operations as JSON."""
     NAME = 'List operations'
     config.add_route(NAME, url)
 
@@ -72,15 +78,17 @@ def add_http_operations_list_url(config, url='/http_operations'):
         return ops.to_dict()
 
 
-def add_view_for_javascript_file(config, url='/burla'):
+def add_view_for_javascript_file(config, url='/burla'):  # noqa
     NAME = 'Burla JS module'
     config.add_route(NAME, url)
 
     @ops.op(NAME, section='Infrastructure', url_templ=url,
             request_method='GET', route_name=NAME, renderer='string')
     def javascript_burla_file(context, request):
-        """Javascript file that contains the available pages and HTTP API
-        operations as well as functions to generate corresponding URLs.
+        """Return the Javascript burla module.
+
+        It contains the available pages and HTTP API operations as well as
+        functions to generate corresponding URLs.
         """
         request.response.content_type = 'application/javascript'
         global js_content
@@ -89,25 +97,36 @@ def add_view_for_javascript_file(config, url='/burla'):
         return js_content
 
 
-def add_view_for_documentation(config, url='/api_docs', title=None,
-                               prefix=None, suffix=None):
-    from docutils.core import publish_string
-    config.add_route(DOC_TITLE, url)
+def add_api_doc_view(config, url: str = '/doc_api', **kw) -> None:
+    """Add to a Pyramid web app a URL documenting its API."""
+    _add_doc_view(config, pages=False, name=Burla.API_TITLE, url=url, **kw)
 
-    @ops.page(DOC_TITLE, section='Infrastructure', url_templ=url,
-              route_name=DOC_TITLE)
-    def api_documentation_view(context, request):
-        """Displays all available HTTP API methods."""
+
+def _add_doc_view(
+    config, name: str, url: str, title: str = '', pages: bool = False,
+    prefix: str = '', suffix: str = '',
+) -> None:
+    from docutils.core import publish_string
+    config.add_route(name, url)
+
+    @ops.page(name, section='Infrastructure', url_templ=url, route_name=name)
+    def documentation_view(context, request):
+        """Page that documents all available URLs."""
         content = publish_string(
             '\n'.join(ops.gen_documentation(
-                title=title, prefix=prefix, suffix=suffix)),
+                pages=pages, title=title, prefix=prefix, suffix=suffix)),
             settings_overrides={'output_encoding': 'unicode'},
             writer_name='html')
         return Response(body=content)
 
 
+def add_pages_doc_view(config, url: str = '/doc_pages', **kw) -> None:
+    """Add to a Pyramid web app a URL with its site map."""
+    _add_doc_view(config, pages=True, name=Burla.PAGES_TITLE, url=url, **kw)
+
+
 def includeme(config):
-    """Hook for Pyramid; adds 2 URLs to your application.
+    """Add 2 URLs to a Pyramid web application.
 
     - **/http_operations**: JSON list of endpoints.
     - **/burla**: Javascript library to generate URLs using the above.
@@ -119,4 +138,3 @@ def includeme(config):
 
     add_http_operations_list_url(config)
     add_view_for_javascript_file(config)
-    # add_view_for_documentation(config)

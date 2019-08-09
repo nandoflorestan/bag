@@ -52,6 +52,7 @@ other frameworks.
 from collections import OrderedDict
 from json import dumps
 from re import compile
+from typing import Dict, List
 from urllib.parse import urlencode
 
 try:
@@ -203,21 +204,36 @@ class Burla:
             'ops': {o.name: o.to_dict() for o in self.gen_ops()},
             }
 
-    def gen_documentation(self, title=None, prefix=None, suffix=None):
+    API_TITLE = _('HTTP API Documentation')
+    PAGES_TITLE = _('Site map')
+
+    def gen_documentation(
+        self, pages=False, title: str = '', prefix: str = '', suffix: str = '',
+    ):
         """Generate documentation in reStructuredText.
+
+        If ``pages`` is True, the documentation is a site map.  But by default
+        the documentation contains HTTP API methods.
 
         Sources of information are the 'section', 'name', 'doc' and
         'permission' attributes of the registered Operation instances.
         """
+        if pages:
+            title = title or self.PAGES_TITLE
+            methods_title = _('Pages')
+            items = self.gen_pages()
+        else:
+            title = title or self.API_TITLE
+            methods_title = _('API methods')
+            items = self.gen_ops()
         # Organize the operations inside their respective sections first
-        sections = {}
-        for op in self.gen_ops():
+        sections: Dict[str, List[Operation]] = {}
+        for op in items:
             if op.section not in sections:
                 sections[op.section] = []
             sections[op.section].append(op)
 
-        if title != '':
-            title = title or DOC_TITLE
+        if title:
             title_line = '=' * len(title)
             yield title_line
             yield title
@@ -226,17 +242,16 @@ class Burla:
         if prefix:
             yield prefix
             yield ''
-        yield 'API methods'
-        yield '~~~~~~~~~~~'
-        yield ''
+        yield methods_title
+        yield '=' * len(methods_title)
 
-        for section in sorted(sections):
-            if section:
-                yield section
-                yield '=' * len(section)
+        for section_name in sorted(sections):
+            if section_name:
+                yield section_name
+                yield '=' * len(section_name)
                 yield ''
 
-            section = sections[section]
+            section = sections[section_name]
             for op in sorted(section, key=lambda op: op.name):
                 if op.name:
                     yield op.name
@@ -255,8 +270,8 @@ class Burla:
                     yield op.doc
                     yield ''
                 if op.permission:
-                    yield 'This method requires that the user have the ' \
-                        '"{}" permission.'.format(op.permission)
+                    yield _('Requires that the user have the '
+                            f'"{op.permission}" permission.')
                     yield ''
 
         if suffix:
@@ -347,6 +362,3 @@ window.burla = {
                 {o.name: o.to_dict() for o in self.gen_ops()},
                 sort_keys=True)) \
             .replace('ROOT', dumps(self.root))
-
-
-DOC_TITLE = _('HTTP API Documentation')
