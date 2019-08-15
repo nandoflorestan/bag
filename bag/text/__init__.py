@@ -201,15 +201,17 @@ def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
     return best
 
 
-def capitalize(txt):
+def capitalize(txt: str) -> str:
     """Trim, then turn only the first character into upper case.
 
     This function can be used as a colander preparer.
     """
-    if txt in (None, '') or (
+    if txt is None or (
             not isinstance(txt, str) and repr(txt) == '<colander.null>'):
         return txt
-    txt = txt.strip()
+    txt = str(txt).strip()
+    if txt == '':
+        return txt
     val = txt[0].upper()
     if len(txt) > 1:
         val += txt[1:]
