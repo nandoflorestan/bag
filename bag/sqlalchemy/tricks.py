@@ -3,6 +3,8 @@
 import re
 from datetime import datetime
 from typing import List, Tuple, Union
+from warnings import warn
+
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import backref as _backref, class_mapper, ColumnProperty
 from sqlalchemy.orm.attributes import (
@@ -11,6 +13,7 @@ from sqlalchemy.orm.dynamic import DynamicAttributeImpl
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.types import Integer, DateTime, Unicode
+
 from bag.settings import resolve
 from bag.web.exceptions import Problem
 from ..web import gravatar_image
@@ -234,9 +237,10 @@ def persistent_attribute_names_of(cls):
 class MinimalBase:
     """Declarative base class that auto-generates __tablename__."""
 
-    __table_args__ = dict(
-        mysql_engine='InnoDB',
-        mysql_charset='utf8')  # type: Union[dict, tuple]
+    __table_args__: Union[dict, tuple] = {
+        "mysql_engine": "InnoDB",
+        "mysql_charset": "utf8",
+    }
 
     @declared_attr
     def __tablename__(cls):
@@ -276,6 +280,11 @@ class MinimalBase:
 
         ``is_new`` is True if the object already exists in the database.
         """
+        warn(
+            "get_or_create() is deprecated and will be removed, because "
+            "model methods should not use the SQLAlchemy session.",
+            DeprecationWarning
+        )
         instance = session.query(cls).filter_by(**filters).first()
         is_new = not instance
         if is_new:
@@ -291,6 +300,11 @@ class MinimalBase:
         ``filters``. Then applies ``values`` and returns a tuple
         ``(object, is_new)``.
         """
+        warn(
+            "create_or_update() is deprecated and will be removed, because "
+            "model methods should not use the SQLAlchemy session.",
+            DeprecationWarning
+        )
         instance, is_new = cls.get_or_create(session, **filters)
         for k, v in values.items():
             setattr(instance, k, v)
@@ -325,6 +339,11 @@ class MinimalBase:
 
         A new query is needed to retrieve the totality of the associations.
         """
+        warn(
+            "update_association() is deprecated and will be removed, because "
+            "model methods should not use the SQLAlchemy session.",
+            DeprecationWarning
+        )
         # Fetch eventually existing association IDs
         existing_ids = frozenset([
             o[0] for o in sas.query(getattr(cls, field)).filter_by(**filters)])
@@ -367,6 +386,11 @@ class MinimalBase:
             adict.update(values)
         clone = self.__class__(**adict)
         if sas:  # Optionally add the clone to the SQLAlchemy session
+            warn(
+                "The sas argument of clone() is deprecated and "
+                "will be removed.",
+                DeprecationWarning
+            )
             sas.add(clone)
         return clone
 
