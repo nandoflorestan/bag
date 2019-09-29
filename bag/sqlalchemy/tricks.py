@@ -404,6 +404,26 @@ class ID:
         return Column(Integer, autoincrement=True, primary_key=True)
 
 
+class Names:
+    """Mixin class that includes 2 ways to handle a person's names."""
+
+    @declared_attr
+    def full_name(cls):  # noqa
+        return Column(Unicode(120), nullable=False)
+
+    @declared_attr
+    def short_name(cls):  # noqa
+        return Column(Unicode(16), nullable=False)
+
+    @property
+    def display_name(self):  # noqa
+        return self.short_name or self.full_name
+
+    @property
+    def formal_name(self):  # noqa
+        return self.full_name or self.short_name
+
+
 class AddressBase:
     """Base class for addresses.
 
