@@ -22,8 +22,8 @@ http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html#chec
 
 from pyramid.events import NewResponse
 
-COOKIE_NAME = 'XSRF-TOKEN'
-HEADER_NAME = 'X-XSRF-Token'  # different from Pyramid's default 'X-CSRF-Token'
+COOKIE_NAME = "XSRF-TOKEN"
+HEADER_NAME = "X-XSRF-Token"  # different from Pyramid's default 'X-CSRF-Token'
 
 
 def on_GET_request_setup_csrf_cookie(ev):
@@ -33,11 +33,20 @@ def on_GET_request_setup_csrf_cookie(ev):
     JavaScript readable session cookie called XSRF-TOKEN.
     Angular will pick it up for subsequent AJAX requests.
     """
-    if ev.request.method == 'GET':  # and not 'static' in ev.request.path:
-        token = ev.request.session.get_csrf_token()
-        # print(ev.request.session.session_id, token)
-        if ev.request.cookies.get('XSRF-TOKEN') != token:
-            ev.response.set_cookie(COOKIE_NAME, token, overwrite=True)
+    request = ev.request
+    if request.method == "GET":  # and not 'static' in request.path:
+        token = request.session.get_csrf_token()
+        # print(request.session.session_id, token)
+        if request.cookies.get("XSRF-TOKEN") != token:
+            # Set the Secure flag on the cookie only when serving on https.
+            secure = request.registry.settings.get("scheme_domain_port", None)
+            ev.response.set_cookie(
+                COOKIE_NAME,
+                token,
+                overwrite=True,
+                secure=secure,
+                httponly=False,  # The client reads the cookie to send header
+            )
 
 
 def includeme(config):
