@@ -39,7 +39,9 @@ def on_GET_request_setup_csrf_cookie(ev):
         # print(request.session.session_id, token)
         if request.cookies.get("XSRF-TOKEN") != token:
             # Set the Secure flag on the cookie only when serving on https.
-            secure = request.registry.settings.get("scheme_domain_port", None)
+            secure: bool = request.registry.settings.get(
+                "scheme_domain_port", ""
+            ).startswith("https")
             ev.response.set_cookie(
                 COOKIE_NAME,
                 token,
