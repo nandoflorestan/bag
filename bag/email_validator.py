@@ -82,6 +82,7 @@ See also tests/test_email_validator.py
 """
 
 import re
+
 try:
     import DNS
 except ImportError:
@@ -97,8 +98,7 @@ class ValidationException(ValueError):
     """Raised when a domain or email is invalid."""
 
 
-class BaseValidator:
-
+class BaseValidator:  # noqa
     def validate_or_raise(self, *a, **k):
         """Raise ValidationException if validation fails.
 
@@ -121,17 +121,19 @@ class DomainValidator(BaseValidator):
     """
 
     # non_international_regex = re.compile(r"^[a-z0-9][a-z0-9\.\-]*\.[a-z]+$",
-    domain_pattern = r'[\w][\w\.\-]+?\.[\w]+'
-    domain_regex = \
-        re.compile('^' + domain_pattern + '$', re.IGNORECASE | re.UNICODE)
+    domain_pattern = r"[\w]+[\w\.\-]*\.[\w]+"
+    domain_regex = re.compile(
+        "^" + domain_pattern + "$", re.IGNORECASE | re.UNICODE
+    )
 
     def __init__(self, fix=False, lookup_dns=None):
         self.fix = fix
         if lookup_dns:
             lookup_dns = lookup_dns.lower()
-            if lookup_dns not in ('a', 'mx'):
+            if lookup_dns not in ("a", "mx"):
                 raise RuntimeError(
-                    "Not a valid *lookup_dns* value: " + lookup_dns)
+                    "Not a valid *lookup_dns* value: " + lookup_dns
+                )
         self._lookup_dns = lookup_dns
 
     def _apply_common_rules(self, part, maxlength):
@@ -140,31 +142,31 @@ class DomainValidator(BaseValidator):
         """
         part = part.strip()
         if self.fix:
-            part = part.strip('.')
+            part = part.strip(".")
         if not part:
-            return part, 'It cannot be empty.'
+            return part, "It cannot be empty."
         if len(part) > maxlength:
-            return part, 'It cannot be longer than %i chars.' % maxlength
-        if part[0] == '.':
-            return part, 'It cannot start with a dot.'
-        if part[-1] == '.':
-            return part, 'It cannot end with a dot.'
-        if '..' in part:
-            return part, 'It cannot contain consecutive dots.'
-        return part, ''
+            return part, "It cannot be longer than %i chars." % maxlength
+        if part[0] == ".":
+            return part, "It cannot start with a dot."
+        if part[-1] == ".":
+            return part, "It cannot end with a dot."
+        if ".." in part:
+            return part, "It cannot contain consecutive dots."
+        return part, ""
 
     def validate_domain(self, part):
         if self.fix:
-            part = part.strip(' ;,=')
+            part = part.strip(" ;,=")
         part, err = self._apply_common_rules(part, maxlength=255)
         if err:
-            return part, 'Invalid domain: %s' % err
+            return part, "Invalid domain: %s" % err
         if not self.domain_regex.search(part):
-            return part, 'Invalid domain.'
+            return part, "Invalid domain."
         if self._lookup_dns and not self.lookup_domain(part):
-            return part, 'Domain does not seem to exist.'
+            return part, "Domain does not seem to exist."
         else:
-            return part.lower(), ''
+            return part.lower(), ""
 
     validate = validate_domain
 
@@ -177,7 +179,7 @@ class DomainValidator(BaseValidator):
     For us, this feature appears as a false positive when looking up the
     DNS server. So we try to work around it:
     """
-    false_positive_ips = ['208.67.217.132']
+    false_positive_ips = ["208.67.217.132"]
 
     def lookup_domain(self, domain, lookup_record=None):
         """Looks up the DNS record for *domain* and returns:
@@ -203,16 +205,17 @@ class DomainValidator(BaseValidator):
             try:
                 answers = DNS.Request(domain).req().answers
             except NameError:
-                print('To look up DNS records you must install pydns. Try:')
-                print('    easy_install -UZ pydns')
+                print("To look up DNS records you must install pydns. Try:")
+                print("    easy_install -UZ pydns")
                 import sys
+
                 sys.exit(1)
             except DNS.Lib.PackError:
                 # A part of the domain name is longer than 63.
                 return False
             # print(repr(answers))
             if answers:
-                result = answers[0]['data']  # This is an IP address
+                result = answers[0]["data"]  # This is an IP address
                 if result in self.false_positive_ips:
                     result = None
                     # print("Domain '%s' not found" % domain)
@@ -231,7 +234,8 @@ class DomainValidator(BaseValidator):
             #    print("Domain '%s' has no MX records." % domain)
         else:
             raise RuntimeError(
-                "Not a valid lookup_record value: " + lookup_record)
+                "Not a valid lookup_record value: " + lookup_record
+            )
         return result
 
 
@@ -245,25 +249,27 @@ class EmailValidator(DomainValidator):
     def __init__(self, local_part_chars=".-+_!#$%&'/=`|~?^{}*", **k):
         super(EmailValidator, self).__init__(**k)
         # Add a backslash before the dash so it can go into the regex:
-        self.local_part_pattern = '[a-z0-9' \
-            + local_part_chars.replace('-', r'\-') + ']+'
+        self.local_part_pattern = (
+            "[a-z0-9" + local_part_chars.replace("-", r"\-") + "]+"
+        )
         # Regular expression for validation:
-        self.local_part_regex = \
-            re.compile('^' + self.local_part_pattern + '$', re.IGNORECASE)
+        self.local_part_regex = re.compile(
+            "^" + self.local_part_pattern + "$", re.IGNORECASE
+        )
 
     def validate_local_part(self, part):
         part, err = self._apply_common_rules(part, maxlength=64)
         if err:
-            return part, 'Invalid local part: %s' % err
+            return part, "Invalid local part: %s" % err
         if not self.local_part_regex.search(part):
-            return part, 'Invalid local part.'
-        return part, ''
+            return part, "Invalid local part."
+        return part, ""
         # We don't go lowercase because the local part is case-sensitive.
 
     def validate_email(self, email):
         if not email:
-            return email, 'The e-mail is empty.'
-        parts = email.split('@')
+            return email, "The e-mail is empty."
+        parts = email.split("@")
         if len(parts) != 2:
             return email, "An email address must contain a single @"
         local, domain = parts
@@ -271,31 +277,35 @@ class EmailValidator(DomainValidator):
         # Validate the domain
         domain, err = self.validate_domain(domain)
         if err:
-            return (email,
-                    "The e-mail has a problem to the right of the @: %s" % err)
+            return (
+                email,
+                "The e-mail has a problem to the right of the @: %s" % err,
+            )
         # Validate the local part
         local, err = self.validate_local_part(local)
         if err:
-            return (email,
-                    "The email has a problem to the left of the @: %s" % err)
+            return (
+                email,
+                "The email has a problem to the left of the @: %s" % err,
+            )
         # It is valid
-        return local + '@' + domain, ''
+        return local + "@" + domain, ""
 
     validate = validate_email
 
 
-class EmailHarvester(EmailValidator):
-
-    def __init__(self, *a, **k):
+class EmailHarvester(EmailValidator):  # noqa
+    def __init__(self, *a, **k):  # noqa
         super(EmailHarvester, self).__init__(*a, **k)
         # Regular expression for harvesting:
-        self.harvest_regex = \
-            re.compile(self.local_part_pattern + '@' + self.domain_pattern,
-                       re.IGNORECASE | re.UNICODE)
+        self.harvest_regex = re.compile(
+            self.local_part_pattern + "@" + self.domain_pattern,
+            re.IGNORECASE | re.UNICODE,
+        )
 
     def harvest(self, text):
-        """Iterator that yields the e-mail addresses contained in *text*."""
+        """Yield the e-mail addresses contained in *text*."""
         for match in self.harvest_regex.finditer(text):
             # TODO: optionally validate before yielding?
             # TODO: keep a list of harvested but not validated?
-            yield match.group().replace('..', '.')
+            yield match.group().replace("..", ".")
