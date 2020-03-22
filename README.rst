@@ -8,7 +8,7 @@ I use SQLAlchemy and Pyramid a lot.
 
 **Documentation** is at http://docs.nando.audio/bag/latest/
 
-The library, tested on Python 3.5 and 3.6, is hosted at
+The code is at
 https://github.com/nandoflorestan/bag
 where you can do your bug reports and pull requests.
 
@@ -16,6 +16,7 @@ where you can do your bug reports and pull requests.
 - bag 0.9.0 is the last version that supported Python 2.7.
 - bag 1.3.0 is the last version that supported Python 3.4.
 - bag 2.0 requires Python 3.5's "typing" module for gradual typing.
+- bag 2.1.0 is the last version that supported Python 3.5.
 
 This version of **bag** was published with
 `releaser <https://pypi.python.org/pypi/releaser>`_.
