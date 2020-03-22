@@ -43,9 +43,6 @@ Most important library contents
   -- Complete solution for javascript internationalization. Compatible with
   jquery templates. Includes
   `transecma.js <https://github.com/nandoflorestan/bag/blob/master/bag/web/transecma.js>`_.
-- `bag.web.web_deps <http://docs.nando.audio/bag/latest/api/bag.web.web_deps.html>`_
-  -- Ensure your javascript libraries and CSS stylesheets appear in the right
-  order, and require them from different parts of your code.
 
 
 If you use the Pyramid web framework
@@ -129,3 +126,12 @@ Less important library contents
 - `bag.time <http://docs.nando.audio/bag/latest/api/bag.time.html>`_
   -- Functions to make it easier to work with datetimes.
   Includes a JSON encoder that supports time, datetime and Decimal.
+
+
+Compiling the documentation
+===========================
+
+Install ``make``, activate your virtualenv, and then::
+
+    pip install sphinx sphinx-autodoc-typehints
+    ./build_sphinx_documentation.sh

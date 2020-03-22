@@ -73,8 +73,15 @@ class Page:
         /cities/:city/streets/:street
     """
 
-    def __init__(self, op_name, url_templ, fn=None, permission=None,
-                 section='Miscellaneous', **view_args):
+    def __init__(
+        self,
+        op_name,
+        url_templ,
+        fn=None,
+        permission=None,
+        section="Miscellaneous",
+        **view_args,
+    ):
         assert isinstance(op_name, str)
         assert op_name
         assert isinstance(url_templ, str)
@@ -87,9 +94,9 @@ class Page:
         doc = fn.__doc__ if fn else None
         if doc:
             alist = []
-            for line in doc.split('\n'):
-                alist.append(line[4:] if line.startswith(' ' * 4) else line)
-            doc = '\n'.join(alist)
+            for line in doc.split("\n"):
+                alist.append(line[4:] if line.startswith(" " * 4) else line)
+            doc = "\n".join(alist)
         self.doc = doc  # description of the page or HTTP operation
 
         self.permission = permission
@@ -102,28 +109,29 @@ class Page:
         self.params = []
         for match in self.PARAM.finditer(self.url_templ):
             self.params.append(match.group(1))
-    PARAM = compile(r':([a-z_]+)')
 
-    def url(self, fragment='', **kw):
+    PARAM = compile(r":([a-z_]+)")
+
+    def url(self, fragment="", **kw):
         """Given a dictionary, generate an actual URL from the template."""
         astr = self.url_templ
         for param in self.params:
-            key = ':' + param
+            key = ":" + param
             if key in self.url_templ:
                 value = str(kw.pop(param))
                 astr = astr.replace(key, value)
         # The remaining params in kw make the query parameters
         if kw:
-            astr += '?' + urlencode(kw)
+            astr += "?" + urlencode(kw)
         if fragment:
-            astr += '#' + fragment
+            astr += "#" + fragment
         return astr
 
     def to_dict(self):
         """Convert this instance into a dictionary, maybe for JSON output."""
         return {
-            'url_templ': self.url_templ,
-            'permission': self.permission,
+            "url_templ": self.url_templ,
+            "permission": self.permission,
         }
 
     is_page = True
@@ -135,7 +143,7 @@ class Operation(Page):
 
     def to_dict(self):
         adict = super(Operation, self).to_dict()
-        adict['request_method'] = self.view_args.get('request_method')
+        adict["request_method"] = self.view_args.get("request_method")
         return adict
 
     is_page = False
@@ -148,20 +156,22 @@ class Burla:
     Generates URLs and provides JS code to generate URLs in the client.
     """
 
-    def __init__(self, root='', page_class=Page, op_class=Operation):
+    def __init__(self, root="", page_class=Page, op_class=Operation):
         self.map = OrderedDict()
         self.root = root
         self._page_class = page_class
         self._op_class = op_class
 
     def _add_page(self, op_name, **kw):
-        assert op_name not in self.map, 'Already registered: {}'.format(
-            op_name)
+        assert op_name not in self.map, "Already registered: {}".format(
+            op_name
+        )
         self.map[op_name] = self._page_class(op_name, **kw)
 
     def _add_op(self, op_name, **kw):
-        assert op_name not in self.map, 'Already registered: {}'.format(
-            op_name)
+        assert op_name not in self.map, "Already registered: {}".format(
+            op_name
+        )
         self.map[op_name] = self._op_class(op_name, **kw)
 
     def url(self, name, **kw):
@@ -175,16 +185,20 @@ class Burla:
 
     def add_op(self, op_name, **kw):
         """Decorate view handlers to register an operation with Burla."""
+
         def wrapper(view_handler):
             self._add_op(op_name, fn=view_handler, **kw)
             return view_handler
+
         return wrapper
 
     def add_page(self, op_name, **kw):
         """Decorator for view handlers that registers a page with Burla."""
+
         def wrapper(view_handler):
             self._add_page(op_name, fn=view_handler, **kw)
             return view_handler
+
         return wrapper
 
     def gen_pages(self):
@@ -200,15 +214,15 @@ class Burla:
     def to_dict(self):
         """Use this to generate JSON so the client knows the URLs too."""
         return {
-            'pages': {o.name: o.to_dict() for o in self.gen_pages()},
-            'ops': {o.name: o.to_dict() for o in self.gen_ops()},
-            }
+            "pages": {o.name: o.to_dict() for o in self.gen_pages()},
+            "ops": {o.name: o.to_dict() for o in self.gen_ops()},
+        }
 
-    API_TITLE = _('HTTP API Documentation')
-    PAGES_TITLE = _('Site map')
+    API_TITLE = _("HTTP API Documentation")
+    PAGES_TITLE = _("Site map")
 
     def gen_documentation(
-        self, pages=False, title: str = '', prefix: str = '', suffix: str = '',
+        self, pages=False, title: str = "", prefix: str = "", suffix: str = "",
     ):
         """Generate documentation in reStructuredText.
 
@@ -220,11 +234,11 @@ class Burla:
         """
         if pages:
             title = title or self.PAGES_TITLE
-            methods_title = _('Pages')
+            methods_title = _("Pages")
             items = self.gen_pages()
         else:
             title = title or self.API_TITLE
-            methods_title = _('API methods')
+            methods_title = _("API methods")
             items = self.gen_ops()
         # Organize the operations inside their respective sections first
         sections: Dict[str, List[Operation]] = {}
@@ -234,49 +248,51 @@ class Burla:
             sections[op.section].append(op)
 
         if title:
-            title_line = '=' * len(title)
+            title_line = "=" * len(title)
             yield title_line
             yield title
             yield title_line
-            yield ''
+            yield ""
         if prefix:
             yield prefix
-            yield ''
+            yield ""
         yield methods_title
-        yield '=' * len(methods_title)
+        yield "=" * len(methods_title)
 
         for section_name in sorted(sections):
             if section_name:
                 yield section_name
-                yield '=' * len(section_name)
-                yield ''
+                yield "=" * len(section_name)
+                yield ""
 
             section = sections[section_name]
             for op in sorted(section, key=lambda op: op.name):
                 if op.name:
                     yield op.name
-                    yield '-' * len(op.name)
-                    yield ''
+                    yield "-" * len(op.name)
+                    yield ""
                 if op.url_templ:
-                    yield '::\n'
-                    method = op.view_args.get('request_method')
+                    yield "::\n"
+                    method = op.view_args.get("request_method")
                     if method:
-                        url_line = method + ' ' + op.url_templ
+                        url_line = method + " " + op.url_templ
                     else:
                         url_line = op.url_templ
-                    yield '    ' + url_line
-                    yield ''
+                    yield "    " + url_line
+                    yield ""
                 if op.doc:
                     yield op.doc
-                    yield ''
+                    yield ""
                 if op.permission:
-                    yield _('Requires that the user have the '
-                            f'"{op.permission}" permission.')
-                    yield ''
+                    yield _(
+                        "Requires that the user have the "
+                        f'"{op.permission}" permission.'
+                    )
+                    yield ""
 
         if suffix:
             yield suffix
-            yield ''
+            yield ""
 
     def get_javascript_code(self):
         """Return a JS library to generate the application URLs.
@@ -284,7 +300,26 @@ class Burla:
         Return JS code containing the registered operations and pages,
         plus functions to generate URLs from them.
         """
-        return """"use strict";
+        return (
+            BURLA_JS.replace(
+                "PAGES",
+                dumps(
+                    {o.name: o.to_dict() for o in self.gen_pages()},
+                    sort_keys=True,
+                ),
+            )
+            .replace(
+                "OPERATIONS",
+                dumps(
+                    {o.name: o.to_dict() for o in self.gen_ops()},
+                    sort_keys=True,
+                ),
+            )
+            .replace("ROOT", dumps(self.root))
+        )
+
+
+BURLA_JS = """"use strict";
 
 // Usage:
 // const url = burla.page(pageName, params, fragment);
@@ -354,11 +389,4 @@ window.burla = {
             url: this.op(name, params, fragment),
         };
     }
-};\n""" \
-            .replace('PAGES', dumps(
-                {o.name: o.to_dict() for o in self.gen_pages()},
-                sort_keys=True)) \
-            .replace('OPERATIONS', dumps(
-                {o.name: o.to_dict() for o in self.gen_ops()},
-                sort_keys=True)) \
-            .replace('ROOT', dumps(self.root))
+};\n"""
