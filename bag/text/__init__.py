@@ -154,6 +154,53 @@ def slugify(
     return slug
 
 
+def break_lines_near(
+    text: str,
+    length: int,
+    leeway: int = 4,
+    whitespace: str = " \r\n\t",
+    end_line_break: str = "…",
+    start_line_break: str = "…",
+) -> List[str]:
+    """Return a list of *text* broken in lines of max *length*.
+
+    - ``leeway``: how far to search for whitespace
+    - ``whitespace``: characters considered whitespace
+    - ``end_line_break``: character to add to the end of broken words
+    - ``start_line_break``: character to add to the start of broken words
+    """
+    if not text:
+        return []
+    assert leeway >= 0
+    assert length > 0
+    result = []
+    text_buffer = text
+    while len(text_buffer) != 0:
+        done = False
+        if len(text_buffer) <= length:
+            result.append(text_buffer)
+            text_buffer = ""
+        else:
+            for pos in range(length, length - (leeway + 1), -1):
+                if text_buffer[pos] in whitespace:
+                    result.append(text_buffer[0:pos])
+                    text_buffer = text_buffer[pos + 1 : len(text_buffer)]
+                    done = True
+                    break
+            if not done:
+                result.append(
+                    text_buffer[0 : length - len(end_line_break)]
+                    + end_line_break
+                )
+                text_buffer = (
+                    start_line_break
+                    + text_buffer[
+                        length - len(end_line_break) : len(text_buffer)
+                    ]
+                )
+    return result
+
+
 def find_new_title(dir: str, filename: str) -> str:
     """Return a path that does not exist yet, in ``dir``.
 
