@@ -4,9 +4,11 @@ Python 3.4 introduces an object-oriented module for path manipulation
 called ``pathlib``. But it is missing certain convenience methods.
 """
 
+from datetime import datetime
 import os
 import pathlib  # present in Python 3.4 or later
 import shutil
+
 # https://docs.python.org/3/distutils/apiref.html#distutils.dir_util.copy_tree
 from distutils.dir_util import copy_tree
 
@@ -31,7 +33,7 @@ class Path(type(pathlib.Path())):  # type: ignore
         for path in self.iterdir():
             if path.is_dir():
                 yield from path.walk(filter=filter)
-            if (filter(path) if filter else True):
+            if filter(path) if filter else True:
                 yield path
         if this and (filter(self) if filter else True):
             yield self
@@ -51,8 +53,8 @@ class Path(type(pathlib.Path())):  # type: ignore
     def remove(self):
         """Delete self, irrespective of whether it's symlink, file or dir."""
         if self.is_symlink():  # is_symlink() must be evaluated before
-            self.unlink()      # is_dir() because is_dir() is true for a
-        elif self.is_dir():    # symbolic link pointing to a directory.
+            self.unlink()  # is_dir() because is_dir() is true for a
+        elif self.is_dir():  # symbolic link pointing to a directory.
             shutil.rmtree(str(self))
         else:
             self.unlink()
@@ -87,11 +89,29 @@ class Path(type(pathlib.Path())):  # type: ignore
         if self.is_file():
             shutil.copy(str(self), str(dest))
         elif self.is_dir():
-            copy_tree(str(self), str(dest),
-                      preserve_mode=0, preserve_times=0, verbose=0)
+            copy_tree(
+                str(self),
+                str(dest),
+                preserve_mode=0,
+                preserve_times=0,
+                verbose=0,
+            )
         else:
             raise RuntimeError(
-                '"{}" is not a file or directory!'.format(self.src))
+                '"{}" is not a file or directory!'.format(self.src)
+            )
+
+    @property
+    def mtime(self):
+        return self.stat().st_mtime
+
+    @mtime.setter
+    def mtime(self, mtime: datetime) -> None:
+        """Set modification time."""
+        path = str(self)
+        stat = os.stat(path)
+        atime = stat.st_atime
+        os.utime(path, times=(atime, mtime.timestamp()))
 
 
 del pathlib
@@ -104,7 +124,7 @@ def oct2int(number):
     -- you have to realize that is actually an octal number --,
     returns the corresponding integer to be able to chmod.
     """
-    return eval('0o' + str(number))
+    return eval("0o" + str(number))
 
 
 def corresponding_directory_perm(perm):
@@ -128,4 +148,4 @@ def default_directory_perms(file_perms):
     user_perm = corresponding_directory_perm(file_perms[0])
     group_perm = corresponding_directory_perm(file_perms[1])
     other_perm = corresponding_directory_perm(file_perms[2])
-    return int('{}{}{}'.format(user_perm, group_perm, other_perm))
+    return int("{}{}{}".format(user_perm, group_perm, other_perm))
