@@ -374,14 +374,16 @@ window.burla = {
     op: function (name, params, fragment) {
         return this._find(this.ops, name, params, fragment);
     },
-    pageFragment: function (name) {
+    pageTemplFragment: function (name) {
+        // Doesn't generate URLs, just returns the fragment of URL template.
         let o;
         try {
             o = this.pages[name];
         } catch (ex) {
             throw new Error(`No page named "${name}"!`);
         }
-        return o.url_templ.split('#')[1];
+        const parts = o.url_templ.split('#');
+        return parts.length === 1 ? "" : parts[1];
     },
     makeEnvelope: function (name, params, fragment) {
         return {
