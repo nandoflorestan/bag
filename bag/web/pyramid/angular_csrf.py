@@ -48,6 +48,7 @@ def on_GET_request_setup_csrf_cookie(ev):
                 overwrite=True,
                 secure=secure,
                 httponly=False,  # The client reads the cookie to send header
+                samesite="strict",
             )
 
 
