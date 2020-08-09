@@ -78,7 +78,7 @@ def add_http_operations_list_url(config, url='/http_operations'):
         return ops.to_dict()
 
 
-def add_view_for_javascript_file(config, url='/burla'):  # noqa
+def add_view_for_javascript_file(config, url='/burla.js'):  # noqa
     NAME = 'Burla JS module'
     config.add_route(NAME, url)
 

@@ -322,10 +322,11 @@ class Burla:
 BURLA_JS = """"use strict";
 
 // Usage:
+// import {burla} from "/burla.js";
 // const url = burla.page(pageName, params, fragment);
 // const url = burla.op(operationName, params, fragment);
 
-window.burla = {
+export const burla = {
     root: ROOT,
     pages: PAGES,
     ops: OPERATIONS,
@@ -346,9 +347,8 @@ window.burla = {
             throw new Error(`burla: No item called "${name}".`);
         const paramNames = this.requiredParameterNames(spec);
         for (const paramName of paramNames) {
-            if (params[paramName] == null)
-                throw new Error(
-                    `burla: Operation "${name}" requires parameter "${paramName}".`);
+            if (params[paramName] == null) throw new Error(
+                `burla: "${name}" requires parameter "${paramName}".`);
         }
         let s = spec.url_templ;
         const p = {};  // for after the question mark
