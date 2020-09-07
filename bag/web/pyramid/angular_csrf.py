@@ -34,22 +34,24 @@ def on_GET_request_setup_csrf_cookie(ev):
     Angular will pick it up for subsequent AJAX requests.
     """
     request = ev.request
-    if request.method == "GET":  # and not 'static' in request.path:
-        token = request.session.get_csrf_token()
-        # print(request.session.session_id, token)
-        if request.cookies.get("XSRF-TOKEN") != token:
-            # Set the Secure flag on the cookie only when serving on https.
-            secure: bool = request.registry.settings.get(
-                "scheme_domain_port", ""
-            ).startswith("https")
-            ev.response.set_cookie(
-                COOKIE_NAME,
-                token,
-                overwrite=True,
-                secure=secure,
-                httponly=False,  # The client reads the cookie to send header
-                samesite="strict",
-            )
+    if request.method != "GET":
+        # Skip if not GET. If could detect static requests, would skip too
+        return
+    token = request.session.get_csrf_token()
+    # print(request.session.session_id, token)
+    if request.cookies.get("XSRF-TOKEN") != token:
+        # Set the Secure flag on the cookie only when serving on https.
+        secure: bool = request.registry.settings.get(
+            "scheme_domain_port", ""
+        ).startswith("https")
+        ev.response.set_cookie(
+            COOKIE_NAME,
+            token,
+            overwrite=True,
+            secure=secure,
+            httponly=False,  # The client reads the cookie to send header
+            samesite="strict",
+        )
 
 
 def includeme(config):
