@@ -213,15 +213,6 @@ def foreign_keys_in(cls):
     return filtered
 
 
-def models_from_ids(sas, cls, ids):
-    """Generator that, given a sequence of IDs, yields model instances.
-
-    Performance is poor. TODO SOMEONE IMPROVE THIS PLEASE
-    """
-    for id in ids:
-        yield sas.query(cls).get(id)
-
-
 def persistent_attribute_names_of(cls):
     """Return a list of the names of the persistent attributes of ``cls``.
 
