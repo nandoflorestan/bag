@@ -24,11 +24,8 @@ This solution was moderately successful, but what is annoying in it is that,
 unlike the real session, it does not populate entities with their IDs
 when it is flushed -- neither does it take care of foreign keys.
 
-**Solution 2:** The ambitious :py:class:`FakeSession` is an implementation
-of the session that also stores entities in memory but tries to behave
-like a real session and actually interpret queries and filters and orders
-and so on and so forth. Currently it only works for very simple queries,
-but with your help it could become the perfect solution in the future.
+**Solution 2:** A more ambitious FakeSession class did not work out and
+has been removed already.
 
 **Solution 3:** As of 2016-05, I am sidestepping this as I try to implement
 Robert C. Martin's **Clean Architecture** in Python, which forbids I/O
@@ -37,17 +34,21 @@ import and use the session is the
 `Repository <https://gist.github.com/uris77/4711015>`_,
 which is dependency-injected into the service layer. This means the
 repository will contain one function per operation or query --
-thus it must be easy to mock. We'll see.
+thus it must be easy to mock. This makes the code more testable.
 """
 
-import operator
+from warnings import warn
 from bag import first
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from sqlalchemy.sql.elements import BindParameter, ColumnElement
+
+
+warn(
+    "bag.sqlalchemy.testing is deprecated. Use repository pattern instead.",
+    DeprecationWarning,
+)
 
 
 class FakeNoAutoFlush:
-
     def __enter__(self, *a):
         pass
 
@@ -146,7 +147,6 @@ class FakeSessionByType(BaseFakeSession):
 
 
 class FakeQueryByType(BaseFakeQuery):
-
     def __iter__(self):
         return self.sas._results[self.typs].__iter__()
 
@@ -154,187 +154,3 @@ class FakeQueryByType(BaseFakeQuery):
         return self
 
     join = filter_by = order_by = filter  # args are ignored
-
-
-class FakeSession(BaseFakeSession):
-    """SQLALchemy session mock intended for use in quick unit tests.
-    Because even SQLite in memory is far too slow for real unit tests.
-
-    Uses lists as an in-memory "database" which can be inspected at the
-    end of a unit test.  Tries to behave like autoflush mode.
-    You can actually make queries on this session, but only simple
-    queries work right now.
-
-    Use it like a real SQLAlchemy session::
-
-        sas = FakeSession()
-        user = User(name="Johann Gambolputty")
-        sas.add(user)
-        assert user in sas.db[User]
-        sas.add_all((Address(address="221b Baker Street"),
-                     Address(address="185 North Gower Street")))
-        sas.flush()  # optional because next line does autoflush
-        q = sas.query(User)  # returns a FakeQuery instance
-        q1 = q.filter_by(name="Johann Gambolputty")  # a new FakeQuery
-        assert user == q1.first()
-        assert user == q1.one()
-        assert [user] == q1.all()
-        assert [] == sas.query(User).filter_by(
-            name="Johann Gambolputty... de von Ausfern-schplenden").all()
-    """
-
-    def __init__(self, query_cls=None):
-        super(FakeSession, self).__init__()
-        self.query_cls = query_cls or FakeQuery
-        self.db = {}
-        self.dirty = []
-        self.queries_made = []
-        self.flush_called = 0
-
-    def add(self, entity):
-        typ = type(entity)
-        if typ not in self.db:
-            self.db[typ] = []
-        super(FakeSession, self).add(entity)
-
-    def add_all(self, entities):
-        for entity in entities:
-            self.add(entity)
-
-    def delete(self, entity):
-        self.deleted.append(entity)
-
-    def flush(self):
-        for entity in self.new:
-            collection = self.db[type(entity)]
-            if entity not in collection:
-                collection.append(entity)
-        for entity in self.deleted:
-            collection = self.db[type(entity)]
-            if entity in collection:
-                collection.remove(entity)
-        self.flush_called += 1
-        self.rollback()  # to clear the identity sets
-
-    def rollback(self):
-        self.new.clear()
-        self.dirty.clear()
-        self.deleted.clear()
-
-    def commit(self):
-        if self.new or self.deleted:
-            self.flush()
-        else:
-            self.rollback()  # to clear the identity sets
-
-
-class FakeQuery(BaseFakeQuery):
-
-    def __init__(self, sas, typs):
-        super(FakeQuery, self).__init__(sas, typs)
-        self.filters = {}
-        self.predicates = []
-        self.joins = []
-        self.orders = []
-
-    def _clone(self):
-        """Each method called on query returns a new query which must not
-        affect the original.
-        """
-        clone = super(FakeQuery, self)._clone()
-        clone.filters.update(self.filters)
-        clone.predicates.extend(self.predicates)
-        clone.joins.extend(self.joins)
-        clone.orders.extend(self.orders)
-        return clone
-
-    def join(self, *typs):
-        clone = self._clone()
-        clone.joins.extend(typs)
-        return clone
-
-    def filter(self, *predicates):
-        clone = self._clone()
-        clone.predicates.extend(predicates)
-        return clone
-
-    def filter_by(self, **filters):
-        clone = self._clone()
-        clone.filters.update(filters)
-        return clone
-
-    def order_by(self, *orders):
-        clone = self._clone()
-        clone.orders.extend(orders)
-        return clone
-
-    def _gen_unordered_results(self):
-        # "Log" usage of this query
-        self.sas.queries_made.append(self)
-
-        # In autoflush mode, flush is called before a query executes:
-        self.sas.flush()
-
-        # For simplicity, right now we only consider the first typ
-        first_typ = self.typs[0]
-        entities = self.sas.db.get(first_typ, ())
-        for entity in entities:
-            assert isinstance(entity, first_typ)
-            if self._eval_filters(entity) and self._eval_predicates(entity):
-                yield entity
-
-    def _eval_filters(self, entity):
-        for key, value in self.filters.items():
-            assert hasattr(entity, key)
-            if getattr(entity, key) != value:
-                return False
-        return True
-
-    def _eval_predicates(self, entity):
-        # TODO predicate matching will fail right now if there are joins
-        if self.joins:
-            raise NotImplementedError(
-                'FakeQuery does not yet return results with joins.')
-
-        for predicate in self.predicates:
-            if not self._eval_predicate(entity, predicate):
-                return False
-        return True
-
-    def _eval_predicate(self, entity, p):
-        """Run a .filter() clause/predicate against an entity."""
-        # raise NotImplementedError(
-        #     'FakeQuery does not yet work with .filter().')
-        assert isinstance(p.left, ColumnElement)
-        assert isinstance(p.right, BindParameter)
-        # cols = [x for x in (p.left, p.right) if isinstance(x, ColumnElement)]
-        # if len(cols) != 1:
-        #     raise RuntimeError('Not implemented case: cols == {}'.format(cols))
-        # param = first((x for x in (p.left, p.right) if isinstance(
-        #         x, BindParameter)))
-        col = p.left
-        param = p.right
-        entity_value = getattr(entity, col.name)
-        if p.operator is operator.eq:
-            # TODO What if names in entity and column differ?
-            # TODO Need to find the model with the table of col
-            return entity_value == param.value
-        elif p.operator.__name__ == 'ilike_op':
-            # TODO Deal with wildcards
-            return param.value in entity_value
-        else:
-            raise NotImplementedError(
-                "Operator not implemented: {}".format(p.operator.__name__))
-
-    def _gen_ordered_results(self):
-        # Reuse _gen_unordered_results() but then respect orders
-        raise NotImplementedError(
-            'FakeQuery does not yet return ordered results.')
-
-    def __iter__(self):
-        if self.orders:
-            for x in self._gen_ordered_results():
-                yield x
-        else:
-            for x in self._gen_unordered_results():
-                yield x
