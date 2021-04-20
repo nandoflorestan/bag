@@ -108,9 +108,6 @@ Less important library contents
 - `bag.log <http://docs.nando.audio/bag/latest/api/bag.log.html>`_
   -- Convenient logging initialization.
 - **bag.html** -- Encode and decode HTML and XML entities.
-- `bag.memoize <http://docs.nando.audio/bag/latest/api/bag.memoize.html>`_
-  -- *Memoize* decorator with a LRU (least recently used)
-  cache, which can take a keymaker function as an argument.
 - **bag.more_codecs** -- Got text in some weird encoding that
   Python doesn't know? OK, use iconv to decode it.
 - `bag.show_progress <http://docs.nando.audio/bag/latest/api/bag.show_progress.html>`_
