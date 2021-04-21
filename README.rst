@@ -76,9 +76,6 @@ If you use SQLAlchemy
 - `bag.sqlalchemy.context <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.context.html>`_
   -- Convenient SQLAlchemy initialization, at last.
 - `bag.sqlalchemy.mediovaigel <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.mediovaigel.html>`_ -- Complete solution for database fixtures using SQLAlchemy.
-- `bag.sqlalchemy.testing <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.testing.html>`_
-  -- Fake objects for unit testing code that uses SQLAlchemy. Tests will run
-  much faster because no database is accessed.
 - `bag.sqlalchemy.tricks <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.tricks.html>`_
   -- Various SQLAlchemy gimmicks, including a great base model class.
 
