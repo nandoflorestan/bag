@@ -37,12 +37,13 @@ Most important library contents
   -- Use argh to dispatch to subcommands with their command-line arguments.
 - `bag.web.burla <http://docs.nando.audio/bag/latest/api/bag.web.burla.html>`_
   -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration for it <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
-- `bag.web.flash_msg <http://docs.nando.audio/bag/latest/api/bag.web.flash_msg.html>`_
-  -- Advanced flash messages for any web framework. Also provided is `Pyramid integration <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/flash_msg.py>`_.
 - `bag.web.transecma <http://docs.nando.audio/bag/latest/api/bag.web.transecma.html>`_
   -- Complete solution for javascript internationalization. Compatible with
   jquery templates. Includes
   `transecma.js <https://github.com/nandoflorestan/bag/blob/master/bag/web/transecma.js>`_.
+- `bag.web.flash_msg` has been removed in favor of a better module in the
+  `kerno <http://docs.nando.audio/kerno/latest/>`_ library.  It defines
+  a rich class for UI messages to be stored in the HTTP session.
 
 
 If you use the Pyramid web framework
