@@ -11,23 +11,23 @@ from typing import Callable, Generator, List, Optional, Tuple  # noqa
 
 def parse_iso_date(txt: str) -> datetime:
     """Parse a datetime in ISO format."""
-    return datetime.strptime(txt[:19], '%Y-%m-%d %H:%M:%S')
+    return datetime.strptime(txt[:19], "%Y-%m-%d %H:%M:%S")
 
 
-def shorten(txt: str, length: int=10, ellipsis: str='…') -> str:
+def shorten(txt: str, length: int = 10, ellipsis: str = "…") -> str:
     """Truncate ``txt``, adding ``ellipsis`` to end, with total ``length``."""
     if len(txt) > length:
-        return txt[:length - len(ellipsis)] + ellipsis
+        return txt[: length - len(ellipsis)] + ellipsis
     else:
         return txt
 
 
 def shorten_proper(
-    name: str, length: int=11, ellipsis: str='…', min: int=None
+    name: str, length: int = 11, ellipsis: str = "…", min: int = None
 ) -> str:
     """Shorten a proper name for displaying."""
     min = min or int(length / 2.0)
-    words = name.split(' ')
+    words = name.split(" ")
     output = []  # type: List[str]
     ln = -1
     while words:
@@ -36,12 +36,15 @@ def shorten_proper(
         if ln > length:
             break
         output.append(word)
-    short = ' '.join(output)
-    return short if short and len(short) >= min \
+    short = " ".join(output)
+    return (
+        short
+        if short and len(short) >= min
         else shorten(name, length=length, ellipsis=ellipsis)
+    )
 
 
-def uncommafy(txt: str, sep: str=',') -> Generator[str, None, None]:
+def uncommafy(txt: str, sep: str = ",") -> Generator[str, None, None]:
     """Generate the elements of a comma-separated string.
 
     Takes a comma-delimited string and returns a generator of
@@ -55,47 +58,49 @@ def uncommafy(txt: str, sep: str=',') -> Generator[str, None, None]:
 
 def random_string(
     length: int,
-    chars: str='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    chars: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 ) -> str:
     """Return a random string of some `length`."""
-    return ''.join((random.choice(chars) for i in range(length)))
+    return "".join((random.choice(chars) for i in range(length)))
 
 
-latin1_map = (('"', '“”'),
-              ('-', '\u2013\u2014\u2022'),
-              ("'", '\u2018\u2019'),
-              ('',  '\ufffd\u2122\u2020'),
-              ('...', '\u2026'),
-              ('i',   '\u012b'),
-              ('ã',   '\u0101'),
-              ('r',   '\u0159'),
-              ('Z',   '\u017d'),
-              ('z',   '\u017e'),
-              ('EUR', '\u20ac'),
-              )  # chars that ISO-8859-1 does not support
+latin1_map = (
+    ('"', "“”"),
+    ("-", "\u2013\u2014\u2022"),
+    ("'", "\u2018\u2019"),
+    ("", "\ufffd\u2122\u2020"),
+    ("...", "\u2026"),
+    ("i", "\u012b"),
+    ("ã", "\u0101"),
+    ("r", "\u0159"),
+    ("Z", "\u017d"),
+    ("z", "\u017e"),
+    ("EUR", "\u20ac"),
+)  # chars that ISO-8859-1 does not support
 
-ascii_map = (('a', 'áàâãäå\u0101'),
-             ('e', 'éèêẽë'),
-             ('i', "íìîĩï"),
-             ('o', 'óòôõöø'),
-             ('u', "úùûũü"),
-             ('A', 'ÁÀÂÃÄÅ'),
-             ('E', 'ÉÈÊẼË'),
-             ('I', "ÍÌÎĨÏ"),
-             ('O', 'ÓÒÔÕÖØ'),
-             ('U', "ÚÙÛŨÜ"),
-             ('n', "ñ"),
-             ('c', "ç"),
-             ('N', "Ñ"),
-             ('C', "Ç"),
-             ('d', "Þ"),
-             ('ss', "ß"),
-             ('ae', "æ"),
-             ('oe', 'œ'),
-             ) + latin1_map
+ascii_map = (
+    ("a", "áàâãäå\u0101"),
+    ("e", "éèêẽë"),
+    ("i", "íìîĩï"),
+    ("o", "óòôõöø"),
+    ("u", "úùûũü"),
+    ("A", "ÁÀÂÃÄÅ"),
+    ("E", "ÉÈÊẼË"),
+    ("I", "ÍÌÎĨÏ"),
+    ("O", "ÓÒÔÕÖØ"),
+    ("U", "ÚÙÛŨÜ"),
+    ("n", "ñ"),
+    ("c", "ç"),
+    ("N", "Ñ"),
+    ("C", "Ç"),
+    ("d", "Þ"),
+    ("ss", "ß"),
+    ("ae", "æ"),
+    ("oe", "œ"),
+) + latin1_map
 
 
-def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
+def simplify_chars(txt, encoding="ascii", byts=False, amap=None):
     """Remove from ``txt`` all characters not supported by ``encoding``...
 
     but using a map to "simplify" some characters instead of
@@ -104,37 +109,43 @@ def simplify_chars(txt, encoding='ascii', byts=False, amap=None):
     If ``byts`` is true, return a bytestring.
     """
     if not amap:
-        if encoding == 'ascii':
+        if encoding == "ascii":
             amap = ascii_map
-        elif encoding.replace('-', '') in ('latin1', 'iso88591'):
+        elif encoding.replace("-", "") in ("latin1", "iso88591"):
             amap = latin1_map
     for plain, funny in amap:
         for f in funny:
             txt = txt.replace(f, plain)
-    return txt.encode(encoding, 'ignore') if byts else txt
+    return txt.encode(encoding, "ignore") if byts else txt
 
 
 def to_filename(
-    txt: str, for_web: bool=False, badchars: str='', maxlength: int=0,
-    encoding='latin1',
+    txt: str,
+    for_web: bool = False,
+    badchars: str = "",
+    maxlength: int = 0,
+    encoding="latin1",
 ) -> str:
     """Massage ``txt`` until it is a good filename."""
     txt = simplify_chars(txt, encoding=encoding).strip()
-    illegal = '\\/\t:?\'"<>|#$%&*[]•' + badchars
+    illegal = "\\/\t:?'\"<>|#$%&*[]•" + badchars
     for c in illegal:
-        txt = txt.replace(c, '')
+        txt = txt.replace(c, "")
     if maxlength:
         txt = txt[:maxlength].strip()
     if for_web:
-        txt = txt.replace(' ', '-') \
-                 .replace('--', '-').replace('--', '-')
+        txt = txt.replace(" ", "-").replace("--", "-").replace("--", "-")
     return txt
 
 
 def slugify(
-    txt: str, exists: Callable[[str], bool]=lambda x: False, badchars: str='',
-    maxlength: int=16, chars: str='abcdefghijklmnopqrstuvwxyz23456789',
-    min_suffix_length: int=1, max_suffix_length: int=4,
+    txt: str,
+    exists: Callable[[str], bool] = lambda x: False,
+    badchars: str = "",
+    maxlength: int = 16,
+    chars: str = "abcdefghijklmnopqrstuvwxyz23456789",
+    min_suffix_length: int = 1,
+    max_suffix_length: int = 4,
 ) -> str:
     """Return a slug that does not yet exist, based on ``txt``.
 
@@ -144,11 +155,15 @@ def slugify(
     Each attempt generates a longer suffix in order to keep the number of
     attempts at a minimum.
     """
-    slug1 = slug = to_filename(txt, for_web=True, badchars=badchars,
-                               maxlength=maxlength - max_suffix_length - 1)
+    slug1 = slug = to_filename(
+        txt,
+        for_web=True,
+        badchars=badchars,
+        maxlength=maxlength - max_suffix_length - 1,
+    )
     while exists(slug):
         rnd = random_string(min_suffix_length, chars=chars)
-        slug = slug1 + '-' + rnd
+        slug = slug1 + "-" + rnd
         if min_suffix_length != max_suffix_length:
             min_suffix_length += 1
     return slug
@@ -221,7 +236,7 @@ def find_new_title(dir: str, filename: str) -> str:
         else:
             increment = int(m.group(1)) + 1
             replacement = "(%03d)" % increment
-            root = root[:m.start(1) - 1]
+            root = root[: m.start(1) - 1]
         f = root + replacement + ext
         p = os.path.join(dir, f)
     return p
@@ -229,10 +244,10 @@ def find_new_title(dir: str, filename: str) -> str:
 
 def keep_digits(txt: str) -> str:
     """Discard from ``txt`` all non-numeric characters."""
-    return ''.join(filter(str.isdigit, txt))
+    return "".join(filter(str.isdigit, txt))
 
 
-def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
+def resist_bad_encoding(txt, possible_encodings=("utf8", "iso-8859-1")):
     """Use this to try to avoid errors from text whose encoding is unknown,
     when erroring out would be worse than possibly displaying garbage.
 
@@ -240,9 +255,9 @@ def resist_bad_encoding(txt, possible_encodings=('utf8', 'iso-8859-1')):
     """
     if not isinstance(txt, str):
         return txt
-    best = ''
+    best = ""
     for enc in possible_encodings:
-        temp = txt.decode(enc, 'ignore')
+        temp = txt.decode(enc, "ignore")
         if len(temp) > len(best):
             best = temp
     return best
@@ -254,10 +269,11 @@ def capitalize(txt: str) -> str:
     This function can be used as a colander preparer.
     """
     if txt is None or (
-            not isinstance(txt, str) and repr(txt) == '<colander.null>'):
+        not isinstance(txt, str) and repr(txt) == "<colander.null>"
+    ):
         return txt
     txt = str(txt).strip()
-    if txt == '':
+    if txt == "":
         return txt
     val = txt[0].upper()
     if len(txt) > 1:
@@ -281,7 +297,7 @@ def strip_lower_preparer(value):
         return value
 
 
-def content_of(paths, encoding='utf-8', sep='\n'):
+def content_of(paths, encoding="utf-8", sep="\n"):
     """Read, join and return the contents of ``paths``.
 
     Makes it easy to read one or many files.
@@ -329,65 +345,65 @@ def pluralize(singular: Optional[str]) -> str:
 
     """
     ABERRANT_PLURAL_MAP = {
-        'appendix': 'appendices',
-        'barracks': 'barracks',
-        'cactus': 'cacti',
-        'child': 'children',
-        'criterion': 'criteria',
-        'deer': 'deer',
-        'echo': 'echoes',
-        'elf': 'elves',
-        'embargo': 'embargoes',
-        'focus': 'foci',
-        'fungus': 'fungi',
-        'goose': 'geese',
-        'hero': 'heroes',
-        'hoof': 'hooves',
-        'index': 'indices',
-        'knife': 'knives',
-        'leaf': 'leaves',
-        'life': 'lives',
-        'man': 'men',
-        'mouse': 'mice',
-        'nucleus': 'nuclei',
-        'person': 'people',
-        'phenomenon': 'phenomena',
-        'potato': 'potatoes',
-        'self': 'selves',
-        'syllabus': 'syllabi',
-        'tomato': 'tomatoes',
-        'torpedo': 'torpedoes',
-        'veto': 'vetoes',
-        'woman': 'women',
+        "appendix": "appendices",
+        "barracks": "barracks",
+        "cactus": "cacti",
+        "child": "children",
+        "criterion": "criteria",
+        "deer": "deer",
+        "echo": "echoes",
+        "elf": "elves",
+        "embargo": "embargoes",
+        "focus": "foci",
+        "fungus": "fungi",
+        "goose": "geese",
+        "hero": "heroes",
+        "hoof": "hooves",
+        "index": "indices",
+        "knife": "knives",
+        "leaf": "leaves",
+        "life": "lives",
+        "man": "men",
+        "mouse": "mice",
+        "nucleus": "nuclei",
+        "person": "people",
+        "phenomenon": "phenomena",
+        "potato": "potatoes",
+        "self": "selves",
+        "syllabus": "syllabi",
+        "tomato": "tomatoes",
+        "torpedo": "torpedoes",
+        "veto": "vetoes",
+        "woman": "women",
     }
 
-    VOWELS = frozenset('aeiou')
+    VOWELS = frozenset("aeiou")
 
     if not singular:
-        return ''
+        return ""
     plural = ABERRANT_PLURAL_MAP.get(singular)
     if plural:
         return plural
     root = singular
     try:
-        if singular[-1] == 'y' and singular[-2] not in VOWELS:
+        if singular[-1] == "y" and singular[-2] not in VOWELS:
             root = singular[:-1]
-            suffix = 'ies'
-        elif singular[-1] == 's':
+            suffix = "ies"
+        elif singular[-1] == "s":
             if singular[-2] in VOWELS:
-                if singular[-3:] == 'ius':
+                if singular[-3:] == "ius":
                     root = singular[:-2]
-                    suffix = 'i'
+                    suffix = "i"
                 else:
                     root = singular[:-1]
-                    suffix = 'ses'
+                    suffix = "ses"
             else:
-                suffix = 'es'
-        elif singular[-2:] in ('ch', 'sh'):
-            suffix = 'es'
+                suffix = "es"
+        elif singular[-2:] in ("ch", "sh"):
+            suffix = "es"
         else:
-            suffix = 's'
+            suffix = "s"
     except IndexError:
-        suffix = 's'
+        suffix = "s"
     plural = root + suffix
     return plural
