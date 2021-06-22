@@ -1,7 +1,5 @@
 """Contains the invaluable @reify decorator, stolen from Pyramid."""
 
-from functools import update_wrapper
-
 
 class reify(object):
     """Substitute decorated method with its return value on 1st use.
@@ -37,7 +35,7 @@ class reify(object):
 
     def __init__(self, wrapped):
         self.wrapped = wrapped
-        update_wrapper(self, wrapped)
+        self.__doc__ = wrapped.__doc__
 
     def __get__(self, inst, objtype=None):
         if inst is None:
