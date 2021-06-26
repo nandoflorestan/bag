@@ -36,7 +36,7 @@ internationalization::
 
 Install bag and Babel::
 
-    easy_install -UZ bag Babel
+    pip install bag Babel
 
 In the locale/ directory of your web application, add a "js_mapping.conf"
 file with contents like these::

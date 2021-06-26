@@ -56,7 +56,7 @@ For that you can pass a ``lookup_dns='a'`` argument to the constructor, or even
 *lookup_dns='mx'* to verify that the domain actually has e-mail servers.
 To use this feature, you need to install the *pydns* library::
 
-     easy_install -UZ pydns
+     pip install pydns
 
 How to use
 ==========
@@ -206,7 +206,7 @@ class DomainValidator(BaseValidator):
                 answers = DNS.Request(domain).req().answers
             except NameError:
                 print("To look up DNS records you must install pydns. Try:")
-                print("    easy_install -UZ pydns")
+                print("    pip install pydns")
                 import sys
 
                 sys.exit(1)

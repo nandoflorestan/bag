@@ -30,30 +30,30 @@ obsolete tracking branches (see them with "git branch -a").
 
 from datetime import date, timedelta
 from bag.reify import reify
-from argh import ArghParser, arg  # easy_install argh
+from argh import ArghParser, arg  # pip install argh
 from bag.command import checked_execute  # , CommandError
 from bag.console import bool_input
 
-IGNORE = ['develop', 'master']
+IGNORE = ["develop", "master"]
 
 
 def merged_branches(remote=None, ignore=IGNORE):
     """Sequence of branches that have been merged onto the current branch."""
     if remote:
-        command = 'git branch -a --merged'
+        command = "git branch -a --merged"
     else:
-        command = 'git branch --merged'
+        command = "git branch --merged"
 
-    for name in checked_execute(command).split('\n'):
+    for name in checked_execute(command).split("\n"):
         # The command also lists the current branch, so we get rid of it
-        if name.startswith('* ') or ' -> ' in name:
+        if name.startswith("* ") or " -> " in name:
             continue
         name = name.strip()
 
-        if remote and name.startswith('remotes/'):
+        if remote and name.startswith("remotes/"):
             name = name[8:]
             if name.startswith(remote):
-                branch = Branch(name=name[len(remote) + 1:], remote=remote)
+                branch = Branch(name=name[len(remote) + 1 :], remote=remote)
             else:
                 continue
         else:
@@ -65,14 +65,16 @@ def merged_branches(remote=None, ignore=IGNORE):
 
 
 class Branch:
-
-    def __init__(self, name, remote=''):
+    def __init__(self, name, remote=""):
         self.name = name
         self.remote = remote
 
     def __repr__(self):
-        return 'remotes/{}/{}'.format(
-            self.remote, self.name) if self.remote else self.name
+        return (
+            "remotes/{}/{}".format(self.remote, self.name)
+            if self.remote
+            else self.name
+        )
 
     @reify
     def merge_date(self):
@@ -84,10 +86,10 @@ class Branch:
         """
         branch_spec = repr(self)
         line = checked_execute(
-            'git show --pretty=format:"%ci" {} | head -n 1'
-            .format(branch_spec))
+            'git show --pretty=format:"%ci" {} | head -n 1'.format(branch_spec)
+        )
         sdate = line[:10]
-        year, month, day = [int(x) for x in sdate.split('-')]
+        year, month, day = [int(x) for x in sdate.split("-")]
         return date(year, month, day)
 
     def is_older_than_days(self, age):
@@ -95,27 +97,44 @@ class Branch:
 
     def delete(self):
         if self.remote:
-            checked_execute('git push {} :{}'.format(self.remote, self.name),
-                            accept_codes=[0, 1])
+            checked_execute(
+                "git push {} :{}".format(self.remote, self.name),
+                accept_codes=[0, 1],
+            )
         else:
-            checked_execute('git branch -d {}'.format(self))
+            checked_execute("git branch -d {}".format(self))
 
 
-@arg('--dry', action='store_true', help='Dry run: only list the branches')
-@arg('-i', '--ignore', action='append', default=IGNORE,
-     help='Branches to leave untouched')
-@arg('-l', '--locally', action='store_true',
-     help='Delete the branches locally')
-@arg('-r', '--remote', metavar='REMOTE',
-     help='Delete the branches on the remote REMOTE')
-@arg('-y', action='store_true',
-     help='Do not interactively confirm before deleting branches')
-@arg('days', type=int, help='Minimum age in days')
-def delete_old_branches(days, dry=False, locally=False, remote=None, y=False,
-                        ignore=IGNORE):
+@arg("--dry", action="store_true", help="Dry run: only list the branches")
+@arg(
+    "-i",
+    "--ignore",
+    action="append",
+    default=IGNORE,
+    help="Branches to leave untouched",
+)
+@arg(
+    "-l", "--locally", action="store_true", help="Delete the branches locally"
+)
+@arg(
+    "-r",
+    "--remote",
+    metavar="REMOTE",
+    help="Delete the branches on the remote REMOTE",
+)
+@arg(
+    "-y",
+    action="store_true",
+    help="Do not interactively confirm before deleting branches",
+)
+@arg("days", type=int, help="Minimum age in days")
+def delete_old_branches(
+    days, dry=False, locally=False, remote=None, y=False, ignore=IGNORE
+):
     if not locally and not remote:
-        print('You must specify -l or -r or both.')
+        print("You must specify -l or -r or both.")
         import sys
+
         sys.exit(4242)
 
     for branch in merged_branches(remote=remote, ignore=ignore):
@@ -127,10 +146,11 @@ def delete_old_branches(days, dry=False, locally=False, remote=None, y=False,
             continue
 
         if y:
-            print('    ' + str(branch))
+            print("    " + str(branch))
         else:
-            if not bool_input('Delete the branch "{}"?'.format(branch),
-                              default=False):
+            if not bool_input(
+                'Delete the branch "{}"?'.format(branch), default=False
+            ):
                 continue
 
         if dry:
@@ -138,7 +158,7 @@ def delete_old_branches(days, dry=False, locally=False, remote=None, y=False,
         branch.delete()
 
 
-def command():
+def _command():
     # http://argh.readthedocs.org/en/latest/
     parser = ArghParser(description=__doc__)
     parser.set_default_command(delete_old_branches)
@@ -146,5 +166,5 @@ def command():
     parser.dispatch()
 
 
-if __name__ == '__main__':
-    command()
+if __name__ == "__main__":
+    _command()

@@ -13,7 +13,7 @@ In shell, use it like this::
 
     check_rst < some_document.rst
 
-Or like this if the package *bag* isn't easy_installed:
+Or like this if the package *bag* isn't installed:
 
     python check_rst.py < some_document.rst
 
@@ -24,9 +24,15 @@ And it returns 0 if the document is OK.
 import codecs
 from docutils.parsers.rst import Parser  # type: ignore
 from docutils import utils  # type: ignore
+
 # from docutils.readers.standalone import Reader
 from docutils.transforms import (
-    frontmatter, misc, references, universal, writer_aux)
+    frontmatter,
+    misc,
+    references,
+    universal,
+    writer_aux,
+)
 
 # TODO: I don't know if the order of these transforms makes any sense.
 check_transforms = [
@@ -58,7 +64,7 @@ check_transforms = [
 ]
 
 
-def check_rst_document(source, source_path='<string>', settings=None):
+def check_rst_document(source, source_path="<string>", settings=None):
     """Return a list of objects containing problems in a rst document.
 
     Provide the reStructuredText document through the argument ``source``.
@@ -70,6 +76,7 @@ def check_rst_document(source, source_path='<string>', settings=None):
 
     def accumulate(x):
         return alist.append(x)
+
     document = utils.new_document(source_path, settings=settings)
     document.reporter.attach_observer(accumulate)
     if settings is None:  # Fill in some values to prevent AttributeError
@@ -77,7 +84,7 @@ def check_rst_document(source, source_path='<string>', settings=None):
         document.settings.pep_references = None
         document.settings.rfc_references = None
         document.settings.smart_quotes = True
-        document.settings.smartquotes_locales = ['en']
+        document.settings.smartquotes_locales = ["en"]
         document.settings.file_insertion_enabled = True
     parser = Parser()
     parser.parse(source, document)
@@ -87,7 +94,7 @@ def check_rst_document(source, source_path='<string>', settings=None):
     return alist
 
 
-def check_rst_file(path, encoding='utf-8', settings=None):
+def check_rst_file(path, encoding="utf-8", settings=None):  # noqa
     with codecs.open(path, encoding=encoding) as stream:
         source = stream.read()
     return check_rst_document(source, path, settings=settings)
@@ -137,17 +144,18 @@ def check_rst_file2(path, encoding='utf-8', settings=None):
 def command():
     """Entry point; becomes a console script when the package is installed."""
     from sys import exit, stdin
+
     source = stdin.read()
     warnings = check_rst_document(source)
     if warnings:
-        print('\nHere are the warnings for that rst document:')
+        print("\nHere are the warnings for that rst document:")
         for w in warnings:
-            print('    ' + str(w))
+            print("    " + str(w))
         exit(1)
     else:
-        print('OK')
+        print("OK")
         exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     command()
