@@ -12,12 +12,6 @@ The code is at
 https://github.com/nandoflorestan/bag
 where you can do your bug reports and pull requests.
 
-- bag 0.8.0 is the last version that supported Python 2.6.
-- bag 0.9.0 is the last version that supported Python 2.7.
-- bag 1.3.0 is the last version that supported Python 3.4.
-- bag 2.0 requires Python 3.5's "typing" module for gradual typing.
-- bag 2.1.0 is the last version that supported Python 3.5.
-
 This version of **bag** was published with
 `releaser <https://pypi.python.org/pypi/releaser>`_.
 
@@ -65,10 +59,6 @@ If you use the Pyramid web framework
   -- Functions and base resources for context objects (Pyramid traversal).
 - `bag.web.pyramid.routes <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.routes.html>`_
   -- Make Pyramid routes and the route_path() function available to JS in the client.
-- `bag.web.pyramid.genshi <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.genshi.html>`_
-  -- Use the Genshi templating language with the Pyramid web framework.
-  Though perhaps one might prefer
-  `Kajiki <https://pypi.python.org/pypi/Kajiki>`_.
 
 
 If you use SQLAlchemy
