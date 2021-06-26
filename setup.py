@@ -3,7 +3,6 @@
 """Installer for the "bag" Python package."""
 
 # http://peak.telecommunity.com/DevCenter/setuptools#developer-s-guide
-# from distutils.core import setup
 from codecs import open
 from setuptools import setup, find_packages
 
@@ -55,12 +54,12 @@ setup(
     ],
     entry_points='''
 [babel.extractors]
-jquery_templates = bag.web.transecma:extract_jquery_templates
+    jquery_templates = bag.web.transecma:extract_jquery_templates
 
 [console_scripts]
-po2json = bag.web.transecma:po2json_command
-reorder_po = bag.reorder_po:command
-check_rst = bag.check_rst:command
-delete_old_branches = bag.git.delete_old_branches:command
+    po2json = bag.web.transecma:po2json_command
+    reorder_po = bag.reorder_po:command
+    check_rst = bag.check_rst:command
+    delete_old_branches = bag.git.delete_old_branches:command
 ''',
 )

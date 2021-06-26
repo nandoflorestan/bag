@@ -6,11 +6,9 @@ called ``pathlib``. But it is missing certain convenience methods.
 
 from datetime import datetime
 import os
-import pathlib  # present in Python 3.4 or later
+import pathlib
 import shutil
-
-# https://docs.python.org/3/distutils/apiref.html#distutils.dir_util.copy_tree
-from distutils.dir_util import copy_tree
+from typing import Union
 
 
 # pathlib's class hierarchy is poorly designed, but here's how to subclass it.
@@ -85,17 +83,12 @@ class Path(type(pathlib.Path())):  # type: ignore
         for path in self.walk(this=True):
             path.chmod(oct_dir_perms if path.is_dir() else oct_file_perms)
 
-    def copy(self, dest):
+    def copy(self, dest: Union[pathlib.Path, str], **kw) -> None:
+        """Copy to *dest* -- supports leaf or directory tree."""
         if self.is_file():
             shutil.copy(str(self), str(dest))
         elif self.is_dir():
-            copy_tree(
-                str(self),
-                str(dest),
-                preserve_mode=0,
-                preserve_times=0,
-                verbose=0,
-            )
+            shutil.copytree(str(self), str(dest), **kw)
         else:
             raise RuntimeError(
                 '"{}" is not a file or directory!'.format(self.src)
