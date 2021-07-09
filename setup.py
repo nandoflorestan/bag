@@ -60,7 +60,7 @@ setup(
     po2json = bag.web.transecma:po2json_command
     reorder_po = bag.reorder_po:_command
     check_rst = bag.check_rst:command
-    delete_old_branches = bag.git.delete_old_branches:command
+    delete_old_branches = bag.git.delete_old_branches:_command
     replace_many = bag.replace_many:_command
 ''',
 )
