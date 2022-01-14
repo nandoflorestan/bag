@@ -4,9 +4,10 @@ from importlib import import_module
 from types import ModuleType
 
 
-def read_ini_files(*config_files, encoding='utf-8'):
+def read_ini_files(*config_files, encoding="utf-8"):
     """Get a settings object (dict-like) by reading some ``config_files``."""
     from configparser import ConfigParser
+
     settings = ConfigParser()
     settings.read(config_files, encoding=encoding)
     return settings
@@ -17,10 +18,13 @@ def resolve(resource_spec):
 
     Example resource_spec: ``"my.python.module:some_callable"``.
     """
-    if isinstance(resource_spec, ModuleType   # arg is a python module
-                  ) or callable(resource_spec):    # arg is a callable
+    if isinstance(
+        resource_spec, ModuleType  # arg is a python module
+    ) or callable(
+        resource_spec
+    ):  # arg is a callable
         return resource_spec
-    parts = resource_spec.split(':')  # arg is assumed to be a string
+    parts = resource_spec.split(":")  # arg is assumed to be a string
     if len(parts) == 1:
         return import_module(parts[0])
     elif len(parts) == 2:
@@ -28,8 +32,10 @@ def resolve(resource_spec):
         return getattr(module, parts[1])
     else:
         raise ValueError(
-            '":" may appear only once in a resource spec, but I received "{}"'
-            .format(resource_spec))
+            '":" may appear only once in a resource spec, but I received "{}"'.format(
+                resource_spec
+            )
+        )
 
 
 def resolve_path(resource_spec):
@@ -40,7 +46,8 @@ def resolve_path(resource_spec):
     Similar: ``from pyramid.resource import abspath_from_asset_spec``
     """
     from pathlib import Path
-    module, var = resource_spec.split(':')  # arg is assumed to be a string
+
+    module, var = resource_spec.split(":")  # arg is assumed to be a string
     module = import_module(module)
     return Path(module.__path__[0], var)
 
@@ -62,8 +69,16 @@ def asbool(s):
     return val
 
 
-_boolean_states = {'1': True, 'yes': True, 'true': True, 'on': True,
-                   '0': False, 'no': False, 'false': False, 'off': False}
+_boolean_states = {
+    "1": True,
+    "yes": True,
+    "true": True,
+    "on": True,
+    "0": False,
+    "no": False,
+    "false": False,
+    "off": False,
+}
 
 
 class SettingsReader(object):
@@ -83,9 +98,10 @@ class SettingsReader(object):
         Raise RuntimeError if ``required`` is true and value is empty.
         """
         value = self.settings.get(key, default)
-        if required and value in (None, ''):
+        if required and value in (None, ""):
             raise RuntimeError(
-                'Settings are missing a "{}" entry.'.format(key))
+                'Settings are missing a "{}" entry.'.format(key)
+            )
         return value
 
     def bool(self, key, default=None, required=False):
@@ -99,8 +115,7 @@ class SettingsReader(object):
         Therefore the setting value should be a resource specification
         such as ``some.module:SomeClass``.
         """
-        resource_spec = self.read(
-            key, default=default, required=required)
+        resource_spec = self.read(key, default=default, required=required)
         return None if resource_spec is None else resolve(resource_spec)
 
     def resolve_path(self, key, default=None, required=False):
@@ -108,6 +123,5 @@ class SettingsReader(object):
 
         Example argument: ``"my.python.module:some/subdirectory"``
         """
-        resource_spec = self.read(
-            key, default=default, required=required)
+        resource_spec = self.read(key, default=default, required=required)
         return None if resource_spec is None else resolve_path(resource_spec)
