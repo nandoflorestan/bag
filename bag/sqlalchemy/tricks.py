@@ -7,8 +7,7 @@ from warnings import warn
 
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import backref as _backref, class_mapper, ColumnProperty
-from sqlalchemy.orm.attributes import (
-    CollectionAttributeImpl, ScalarObjectAttributeImpl)
+from sqlalchemy.orm.attributes import CollectionAttributeImpl, ScalarObjectAttributeImpl
 from sqlalchemy.orm.dynamic import DynamicAttributeImpl
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -19,10 +18,10 @@ from bag.web.exceptions import Problem
 from ..web import gravatar_image
 
 # http://docs.sqlalchemy.org/en/latest/orm/cascades.html
-CASC = 'all, delete-orphan'
+CASC = "all, delete-orphan"
 
 
-def now_column(nullable: bool=False, **k) -> Column:
+def now_column(nullable: bool = False, **k) -> Column:
     """Return a DateTime column that defaults to utcnow."""
     return Column(DateTime, default=datetime.utcnow, nullable=nullable, **k)
 
@@ -36,7 +35,7 @@ def get_col(model, attribute_name):
 
 
 def _get_length(col):
-    return None if col is None else getattr(col.type, 'length', None)
+    return None if col is None else getattr(col.type, "length", None)
 
 
 def get_length(model, field):
@@ -59,23 +58,38 @@ def length(attrib):
     return _get_length(col(attrib))
 
 
-def fk(attrib, nullable=False, index=True, primary_key=False, doc=None,
-       ondelete='CASCADE'):
+def fk(
+    attrib, nullable=False, index=True, primary_key=False, doc=None, ondelete="CASCADE"
+):
     """Return a ForeignKey column while automatically setting the type."""
     assert ondelete in (
-        'CASCADE',   # Creates ON DELETE CASCADE
-        'SET NULL',  # Creates ON DELETE SET NULL
-        None,        # Creates ON DELETE NO ACTION, with more runtime errors
-        )
+        "CASCADE",  # Creates ON DELETE CASCADE
+        "SET NULL",  # Creates ON DELETE SET NULL
+        None,  # Creates ON DELETE NO ACTION, with more runtime errors
+    )
     column = col(attrib)
     return Column(
-        column.copy().type, ForeignKey(column, ondelete=ondelete),
-        doc=doc, index=index, primary_key=primary_key, nullable=nullable)
+        column.copy().type,
+        ForeignKey(column, ondelete=ondelete),
+        doc=doc,
+        index=index,
+        primary_key=primary_key,
+        nullable=nullable,
+    )
 
 
-def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
-           doc=None, ondelete='CASCADE', backref=None, order_by=None,
-           lazy='select'):
+def fk_rel(
+    cls,
+    attrib="id",
+    nullable=False,
+    index=True,
+    primary_key=False,
+    doc=None,
+    ondelete="CASCADE",
+    backref=None,
+    order_by=None,
+    lazy="select",
+):
     """Return a ForeignKey column and a relationship.
 
     Automatically sets the type of the foreign key.
@@ -102,23 +116,39 @@ def fk_rel(cls, attrib='id', nullable=False, index=True, primary_key=False,
     """
     # http://docs.sqlalchemy.org/en/latest/orm/collections.html#passive-deletes
     from sqlalchemy.orm import relationship
-    if ondelete == 'CASCADE':
+
+    if ondelete == "CASCADE":
         cascade = CASC
         passive_deletes = True
     else:
         cascade = False  # meaning "save-update, merge"
         passive_deletes = False
 
-    return (fk(getattr(cls, attrib), nullable=nullable, index=index,
-               primary_key=primary_key, doc=doc, ondelete=ondelete),
-            relationship(cls, backref=_backref(
-                backref, cascade=cascade, passive_deletes=passive_deletes,
-                order_by=order_by, lazy=lazy))
-            if backref else relationship(cls))
+    return (
+        fk(
+            getattr(cls, attrib),
+            nullable=nullable,
+            index=index,
+            primary_key=primary_key,
+            doc=doc,
+            ondelete=ondelete,
+        ),
+        relationship(
+            cls,
+            backref=_backref(
+                backref,
+                cascade=cascade,
+                passive_deletes=passive_deletes,
+                order_by=order_by,
+                lazy=lazy,
+            ),
+        )
+        if backref
+        else relationship(cls),
+    )
 
 
-def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
-                 backref=None):
+def many_to_many(Model1, Model2, pk1="id", pk2="id", metadata=None, backref=None):
     """Easily set up a many-to-many relationship between 2 existing models.
 
     Return an association table and the relationship itself.
@@ -129,6 +159,7 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
             pk2='__id__')
     """
     from sqlalchemy.orm import relationship
+
     table1 = Model1.__tablename__
     table2 = Model2.__tablename__
     col1 = col(getattr(Model1, pk1))
@@ -137,13 +168,24 @@ def many_to_many(Model1, Model2, pk1='id', pk2='id', metadata=None,
     type2 = col2.copy().type
     metadata = metadata or Model1.__table__.metadata
     association = Table(
-        table1 + '_' + table2, metadata,
-        Column(table1 + '_id', type1, ForeignKey(table1 + '.' + col1.name),
-               nullable=False, index=True),
-        Column(table2 + '_id', type2, ForeignKey(table2 + '.' + col2.name),
-               nullable=False, index=True),
+        table1 + "_" + table2,
+        metadata,
+        Column(
+            table1 + "_id",
+            type1,
+            ForeignKey(table1 + "." + col1.name),
+            nullable=False,
+            index=True,
+        ),
+        Column(
+            table2 + "_id",
+            type2,
+            ForeignKey(table2 + "." + col2.name),
+            nullable=False,
+            index=True,
+        ),
     )
-    backref = backref or table1 + 's'
+    backref = backref or table1 + "s"
     rel = relationship(Model2, secondary=association, backref=backref)
     return association, rel
 
@@ -152,13 +194,14 @@ def pk(tablename: str) -> Column:
     """Return a primary key column."""
     # The type must be Integer for Sequences to work, AFAICT.
     # Maybe this problem is in Python only?
-    return Column(Integer, Sequence(tablename + '_id_seq'),
-                  primary_key=True, autoincrement=True)
+    return Column(
+        Integer, Sequence(tablename + "_id_seq"), primary_key=True, autoincrement=True
+    )
 
 
 def is_model_class(val) -> bool:
     """Return whether the parameter is a SQLAlchemy model class."""
-    return hasattr(val, '__base__') and hasattr(val, '__table__')
+    return hasattr(val, "__base__") and hasattr(val, "__table__")
 
 
 def models_and_tables_in(arg) -> Tuple[List, List]:
@@ -176,10 +219,11 @@ def models_and_tables_in(arg) -> Tuple[List, List]:
     return models, tables
 
 
-def model_property_names(cls, whitelist=None, blacklist=None,
-                         include_relationships=True):
+def model_property_names(
+    cls, whitelist=None, blacklist=None, include_relationships=True
+):
     """Return the property names in the passed class, maybe filtered."""
-    names = (str(n).split('.')[1] for n in cls.__mapper__.iterate_properties)
+    names = (str(n).split(".")[1] for n in cls.__mapper__.iterate_properties)
     filtered = []
     for name in names:
         if blacklist and name in blacklist:
@@ -187,9 +231,9 @@ def model_property_names(cls, whitelist=None, blacklist=None,
         if whitelist and name not in whitelist:
             continue
         if not include_relationships and isinstance(
-                getattr(cls, name).impl, (
-                    CollectionAttributeImpl, DynamicAttributeImpl,
-                    ScalarObjectAttributeImpl)):
+            getattr(cls, name).impl,
+            (CollectionAttributeImpl, DynamicAttributeImpl, ScalarObjectAttributeImpl),
+        ):
             continue
         filtered.append(name)
     return filtered
@@ -221,8 +265,10 @@ def persistent_attribute_names_of(cls):
     # return [x for x in dir(cls) if isinstance(
     #     getattr(cls, x), InstrumentedAttribute)]
     return [
-        prop.key for prop in class_mapper(cls).iterate_properties
-        if isinstance(prop, ColumnProperty)]
+        prop.key
+        for prop in class_mapper(cls).iterate_properties
+        if isinstance(prop, ColumnProperty)
+    ]
 
 
 class MinimalBase:
@@ -236,9 +282,10 @@ class MinimalBase:
     @declared_attr
     def __tablename__(cls):
         """Convert CamelCase class to underscores_between_words table name."""
-        name = cls.__name__.replace('Mixin', '')
-        return name[0].lower() + \
-            re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
+        name = cls.__name__.replace("Mixin", "")
+        return name[0].lower() + re.sub(
+            r"([A-Z])", lambda m: "_" + m.group(0).lower(), name[1:]
+        )
 
     def update(self, adict, transient=False):
         """Merge dictionary into this entity.
@@ -247,9 +294,11 @@ class MinimalBase:
         """
         for k, v in adict.items():
             if not transient:
-                assert hasattr(type(self), k), \
-                    "Model {} does not have a '{}' attribute.".format(
-                        type(self).__name__, k)
+                assert hasattr(
+                    type(self), k
+                ), "Model {} does not have a '{}' attribute.".format(
+                    type(self).__name__, k
+                )
             setattr(self, k, v)
         return self
 
@@ -274,7 +323,7 @@ class MinimalBase:
         warn(
             "get_or_create() is deprecated and will be removed, because "
             "model methods should not use the SQLAlchemy session.",
-            DeprecationWarning
+            DeprecationWarning,
         )
         instance = session.query(cls).filter_by(**filters).first()
         is_new = not instance
@@ -294,7 +343,7 @@ class MinimalBase:
         warn(
             "create_or_update() is deprecated and will be removed, because "
             "model methods should not use the SQLAlchemy session.",
-            DeprecationWarning
+            DeprecationWarning,
         )
         instance, is_new = cls.get_or_create(session, **filters)
         for k, v in values.items():
@@ -302,7 +351,13 @@ class MinimalBase:
         return instance, is_new
 
     def update_association(
-        self, sas, cls, field, ids, filters={}, synchronize_session=None,
+        self,
+        sas,
+        cls,
+        field,
+        ids,
+        filters={},
+        synchronize_session=None,
     ):
         """When you have a many-to-many relationship, there is an association
         table between 2 main tables. The problem of setting the data in
@@ -333,17 +388,21 @@ class MinimalBase:
         warn(
             "update_association() is deprecated and will be removed, because "
             "model methods should not use the SQLAlchemy session.",
-            DeprecationWarning
+            DeprecationWarning,
         )
         # Fetch eventually existing association IDs
-        existing_ids = frozenset([
-            o[0] for o in sas.query(getattr(cls, field)).filter_by(**filters)])
+        existing_ids = frozenset(
+            [o[0] for o in sas.query(getattr(cls, field)).filter_by(**filters)]
+        )
 
         # Delete association rows that we no longer want
         desired_ids = frozenset(ids)
         to_remove = existing_ids - desired_ids
-        q_remove = sas.query(cls).filter_by(**filters).filter(
-            getattr(cls, field).in_(to_remove))
+        q_remove = (
+            sas.query(cls)
+            .filter_by(**filters)
+            .filter(getattr(cls, field).in_(to_remove))
+        )
         if to_remove and synchronize_session is not None:
             q_remove.delete(synchronize_session=synchronize_session)
         else:
@@ -360,7 +419,7 @@ class MinimalBase:
         sas.add_all(new_associations)
         return new_associations
 
-    def clone(self, values=None, pk='id', sas=None):
+    def clone(self, values=None, pk="id", sas=None):
         """Return a clone of this model.
 
         Optionally update some of its ``values``.
@@ -378,9 +437,8 @@ class MinimalBase:
         clone = self.__class__(**adict)
         if sas:  # Optionally add the clone to the SQLAlchemy session
             warn(
-                "The sas argument of clone() is deprecated and "
-                "will be removed.",
-                DeprecationWarning
+                "The sas argument of clone() is deprecated and " "will be removed.",
+                DeprecationWarning,
             )
             sas.add(clone)
         return clone
@@ -425,13 +483,12 @@ class AddressBase:
     # __tablename__ = 'customer'
 
     # pk = pk(__tablename__)
-    street = Column('street',     Unicode(160), default='')
-    district = Column('district', Unicode(80),  default='')
-    city = Column('city',         Unicode(80), default='')
-    province = Column('province', Unicode(40), default='')
-    country_code = Column('country_code', Unicode(2), default='')
-    postal_code = Column('postal_code',  Unicode(16), default='',
-                         doc='Zip code')
+    street = Column("street", Unicode(160), default="")
+    district = Column("district", Unicode(80), default="")
+    city = Column("city", Unicode(80), default="")
+    province = Column("province", Unicode(40), default="")
+    country_code = Column("country_code", Unicode(2), default="")
+    postal_code = Column("postal_code", Unicode(16), default="", doc="Zip code")
     # kind = Column(Unicode(1), default='',
     #     doc="c for commercial, r for residential")
     # charge = Column(Boolean, default=False,
@@ -454,28 +511,32 @@ class EmailParts:
                               name='customer_email_key'), {})
     """
 
-    email_local = Column('email_local',   Unicode(160), nullable=False)
-    email_domain = Column('email_domain', Unicode(255), nullable=False)
+    email_local = Column("email_local", Unicode(160), nullable=False)
+    email_domain = Column("email_domain", Unicode(255), nullable=False)
 
     @hybrid_property
     def email(self):
         """Get or set the entire email, in Python or in the RDBMS."""
-        return self.email_local + '@' + self.email_domain
+        return self.email_local + "@" + self.email_domain
 
     @email.setter
     def set_email(self, val):
-        self.email_local, self.email_domain = val.split('@')
+        self.email_local, self.email_domain = val.split("@")
         if not self.email_local:
-            raise Problem('Missing the local part of the email address.')
+            raise Problem("Missing the local part of the email address.")
         if not self.email_domain:
-            raise Problem('Missing the domain part of the email address.')
+            raise Problem("Missing the domain part of the email address.")
 
     def gravatar_image(
-        self, default: str = 'mm', size: int = 80, cacheable: bool = True,
+        self,
+        default: str = "mm",
+        size: int = 80,
+        cacheable: bool = True,
     ) -> str:
         """Return the URL for the gravatar image for this email address."""
-        return gravatar_image(self.email, default=default, size=size,
-                              cacheable=cacheable)
+        return gravatar_image(
+            self.email, default=default, size=size, cacheable=cacheable
+        )
 
 
 def commit_session_or_transaction(sas) -> None:
@@ -483,9 +544,9 @@ def commit_session_or_transaction(sas) -> None:
     try:
         sas.commit()
     except AssertionError as exc:
-        if str(exc) == 'Transaction must be committed using ' \
-                       'the transaction manager':
+        if str(exc) == "Transaction must be committed using " "the transaction manager":
             import transaction
+
             transaction.commit()
         else:
             raise
@@ -517,7 +578,7 @@ class SubtransactionTrick:
         # Base.metadata.bind = connection
 
         # bind an individual Session to the connection
-        if hasattr(sessionmaker, 'query'):  # scoped session detected
+        if hasattr(sessionmaker, "query"):  # scoped session detected
             sessionmaker.configure(bind=self.connection)
             self.sas = sessionmaker
         else:  # not a scoped session

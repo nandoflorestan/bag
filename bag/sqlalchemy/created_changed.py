@@ -29,12 +29,13 @@ def created_changed(cls):
 
     If you use SQLAlchemy inheritance, apply this decorator to subclasses.
     """
+
     def _set_created_and_changed(mapper, connection, instance):
         instance.created = instance.changed = datetime.utcnow()
 
     def _set_changed(mapper, connection, instance):
         instance.changed = datetime.utcnow()
 
-    event.listen(cls, 'before_insert', _set_created_and_changed)
-    event.listen(cls, 'before_update', _set_changed)
+    event.listen(cls, "before_insert", _set_created_and_changed)
+    event.listen(cls, "before_update", _set_changed)
     return cls
