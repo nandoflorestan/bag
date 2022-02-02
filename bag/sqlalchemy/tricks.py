@@ -425,6 +425,9 @@ class MinimalBase:
         Optionally update some of its ``values``.
         Optionally add the clone to the ``sas`` session.
         The name of the primary key column should be given as ``pk``.
+
+        Although in general model methods should not use the session, the recursive
+        nature of this one seems to require it.
         """
         attrs = persistent_attribute_names_of(self.__class__)
         adict = {}
@@ -436,10 +439,6 @@ class MinimalBase:
             adict.update(values)
         clone = self.__class__(**adict)
         if sas:  # Optionally add the clone to the SQLAlchemy session
-            warn(
-                "The sas argument of clone() is deprecated and " "will be removed.",
-                DeprecationWarning,
-            )
             sas.add(clone)
         return clone
 
