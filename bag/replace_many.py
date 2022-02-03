@@ -1,4 +1,10 @@
 #! /usr/bin/env python3
+"""A simple command to replace text in many files, without regular expressions.
+
+Usage::
+
+    replace_many -d DIRECTORY '.py,.jinja2' 'text being sought' 'replacement text'
+"""
 
 from argh import ArghParser  # pip install argh
 

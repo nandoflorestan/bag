@@ -80,6 +80,9 @@ Commands
 - `reorder_po <http://docs.nando.audio/bag/latest/api/bag.reorder_po.html>`_
   -- Reorders .po files (usually after transifex messes up the order of the
   translations in them) so the diff is always readable.
+- `replace_text <http://docs.nando.audio/bag/latest/api/bag.replace_many.html>`_
+  -- A simple command to replace text in many files, without worrying
+  about regular expressions.
 
 
 Less important library contents
