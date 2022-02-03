@@ -72,7 +72,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'bag'
-copyright = '2011-2021, Nando Florestan'
+copyright = '2011-2022, Nando Florestan'
 author = 'Nando Florestan'
 
 # The version info for the project you're documenting, acts as replacement for
