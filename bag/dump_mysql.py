@@ -153,8 +153,6 @@ class DumpMySQL:
             namespace = namespace + "/"
 
         with open(path, "br") as content:
-            result = bucket.put_object(
-                Key=namespace + Path(path).name, Body=content
-            )
+            result = bucket.put_object(Key=namespace + Path(path).name, Body=content)
         self.log.info(result)
         return result

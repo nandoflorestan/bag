@@ -9,5 +9,5 @@ def random_hash(length: int = 12) -> str:
     alist = []
     for i in range(length):
         alist.append(choice(string.ascii_letters))
-    ahash = sha256(''.join(alist).encode('ascii'))
+    ahash = sha256("".join(alist).encode("ascii"))
     return ahash.hexdigest()[:length]

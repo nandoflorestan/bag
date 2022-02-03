@@ -15,6 +15,7 @@ class ArgumentError(ValueError):
         self.val = val
         val = str(val)
         if len(val) > 43:
-            val = val[:40] + '...'
+            val = val[:40] + "..."
         super(ArgumentError, self).__init__(
-            'Argument "{0}" does not accept value "{1}"'.format(arg, val))
+            'Argument "{0}" does not accept value "{1}"'.format(arg, val)
+        )

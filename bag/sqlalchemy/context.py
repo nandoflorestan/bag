@@ -194,7 +194,7 @@ class SAContext:
 
         return wrapper
 
-    def transient(self, fn):
+    def transient(self, fn):  # noqa
         """Decorator. Create a subtransaction which is always rewinded.
 
         It is recommended that you apply this

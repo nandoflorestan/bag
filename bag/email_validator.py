@@ -122,18 +122,14 @@ class DomainValidator(BaseValidator):
 
     # non_international_regex = re.compile(r"^[a-z0-9][a-z0-9\.\-]*\.[a-z]+$",
     domain_pattern = r"[\w]+[\w\.\-]*\.[\w]+"
-    domain_regex = re.compile(
-        "^" + domain_pattern + "$", re.IGNORECASE | re.UNICODE
-    )
+    domain_regex = re.compile("^" + domain_pattern + "$", re.IGNORECASE | re.UNICODE)
 
     def __init__(self, fix=False, lookup_dns=None):
         self.fix = fix
         if lookup_dns:
             lookup_dns = lookup_dns.lower()
             if lookup_dns not in ("a", "mx"):
-                raise RuntimeError(
-                    "Not a valid *lookup_dns* value: " + lookup_dns
-                )
+                raise RuntimeError("Not a valid *lookup_dns* value: " + lookup_dns)
         self._lookup_dns = lookup_dns
 
     def _apply_common_rules(self, part, maxlength):
@@ -233,9 +229,7 @@ class DomainValidator(BaseValidator):
             # else:
             #    print("Domain '%s' has no MX records." % domain)
         else:
-            raise RuntimeError(
-                "Not a valid lookup_record value: " + lookup_record
-            )
+            raise RuntimeError("Not a valid lookup_record value: " + lookup_record)
         return result
 
 

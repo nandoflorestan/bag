@@ -1,7 +1,7 @@
 """Contains the invaluable @reify decorator, stolen from Pyramid."""
 
 
-class reify(object):
+class reify:
     """Substitute decorated method with its return value on 1st use.
 
     Use as a class method decorator.  It operates almost exactly like the
@@ -13,7 +13,7 @@ class reify(object):
 
         >>> from bag.reify import reify
 
-        >>> class Foo(object):
+        >>> class Foo:
         ...     @reify
         ...     def jammy(self):
         ...         print('jammy called')
@@ -33,7 +33,7 @@ class reify(object):
         2
     """
 
-    def __init__(self, wrapped):
+    def __init__(self, wrapped):  # noqa
         self.wrapped = wrapped
         self.__doc__ = wrapped.__doc__
 

@@ -71,9 +71,7 @@ def ancestor_finder(resource, predicate, include_self=False):
     Generator that climbs the tree yielding resources for which
     ``predicate(current_resource)`` returns True.
     """
-    resource = (
-        resource if include_self else getattr(resource, "__parent__", None)
-    )
+    resource = resource if include_self else getattr(resource, "__parent__", None)
     while resource is not None:
         if predicate(resource):
             yield resource
@@ -192,9 +190,7 @@ class BaseResource(BaseRootResource):
     def __repr__(self):
         alist = []
         for element in reversed(
-            list(
-                ancestor_finder(self, lambda resource: True, include_self=True)
-            )
+            list(ancestor_finder(self, lambda resource: True, include_self=True))
         ):
             alist.append(str(element))
         return " / ".join(alist)

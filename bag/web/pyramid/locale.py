@@ -63,19 +63,18 @@ template context.
 
 from collections import OrderedDict
 from babel import Locale
-from babel.numbers import (
-    format_number as as_number, format_currency as as_currency)
+from babel.numbers import format_number as as_number, format_currency as as_currency
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.i18n import get_locale_name, default_locale_negotiator
 from . import _
 
-SETTING_NAME = 'bag.locale.enable'
+SETTING_NAME = "bag.locale.enable"
 
 
-class LocaleInfo:
-
-    def __init__(self, code, display_name, english_name, title=None,
-                 babel_locale=None):
+class LocaleInfo:  # noqa
+    def __init__(  # noqa
+        self, code, display_name, english_name, title=None, babel_locale=None
+    ):
         self.code = code
         self.display_name = display_name
         self.english_name = english_name
@@ -90,13 +89,13 @@ class LocaleInfo:
 
 
 locale_titles = dict(
-    en='Change to English',
-    en_US='Change to English - United States',
-    en_DEV='Change to strings as in the source code',
-    pt='Mudar para português',
-    pt_BR='Mudar para português do Brasil',
-    es='Cambiar a español',
-    de='Auf Deutsch benutzen',
+    en="Change to English",
+    en_US="Change to English - United States",
+    en_DEV="Change to strings as in the source code",
+    pt="Mudar para português",
+    pt_BR="Mudar para português do Brasil",
+    es="Cambiar a español",
+    de="Auf Deutsch benutzen",
 )  # Please help us: send more entries to this dict
 
 
@@ -111,10 +110,12 @@ class LocaleDict(OrderedDict):
     def add(self, code, display_name=None, english_name=None, title=None):
         babel_locale = Locale(*code.split("_"))
         self[code] = LocaleInfo(
-            code, title=title or locale_titles.get(code),
+            code,
+            title=title or locale_titles.get(code),
             display_name=display_name or babel_locale.display_name,
             english_name=english_name or babel_locale.english_name,
-            babel_locale=babel_locale)
+            babel_locale=babel_locale,
+        )
 
 
 def prepare_enabled_locales(settings, Dict=LocaleDict):
@@ -125,7 +126,7 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
     build a web interface for the user to change the locale.
     """
     # Read from settings a list of locale codes that should be enabled
-    codes = set(settings.get(SETTING_NAME, 'en').split(' '))
+    codes = set(settings.get(SETTING_NAME, "en").split(" "))
     # Create the LocaleDict containing info for each code
     langs = Dict()
     for code in codes:
@@ -137,23 +138,26 @@ def prepare_enabled_locales(settings, Dict=LocaleDict):
 
 def locale_cookie_headers(locale_code):
     """Return HTTP header setting the cookie that stores the Pyramid locale."""
-    return [(
-        'Set-Cookie',
-        '_LOCALE_={0}; expires='
-        'Fri, 31-Dec-9999 23:00:00 GMT; Path=/'.format(locale_code))]
+    return [
+        (
+            "Set-Cookie",
+            "_LOCALE_={0}; expires="
+            "Fri, 31-Dec-9999 23:00:00 GMT; Path=/".format(locale_code),
+        )
+    ]
 
 
 def locale_view(request):
     """View that sets the locale cookie -- as long as the requested locale
     is enabled -- and redirects back to the referer.
     """
-    locale_code = request.matchdict['locale']
+    locale_code = request.matchdict["locale"]
     # Ensure this locale code is one of the enabled_locales
     if locale_code not in request.registry.settings[SETTING_NAME]:
         raise KeyError('Locale not enabled: "{0}"'.format(locale_code))
     return HTTPSeeOther(
-        location=request.referrer or '/',
-        headers=locale_cookie_headers(locale_code))
+        location=request.referrer or "/", headers=locale_cookie_headers(locale_code)
+    )
 
 
 def locale_from_browser(request):
@@ -171,7 +175,8 @@ def locale_from_browser(request):
     # return request.accept_language.best_match(enabled_locales,
     #     default_match=settings.get("pyramid.default_locale_name", first))
     return request.accept_language.best_match(
-        request.registry.settings[SETTING_NAME].keys())
+        request.registry.settings[SETTING_NAME].keys()
+    )
 
 
 def locale_negotiator(request):
@@ -189,21 +194,21 @@ def add_template_globals(event):
 
     * *enabled_locales*: OrderedDict containing the enabled locales
     """
-    event['enabled_locales'] = \
-        event['request'].registry.settings[SETTING_NAME]
+    event["enabled_locales"] = event["request"].registry.settings[SETTING_NAME]
 
 
 def includeme(config):
     """Integrate this module into a Pyramid app."""
-    if hasattr(config, 'bag_locale_included'):
+    if hasattr(config, "bag_locale_included"):
         return  # Include only once per config
     config.bag_locale_included = True
 
     prepare_enabled_locales(config.get_settings())
     config.set_locale_negotiator(locale_negotiator)
-    config.add_route('locale', 'locale/{locale}')
-    config.add_view(locale_view, route_name='locale')
+    config.add_route("locale", "locale/{locale}")
+    config.add_view(locale_view, route_name="locale")
     from pyramid.interfaces import IBeforeRender
+
     config.add_subscriber(add_template_globals, IBeforeRender)
 
 
@@ -215,14 +220,15 @@ class BaseLocalizedView:
 
     def format_currency(self, n, currency=None, format=None):
         return as_currency(
-            n, format=format,
-            currency=currency or getattr(self, 'default_currency', 'USD'),
-            locale=self.request.locale_name)
+            n,
+            format=format,
+            currency=currency or getattr(self, "default_currency", "USD"),
+            locale=self.request.locale_name,
+        )
 
 
-def format_currency(request, n, currency='USD', format=None):
-    return as_currency(
-        n, format=format, currency=currency, locale=request.locale_name)
+def format_currency(request, n, currency="USD", format=None):
+    return as_currency(n, format=format, currency=currency, locale=request.locale_name)
 
 
 def sorted_countries(arg, top_entry=True):  # TODO memoized version
@@ -236,16 +242,17 @@ def sorted_countries(arg, top_entry=True):  # TODO memoized version
 
     def generator(territories):
         if top_entry:
-            yield ('', _("- Choose -"))  # TODO translate somehow
+            yield ("", _("- Choose -"))  # TODO translate somehow
         for tup in territories:
             if len(tup[0]) == 2:  # Keep only countries
                 yield tup
-    return sorted(generator(Locale(code).territories.items()),
-                  key=lambda x: x[1])
+
+    return sorted(generator(Locale(code).territories.items()), key=lambda x: x[1])
 
 
 # Colander and Deform section
 # ===========================
+
 
 def locale_exists_validator(settings):
     """If you use Deform or even just Colander, you can use this to get a
@@ -255,16 +262,19 @@ def locale_exists_validator(settings):
     TODO: Test this new implementation when I use colander again...
     """
     from colander import Invalid
+
     enabled_locales = settings[SETTING_NAME]
 
     def validator(node, value):
         if value not in enabled_locales:
-            raise Invalid(node, _('Please select a language.'))
+            raise Invalid(node, _("Please select a language."))
+
     return validator
 
 
-def language_dropdown(settings, title=_('Locale'), name='locale',
-                      blank_option_at_top=True):
+def language_dropdown(
+    settings, title=_("Locale"), name="locale", blank_option_at_top=True
+):
     """Let the user select a locale from the enabled ones.
 
     If you use Deform, you can use this to get a SchemaNode for that.
@@ -274,10 +284,15 @@ def language_dropdown(settings, title=_('Locale'), name='locale',
 
     def options():
         if blank_option_at_top:
-            yield ('', _('- Choose -'))
+            yield ("", _("- Choose -"))
         for loc in settings[SETTING_NAME].values():
             yield (loc.code, loc.display_name)
+
     values = sorted(options(), key=lambda t: _(t[1]))
-    return c.SchemaNode(c.Str(), title=title, name=name,
-                        validator=locale_exists_validator(settings),
-                        widget=d.widget.SelectWidget(values=values))
+    return c.SchemaNode(
+        c.Str(),
+        title=title,
+        name=name,
+        validator=locale_exists_validator(settings),
+        widget=d.widget.SelectWidget(values=values),
+    )

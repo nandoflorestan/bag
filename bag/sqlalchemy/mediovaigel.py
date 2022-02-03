@@ -54,7 +54,7 @@ from .tricks import (
     commit_session_or_transaction)
 
 
-class _IndentWriter(object):
+class _IndentWriter:
 
     def __init__(self):
         self.indentation = 0
@@ -241,7 +241,7 @@ def the_fixtures():
 """
 
 
-class load_fixtures(object):
+class load_fixtures:
     """Generated fixture files use this to load themselves on a database."""
 
     def __init__(self, session, fixtures, PK='id', key_val_db=None):

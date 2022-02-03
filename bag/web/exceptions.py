@@ -25,45 +25,46 @@ class Problem(Exception):
     HTTP = {  # http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
         # TODO Complete this map with the remaining 4xx and 5xx
         # 4xx Client error
-        400: 'Bad request',
-        401: 'Unauthorized',
-        403: 'Forbidden',
-        404: 'Not found',
-        409: 'Conflict',
-        410: 'Gone',
-        413: 'Request entity too large',
-        422: 'Unprocessable entity',
+        400: "Bad request",
+        401: "Unauthorized",
+        403: "Forbidden",
+        404: "Not found",
+        409: "Conflict",
+        410: "Gone",
+        413: "Request entity too large",
+        422: "Unprocessable entity",
         # 5xx Server error
-        500: 'Internal server error',
+        500: "Internal server error",
     }
 
-    def __init__(self, error_msg, status_int=400, error_title=None,
-                 error_debug=None, **kw):
+    def __init__(  # noqa
+        self, error_msg, status_int=400, error_title=None, error_debug=None, **kw
+    ):
         self.status_int = int(status_int)
-        assert str(self.status_int)[0] in ('4', '5')
+        assert str(self.status_int)[0] in ("4", "5")
 
-        kw['error_title'] = error_title or self.HTTP[self.status_int]
-        kw['error_msg'] = error_msg
-        kw['error_debug'] = error_debug
+        kw["error_title"] = error_title or self.HTTP[self.status_int]
+        kw["error_msg"] = error_msg
+        kw["error_debug"] = error_debug
         self.kw = kw
 
-    def to_dict(self):
+    def to_dict(self):  # noqa
         return self.kw
 
     @property
-    def error_msg(self):
-        return self.kw['error_msg']
+    def error_msg(self):  # noqa
+        return self.kw["error_msg"]
 
     @property
-    def error_title(self):
-        return self.kw['error_title']
+    def error_title(self):  # noqa
+        return self.kw["error_title"]
 
     @property
-    def error_debug(self):
-        return self.kw['error_debug']
+    def error_debug(self):  # noqa
+        return self.kw["error_debug"]
 
     def __repr__(self):
-        return '<{} {}>'.format(type(self).__name__, self.error_msg)
+        return "<{} {}>".format(type(self).__name__, self.error_msg)
 
     def __str__(self):
         return self.error_msg
@@ -85,8 +86,8 @@ class Unprocessable(Exception):
             raise Unprocessable(user_email='This field is required.')
     """
 
-    def __init__(self, **adict):
+    def __init__(self, **adict):  # noqa
         self.adict = adict
 
-    def asdict(self):
+    def asdict(self):  # noqa
         return self.adict

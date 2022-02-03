@@ -13,7 +13,8 @@ from decimal import Decimal
 from time import sleep
 from typing import Optional
 from pytz import timezone
-utc = timezone('utc')
+
+utc = timezone("utc")
 
 
 def now_with_tz() -> datetime:
@@ -24,45 +25,44 @@ def now_with_tz() -> datetime:
 
 def naive(dt: datetime) -> datetime:
     """Remove the timezone from a datetime instance."""
-    return datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,
-                    dt.second, dt.microsecond)
+    return datetime(
+        dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond
+    )
 
 
 def parse_iso_datetime(text: str) -> datetime:
     """Convert the given string to a naive (no tzinfo) datetime."""
     text = text.strip()
-    if 'T' in text:
-        sep = 'T'
-    elif ' ' in text:
-        sep = ' '
+    if "T" in text:
+        sep = "T"
+    elif " " in text:
+        sep = " "
     else:
-        sep = ''
+        sep = ""
     DATE_FMT = "%Y-%m-%d"
     if not sep:
         return datetime.strptime(text, DATE_FMT)
     elif len(text) == 16:
-        return datetime.strptime(text, DATE_FMT + sep + '%H:%M')
+        return datetime.strptime(text, DATE_FMT + sep + "%H:%M")
     elif len(text) == 19:
-        return datetime.strptime(text, DATE_FMT + sep + '%H:%M:%S')
+        return datetime.strptime(text, DATE_FMT + sep + "%H:%M:%S")
     else:
         TIME_FMT = "%H:%M:%S.%f"
-        suffix = 'Z' if text.endswith('Z') else ''
+        suffix = "Z" if text.endswith("Z") else ""
         fmt = DATE_FMT + sep + TIME_FMT + suffix
         return datetime.strptime(text, fmt)
 
 
-def simplify_datetime(val: datetime, granularity: str='minute') -> datetime:
+def simplify_datetime(val: datetime, granularity: str = "minute") -> datetime:
     """Notice this throws away any tzinfo."""
-    if granularity == 'hour':
+    if granularity == "hour":
         return datetime(val.year, val.month, val.day, val.hour)
-    elif granularity == 'minute':
+    elif granularity == "minute":
         return datetime(val.year, val.month, val.day, val.hour, val.minute)
-    elif granularity == 'second':
-        return datetime(
-            val.year, val.month, val.day, val.hour, val.minute, val.second)
+    elif granularity == "second":
+        return datetime(val.year, val.month, val.day, val.hour, val.minute, val.second)
     else:
-        raise RuntimeError('granularity not implemented: "{}"'.format(
-            granularity))
+        raise RuntimeError('granularity not implemented: "{}"'.format(granularity))
 
 
 def timed_call(seconds, function, repetitions=-1, *a, **kw):
@@ -74,8 +74,7 @@ def timed_call(seconds, function, repetitions=-1, *a, **kw):
     that *function* should run, pass in a number of *repetitions*.
     Returns immediately if *repetitions* is zero.
     """
-    period = seconds if isinstance(seconds, timedelta) else \
-        timedelta(0, seconds)
+    period = seconds if isinstance(seconds, timedelta) else timedelta(0, seconds)
     turn = 0
     while True:
         if turn == repetitions:
@@ -99,7 +98,7 @@ class DJSONEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        if hasattr(obj, 'isoformat'):
+        if hasattr(obj, "isoformat"):
             return obj.isoformat()
         elif isinstance(obj, Decimal):
             return float(str(obj))
@@ -119,19 +118,23 @@ def djson_renderer_factory(info):
 
        config.add_renderer('djson', 'bag.time.djson_renderer_factory')
     """
+
     def _render(value, system):
-        request = system.get('request')
+        request = system.get("request")
         if request is not None:
             response = request.response
             ct = response.content_type
             if ct == response.default_content_type:
-                response.content_type = 'application/json'
+                response.content_type = "application/json"
         return dumps(value)
+
     return _render
 
 
 def now_or_future(
-    dt: Optional[datetime], timezone: tzinfo=utc, now: Optional[datetime]=None,
+    dt: Optional[datetime],
+    timezone: tzinfo = utc,
+    now: Optional[datetime] = None,
 ) -> datetime:
     """If given datetime is in the past, default to now.
 
@@ -150,6 +153,6 @@ def now_or_future(
     assert isinstance(dt, datetime)
 
     if dt.tzinfo is None:  # dt is a naive datetime (no timezone)
-        now = naive(now)   # comparison only works with another naive datetime
+        now = naive(now)  # comparison only works with another naive datetime
 
     return now if dt < now else dt

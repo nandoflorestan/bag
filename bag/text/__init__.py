@@ -204,14 +204,11 @@ def break_lines_near(
                     break
             if not done:
                 result.append(
-                    text_buffer[0 : length - len(end_line_break)]
-                    + end_line_break
+                    text_buffer[0 : length - len(end_line_break)] + end_line_break
                 )
                 text_buffer = (
                     start_line_break
-                    + text_buffer[
-                        length - len(end_line_break) : len(text_buffer)
-                    ]
+                    + text_buffer[length - len(end_line_break) : len(text_buffer)]
                 )
     return result
 
@@ -268,9 +265,7 @@ def capitalize(txt: str) -> str:
 
     This function can be used as a colander preparer.
     """
-    if txt is None or (
-        not isinstance(txt, str) and repr(txt) == "<colander.null>"
-    ):
+    if txt is None or (not isinstance(txt, str) and repr(txt) == "<colander.null>"):
         return txt
     txt = str(txt).strip()
     if txt == "":

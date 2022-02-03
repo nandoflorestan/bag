@@ -2,25 +2,25 @@
 
 from typing import List, Tuple
 from bag.settings import asbool
+
 # http://en.wikipedia.org/wiki/Robots_exclusion_standard
 
 
 def includeme(config):
     """Integrate. The easiest, but not the only, way to use this module."""
-    is_production = asbool(config.registry.settings.get('production', 'false'))
+    is_production = asbool(config.registry.settings.get("production", "false"))
     robot = RobotFile()
-    robot.add_rule(user_agent='*',
-                   disallow='' if is_production else '/')
+    robot.add_rule(user_agent="*", disallow="" if is_production else "/")
     init(config, robot)
 
 
 def init(config, robot):
-    config.add_route('robots', 'robots.txt')
+    config.add_route("robots", "robots.txt")
 
     def robots_view(context, request):
         return str(robot)
 
-    config.add_view(robots_view, route_name='robots', renderer='string')
+    config.add_view(robots_view, route_name="robots", renderer="string")
 
 
 class RobotFile:

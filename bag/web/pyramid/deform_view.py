@@ -11,22 +11,21 @@ import peppercorn
 from . import _
 
 
-def translator(term):
+def translator(term):  # noqa
     return get_localizer(get_current_request()).translate(term)
 
 
-def button(title=_('Submit'), name=None, icon=None):
+def button(title=_("Submit"), name=None, icon=None):
     """Conveniently generate a Deform button while setting its
     ``name`` attribute, translating the label and capitalizing it.
     The button may also have a bootstrap icon.
     """
-    b = d.Button(title=translator(title).capitalize(),
-                 name=name or title.lower())
+    b = d.Button(title=translator(title).capitalize(), name=name or title.lower())
     b.icon = icon
     return b
 
 
-class BaseDeformView(object):
+class BaseDeformView:
     """An abstract base class (ABC) for Pyramid views that use deform.
 
     The workflow is divided into several methods so you can change details
@@ -68,8 +67,8 @@ class BaseDeformView(object):
 
     button_text = _("Submit")
     button_icon = None  # type: Optional[str]
-    formid = 'form'
-    bootstrap_form_style = 'form-horizontal'
+    formid = "form"
+    bootstrap_form_style = "form-horizontal"
     schema_validator = None  # validator to be applied to the form as a whole
     use_ajax = False
 
@@ -103,31 +102,36 @@ class BaseDeformView(object):
         and, if ``self.schema_validator`` is defined, uses it for the
         form as a whole.
         """
-        return self.schema(validator=self.schema_validator).bind(
-            request=self.request)
+        return self.schema(validator=self.schema_validator).bind(request=self.request)
 
     def _get_form(self, schema=None, **kw):
         """When there is more than one Deform form per page, forms must use
         the same *counter* to generate unique input ids. So we create the
         variable ``request.deform_field_counter``.
         """
-        if not hasattr(self.request, 'deform_field_counter'):
+        if not hasattr(self.request, "deform_field_counter"):
             self.request.deform_field_counter = count()
         return d.Form(schema or self.schema_instance, **self._form_args(**kw))
 
-    def _form_args(self, action='', bootstrap_form_style=None,
-                   buttons=None, formid=None, ajax_options=None):
+    def _form_args(
+        self,
+        action="",
+        bootstrap_form_style=None,
+        buttons=None,
+        formid=None,
+        ajax_options=None,
+    ):
         """Override this to change the kwargs to the Form constructor."""
         adict = dict(
             action=action,
             buttons=buttons or self._get_buttons(),
             counter=self.request.deform_field_counter,
             formid=formid or self.formid,
-            bootstrap_form_style=bootstrap_form_style or
-            self.bootstrap_form_style,
-            use_ajax=self.use_ajax)
+            bootstrap_form_style=bootstrap_form_style or self.bootstrap_form_style,
+            use_ajax=self.use_ajax,
+        )
         if ajax_options:
-            adict['ajax_options'] = ajax_options
+            adict["ajax_options"] = ajax_options
         return adict
 
     def _template_dict(self, form=None, controls=None, **k):
@@ -158,7 +162,7 @@ class BaseDeformView(object):
         """
         if not form_args:
             form_args = {}
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return self._post(self._get_form(**form_args), controls=controls)
         else:
             return self._get(self._get_form(**form_args))
@@ -186,11 +190,11 @@ class BaseDeformView(object):
         try:
             appstruct = form.validate_pstruct(controls)
         except d.ValidationFailure as e:
-            self.status = 'invalid'
+            self.status = "invalid"
             return self._invalid(e, controls)
         else:
-            self.status = 'valid'
-            appstruct.pop('csrf_token', None)  # Discard the CSRF token
+            self.status = "valid"
+            appstruct.pop("csrf_token", None)  # Discard the CSRF token
             return self._valid(form=form, controls=appstruct)
 
     def _invalid(self, exception, controls):
@@ -204,8 +208,7 @@ class BaseDeformView(object):
         """This is called after form validation. You may override this method
         to change the response at the end of the view workflow.
         """
-        raise NotImplementedError(
-            "You need to    def _valid(self, form, controls):")
+        raise NotImplementedError("You need to    def _valid(self, form, controls):")
 
     def _colander_workflow(self, controls=None):
         """Especially in AJAX views, you may skip Deform and use just colander
@@ -217,8 +220,7 @@ class BaseDeformView(object):
         try:
             appstruct = self._get_schema().deserialize(controls)
         except c.Invalid as e:
-            return dict(errors=e.asdict2() if hasattr(e, 'asdict2')
-                        else e.asdict())
+            return dict(errors=e.asdict2() if hasattr(e, "asdict2") else e.asdict())
         else:
             # appstruct.pop('csrf_token', None)  # Discard the CSRF token
             return appstruct

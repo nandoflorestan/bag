@@ -9,11 +9,13 @@ The most important things here are:
 from codecs import BOM_UTF8, BOM_UTF16
 import csv
 from . import (
-    get_corresponding_variable_names, raise_if_missing_required_headers,
-    raise_if_forbidden_headers)
+    get_corresponding_variable_names,
+    raise_if_missing_required_headers,
+    raise_if_forbidden_headers,
+)
 
 
-def decoding(stream, encoding='utf8'):
+def decoding(stream, encoding="utf8"):
     """Wrap a stream that yields bytes in order to decode it.
 
     If you have a stream that yields bytes, use this wrapper to decode them
@@ -32,10 +34,10 @@ def decoding(stream, encoding='utf8'):
     # Python is buggy, it removes other BOMs but not the UTF8 one.
     if line:
         if line.startswith(BOM_UTF8):
-            line = line[len(BOM_UTF8):]
-            encoding = 'utf8'
+            line = line[len(BOM_UTF8) :]
+            encoding = "utf8"
         elif line.startswith(BOM_UTF16):
-            encoding = 'utf16'
+            encoding = "utf16"
 
     yield line.decode(encoding)
 
@@ -67,9 +69,7 @@ def setup_reader(stream, required_headers=[], forbidden_headers=[], **k):
     return c, readline, vars, CsvRow
 
 
-def csv_with_headers_reader(
-    stream, required_headers=[], forbidden_headers=[], **k
-):
+def csv_with_headers_reader(stream, required_headers=[], forbidden_headers=[], **k):
     """Return an iterator over a CSV reader.
 
     It uses *stream* with the options passed as keyword arguments.
@@ -89,7 +89,8 @@ def csv_with_headers_reader(
             print(o.name, o.email, o.sex)
     """
     c, readline, headers, CsvRow = setup_reader(
-        stream, required_headers, forbidden_headers, **k)
+        stream, required_headers, forbidden_headers, **k
+    )
     while True:
         try:
             yield CsvRow(readline())
@@ -97,8 +98,8 @@ def csv_with_headers_reader(
             return
 
 
-def decoding_csv_with_headers(bytestream, encoding='utf8', **k):
-    """Combines the *decoding* and *csv_with_headers_reader* generators."""
+def decoding_csv_with_headers(bytestream, encoding="utf8", **k):
+    """Combine the *decoding* and *csv_with_headers_reader* generators."""
     return csv_with_headers_reader(decoding(bytestream, encoding), **k)
 
 
@@ -111,8 +112,7 @@ class DecodingCsvWithHeaders:
     def __init__(self, stream, encoding=None, **k):
         if encoding:
             stream = decoding(stream, encoding)
-        self.c, self.readline, self.headers, self.CsvRow = setup_reader(
-            stream, **k)
+        self.c, self.readline, self.headers, self.CsvRow = setup_reader(stream, **k)
 
     def __iter__(self):
         return self
@@ -121,7 +121,7 @@ class DecodingCsvWithHeaders:
         return self.CsvRow(self.readline())
 
 
-def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
+def buffered_csv_writing(rows, encoding="utf8", headers=None, buffer_rows=50):
     """Generate CSV lines using a buffer of size *buffer_rows*.
 
     The values for the first CSV line may be provided as *headers*, and
@@ -133,6 +133,7 @@ def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
             rows=my_generator, headers=['name', 'email'], buffer_rows=50))
     """
     from io import StringIO
+
     buf = StringIO()
     writer = csv.writer(buf)
     if headers:
@@ -142,22 +143,23 @@ def buffered_csv_writing(rows, encoding='utf8', headers=None, buffer_rows=50):
         if i % buffer_rows == 0:
             yield buf.getvalue().encode(encoding)
             buf.truncate(0)  # But in Python 3, truncate() does not move
-            buf.seek(0)    # the file pointer, so we seek(0) explicitly.
+            buf.seek(0)  # the file pointer, so we seek(0) explicitly.
     yield buf.getvalue().encode(encoding)
     buf.close()
 
 
-def pyramid_download_csv(response, file_title, rows, encoding='utf8', **k):
+def pyramid_download_csv(response, file_title, rows, encoding="utf8", **k):  # noqa
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = content_disposition_value(
-        '{}.{}.csv'.format(file_title, encoding))
+        "{}.{}.csv".format(file_title, encoding)
+    )
     response.app_iter = buffered_csv_writing(rows, encoding=encoding, **k)
     return response
 
 
 def content_disposition_value(file_name):
     """Return the value of a Content-Disposition HTTP header."""
-    return 'attachment;filename="{}"'.format(file_name.replace('"', '_'))
+    return 'attachment;filename="{}"'.format(file_name.replace('"', "_"))
 
 
 """

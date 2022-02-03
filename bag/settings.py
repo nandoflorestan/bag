@@ -18,9 +18,7 @@ def resolve(resource_spec):
 
     Example resource_spec: ``"my.python.module:some_callable"``.
     """
-    if isinstance(
-        resource_spec, ModuleType  # arg is a python module
-    ) or callable(
+    if isinstance(resource_spec, ModuleType) or callable(  # arg is a python module
         resource_spec
     ):  # arg is a callable
         return resource_spec
@@ -81,7 +79,7 @@ _boolean_states = {
 }
 
 
-class SettingsReader(object):
+class SettingsReader:
     """Convenient for reading configuration settings in an app.
 
     However, with Python 3.6+ I have used the **pydantic** library
@@ -99,9 +97,7 @@ class SettingsReader(object):
         """
         value = self.settings.get(key, default)
         if required and value in (None, ""):
-            raise RuntimeError(
-                'Settings are missing a "{}" entry.'.format(key)
-            )
+            raise RuntimeError('Settings are missing a "{}" entry.'.format(key))
         return value
 
     def bool(self, key, default=None, required=False):

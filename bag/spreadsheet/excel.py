@@ -4,17 +4,23 @@ from zipfile import BadZipFile
 from openpyxl import load_workbook  # pip install openpyxl
 from openpyxl.utils.exceptions import InvalidFileException
 from bag.web.exceptions import Problem
+
 try:
     from bag.web.pyramid import _
 except ImportError:
     _ = str  # and i18n is disabled.
 from . import (
-    get_corresponding_variable_names, raise_if_missing_required_headers,
-    raise_if_forbidden_headers)
+    get_corresponding_variable_names,
+    raise_if_missing_required_headers,
+    raise_if_forbidden_headers,
+)
 
 
 def excel_reader(
-    stream, worksheet_name=None, required_headers=[], forbidden_headers=[],
+    stream,
+    worksheet_name=None,
+    required_headers=[],
+    forbidden_headers=[],
 ):
     """Read an XLSX file (from ``stream``) and yield objects.
 
@@ -41,9 +47,10 @@ def excel_reader(
         wb = load_workbook(stream, data_only=True)
     except (BadZipFile, InvalidFileException, KeyError) as e:
         raise Problem(
-            _('That is not an XLSX file.'),
-            error_title=_('Unable to read the XLSX file'),
-            error_debug=str(e))
+            _("That is not an XLSX file."),
+            error_title=_("Unable to read the XLSX file"),
+            error_debug=str(e),
+        )
 
     # Grab either the worksheet named "Assets", or simply the first one
     if worksheet_name and worksheet_name in wb:
@@ -68,7 +75,7 @@ def excel_reader(
                 You can access data as if they were instance variables.
                 """
 
-                __slots__ = ('__cells',)
+                __slots__ = ("__cells",)
 
                 def __init__(self, cells):
                     self.__cells = cells

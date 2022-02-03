@@ -90,9 +90,7 @@ class Path(type(pathlib.Path())):  # type: ignore
         elif self.is_dir():
             shutil.copytree(str(self), str(dest), **kw)
         else:
-            raise RuntimeError(
-                '"{}" is not a file or directory!'.format(self.src)
-            )
+            raise RuntimeError('"{}" is not a file or directory!'.format(self.src))
 
     @property
     def mtime(self):

@@ -45,8 +45,14 @@ class ShowingProgress:
         for index, something in p:
             process(something)
     """
-    def __init__(self, iterable, message='Item #{} done. Working...',
-                 seconds=6, done='Done in {time}! Total items: {total}'):
+
+    def __init__(
+        self,
+        iterable,
+        message="Item #{} done. Working...",
+        seconds=6,
+        done="Done in {time}! Total items: {total}",
+    ):
         self.iterable = iterable
         self.seconds = timedelta(0, seconds)
         self.message = message
@@ -117,8 +123,7 @@ class PercentageDone:
         remaining = self.calc(val)
         if not remaining:
             return
-        print('{0}% done, {1} left...'.format(
-            self.current, str(remaining)[:7]))
+        print("{0}% done, {1} left...".format(self.current, str(remaining)[:7]))
         self.printed = datetime.utcnow()
 
 
@@ -147,12 +152,14 @@ class ShowingPercentage(PercentageDone):
 def test_percentage():
     """Demonstration of ShowingPercentage usage."""
     from time import sleep
+
     for index, item in ShowingPercentage(range(100), max=100, granularity=4):
-        sleep(.5)
+        sleep(0.5)
 
 
 def test_progress():
     """Demonstration of ShowingProgress usage."""
     from time import sleep
+
     for index, item in ShowingProgress(range(100), seconds=4):
-        sleep(.237)
+        sleep(0.237)

@@ -24,7 +24,7 @@ class CreatedChanged:
     changed = Column(DateTime, nullable=False)
 
 
-def created_changed(cls):
+def created_changed(cls):  # noqa
     """Decorate ``cls`` to update *created* and *changed* automatically.
 
     If you use SQLAlchemy inheritance, apply this decorator to subclasses.

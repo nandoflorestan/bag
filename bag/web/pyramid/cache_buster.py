@@ -3,6 +3,7 @@
 import subprocess
 from pyramid.config import Configurator
 from pyramid.static import QueryStringCacheBuster
+
 # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html
 # There are bugs in that example -- solved below.
 
@@ -17,9 +18,11 @@ class GitCacheBuster(QueryStringCacheBuster):
 
     def __init__(self, repo_path, param="x"):  # noqa
         super(GitCacheBuster, self).__init__(param=param)
-        self.token: str = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=repo_path
-        ).decode('ascii').strip()[:5]
+        self.token: str = (
+            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_path)
+            .decode("ascii")
+            .strip()[:5]
+        )
 
     def tokenize(self, request, pathspec, kw):  # noqa
         return self.token

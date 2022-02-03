@@ -138,21 +138,25 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
     :rtype: ``iterator``
     """
     # print('Keywords: {0}. Options: {1}'.format(keywords, options))
-    encoding = options.get('encoding', 'utf-8')
+    encoding = options.get("encoding", "utf-8")
     comments = []
     funcname = None
 
     def new_regex(keyword, quote):
         # TODO: Allow plural messages, too
         return re.compile(
-            keyword +
-            "\(" +     # open parentheses to call function
-            quote +    # string start
+            keyword
+            + "\("
+            + quote  # open parentheses to call function
+            +  # string start
             # TODO: Allow an escaped quote:
-            "([^" + quote + "]+)" +  # capture: anything but a quote
-            quote +    # string end
-            "\)"       # close parentheses (function call)
+            "([^"
+            + quote
+            + "]+)"
+            + quote  # capture: anything but a quote
+            + "\)"  # string end  # close parentheses (function call)
         )
+
     rx = []
     for keyword in keywords:
         rx.append(new_regex(keyword, '"'))
@@ -170,6 +174,7 @@ def po2dict(stream, locale, use_fuzzy=False):
     dictionary of the message IDs and translation strings.
     """
     from babel.messages.pofile import read_po
+
     catalog = read_po(stream, locale)
     messages = [m for m in catalog if m.string]
     if not use_fuzzy:
@@ -186,9 +191,9 @@ def make_json(structure, variable_name=None, indent=1, **k):
     to be included in an HTML <script> tag.
     """
     import json
-    s = json.dumps(structure, indent=indent, **k).replace('/', '\/')
-    return "{0} = {1};\n".format(variable_name, s) if variable_name \
-        else s
+
+    s = json.dumps(structure, indent=indent, **k).replace("/", "\/")
+    return "{0} = {1};\n".format(variable_name, s) if variable_name else s
 
 
 def po2json(po_path, locale, variable_name=None, use_fuzzy=None):
@@ -198,8 +203,15 @@ def po2json(po_path, locale, variable_name=None, use_fuzzy=None):
     return make_json(d, variable_name=variable_name)
 
 
-def compile_dir(dir, domain, out_dir, variable_name=None, use_fuzzy=None,
-                encoding='utf8', include_lib=False):
+def compile_dir(
+    dir,
+    domain,
+    out_dir,
+    variable_name=None,
+    use_fuzzy=None,
+    encoding="utf8",
+    include_lib=False,
+):
     """Given a *dir*, goes through all locale subdirectories in it,
     reads the .po translation files pertaining to *domain*, and then converts
     the translations to javascript files, which are written out to the
@@ -209,28 +221,27 @@ def compile_dir(dir, domain, out_dir, variable_name=None, use_fuzzy=None,
     the end of each of the output files.
     """
     import codecs
+
     if include_lib:
-        with codecs.open(os.path.join(here, 'transecma.js'),
-                         encoding='utf8') as f:
+        with codecs.open(os.path.join(here, "transecma.js"), encoding="utf8") as f:
             lib = f.read()
     else:
-        lib = ''
+        lib = ""
     jobs = []
     if not exists(out_dir):
         os.makedirs(out_dir)
     for locale in os.listdir(dir):
-        po_path = os.path.join(dir, locale, 'LC_MESSAGES', domain + '.po')
+        po_path = os.path.join(dir, locale, "LC_MESSAGES", domain + ".po")
         if os.path.exists(po_path):
-            out_path = os.path.join(out_dir, locale + '.js')
+            out_path = os.path.join(out_dir, locale + ".js")
             jobs.append((locale, po_path, out_path))
     for locale, po_path, out_path in jobs:
-        print('    Creating {0}'.format(out_path))
-        s = po2json(
-            po_path, locale, variable_name=variable_name, use_fuzzy=use_fuzzy)
-        with codecs.open(out_path, 'w', encoding=encoding) as writer:
+        print("    Creating {0}".format(out_path))
+        s = po2json(po_path, locale, variable_name=variable_name, use_fuzzy=use_fuzzy)
+        with codecs.open(out_path, "w", encoding=encoding) as writer:
             writer.write(s)
             if include_lib:
-                writer.write('\n')
+                writer.write("\n")
                 writer.write(lib)
 
 
@@ -250,32 +261,68 @@ def po2json_command():
         po2json -h
     """
     from argparse import ArgumentParser
+
     p = ArgumentParser(
-        description='Converts .po files into .js files '
-        'for web application internationalization.')
-    p.add_argument('--domain', '-D', dest='domain', default='js',
-                   help="domain of PO files (default '%(default)s')")
-    p.add_argument('--directory', '-d', dest='dir',
-                   metavar='DIR', help='base directory of catalog files')
-    p.add_argument('--output-dir', '-o', dest='out_dir', metavar='DIR',
-                   help="name of the output directory for .js files")
+        description="Converts .po files into .js files "
+        "for web application internationalization."
+    )
     p.add_argument(
-        '--use-fuzzy', '-f', dest='use_fuzzy', action='store_true',
+        "--domain",
+        "-D",
+        dest="domain",
+        default="js",
+        help="domain of PO files (default '%(default)s')",
+    )
+    p.add_argument(
+        "--directory",
+        "-d",
+        dest="dir",
+        metavar="DIR",
+        help="base directory of catalog files",
+    )
+    p.add_argument(
+        "--output-dir",
+        "-o",
+        dest="out_dir",
+        metavar="DIR",
+        help="name of the output directory for .js files",
+    )
+    p.add_argument(
+        "--use-fuzzy",
+        "-f",
+        dest="use_fuzzy",
+        action="store_true",
         default=False,
-        help='also include fuzzy translations (default %(default)s)')
-    p.add_argument('--variable', '-n', dest='variable_name',
-                   default='translations',
-                   help="javascript variable name for the translations object")
+        help="also include fuzzy translations (default %(default)s)",
+    )
     p.add_argument(
-        '--include-lib', '-i', dest='include_lib', default=False,
-        action='store_true', help='include transecma.js in the output')
+        "--variable",
+        "-n",
+        dest="variable_name",
+        default="translations",
+        help="javascript variable name for the translations object",
+    )
+    p.add_argument(
+        "--include-lib",
+        "-i",
+        dest="include_lib",
+        default=False,
+        action="store_true",
+        help="include transecma.js in the output",
+    )
     d = p.parse_args()
     if not d.dir:
         p.print_usage()
         return
-    compile_dir(d.dir, d.domain, d.out_dir, variable_name=d.variable_name,
-                use_fuzzy=d.use_fuzzy, include_lib=d.include_lib)
+    compile_dir(
+        d.dir,
+        d.domain,
+        d.out_dir,
+        variable_name=d.variable_name,
+        use_fuzzy=d.use_fuzzy,
+        include_lib=d.include_lib,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     po2json_command()

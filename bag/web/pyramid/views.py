@@ -52,9 +52,7 @@ def get_json_or_raise(request, expect=None, dict_has=None):
     if expect is not None and not isinstance(payload, expect):
         raise Problem(
             "The server found unexpected content in the decoded request!",
-            error_debug="Expected {}, got {}".format(
-                expect, type(payload).__name__
-            ),
+            error_debug="Expected {}, got {}".format(expect, type(payload).__name__),
         )
     if dict_has:
         if not isinstance(payload, dict):
@@ -66,9 +64,7 @@ def get_json_or_raise(request, expect=None, dict_has=None):
             )
         for key, typ in dict_has:
             if key not in payload:
-                raise Problem(
-                    'The request must contain a "{}" variable.'.format(key)
-                )
+                raise Problem('The request must contain a "{}" variable.'.format(key))
             if not isinstance(payload[key], typ):
                 raise Problem(
                     'The value of the "{}" variable is of type {}, but '
@@ -117,9 +113,7 @@ def ajax_view(view_function: ViewHandler) -> ViewHandler:
         else:
             if val is None:
                 raise RuntimeError(
-                    "Error: None returned by {}()".format(
-                        view_function.__qualname__
-                    )
+                    "Error: None returned by {}()".format(view_function.__qualname__)
                 )
             # If *val* is a model instance, convert it to a dict.
             return val.to_dict() if hasattr(val, "to_dict") else val
@@ -133,9 +127,7 @@ def maybe_raise_unprocessable(exc: Exception, **adict) -> None:
     Raise 422 Unprocessable Entity, optionally with additional information.
     """
     if hasattr(exc, "asdict") and callable(exc.asdict):  # type: ignore
-        error_msg = getattr(
-            exc, "error_msg", _("Please correct error(s) in the form.")
-        )
+        error_msg = getattr(exc, "error_msg", _("Please correct error(s) in the form."))
         adict["invalid"] = exc.asdict()  # type: ignore
         adict.setdefault("error_title", "Invalid")
         adict.setdefault("error_msg", error_msg)

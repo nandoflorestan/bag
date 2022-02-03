@@ -2,15 +2,25 @@
 
 import os
 import logging
-from logging.handlers import (RotatingFileHandler, TimedRotatingFileHandler,
-                              WatchedFileHandler)
+from logging.handlers import (
+    RotatingFileHandler,
+    TimedRotatingFileHandler,
+    WatchedFileHandler,
+)
 
-FORMAT = '%(asctime)s %(levelname)s %(message)s'
+FORMAT = "%(asctime)s %(levelname)s %(message)s"
 
 
-def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
-              disk_level=logging.DEBUG, screen_level=logging.INFO,
-              encoding='utf-8'):
+def setup_log(
+    name=None,
+    path="logs",
+    rotating=True,
+    backups=3,
+    file_mode="a",
+    disk_level=logging.DEBUG,
+    screen_level=logging.INFO,
+    encoding="utf-8",
+):
     """This logs to screen if ``screen_level`` is not None, and logs to
     disk if ``disk_level`` is not None.
 
@@ -25,11 +35,13 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
     """
     # If strings are passed in as levels, "decode" them first
     levels = dict(
-        debug=logging.DEBUG,                         # 10
-        info=logging.INFO,                            # 20
-        warn=logging.WARN, warning=logging.WARNING,    # 30
-        error=logging.ERROR,                            # 40
-        critical=logging.CRITICAL, fatal=logging.FATAL,  # 50
+        debug=logging.DEBUG,  # 10
+        info=logging.INFO,  # 20
+        warn=logging.WARN,
+        warning=logging.WARNING,  # 30
+        error=logging.ERROR,  # 40
+        critical=logging.CRITICAL,
+        fatal=logging.FATAL,  # 50
     )
     if isinstance(disk_level, str):
         disk_level = levels[disk_level.lower()]
@@ -47,9 +59,12 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
                 os.mkdir(path)
             except OSError:
                 pass
-            h2 = RotatingFileHandler(os.path.join(
-                path, name or 'root' + ".log.txt"), encoding=encoding,
-                maxBytes=2 ** 22, backupCount=backups)
+            h2 = RotatingFileHandler(
+                os.path.join(path, name or "root" + ".log.txt"),
+                encoding=encoding,
+                maxBytes=2 ** 22,
+                backupCount=backups,
+            )
         else:
             h2 = WatchedFileHandler(path, mode=file_mode, encoding=encoding)
         h2.setLevel(disk_level)
@@ -58,20 +73,30 @@ def setup_log(name=None, path='logs', rotating=True, backups=3, file_mode='a',
     return log
 
 
-def setup_rotating_logger(logger=None, backups=4, size=250000000,
-                          level=logging.DEBUG, encoding='utf-8',
-                          format=FORMAT, directory='.'):
+def setup_rotating_logger(
+    logger=None,
+    backups=4,
+    size=250000000,
+    level=logging.DEBUG,
+    encoding="utf-8",
+    format=FORMAT,
+    directory=".",
+):
     """You may pass either a name or an existing logger as the first argument.
     This attaches a RotatingFileHandler to the specified logger.
     Returns the logger object.
     """
     if isinstance(logger, str):
-        filename = '.'.join((logger, encoding, 'log'))
+        filename = ".".join((logger, encoding, "log"))
         logger = logging.getLogger(logger)
     else:
-        filename = '.'.join((logger.name, encoding, 'log'))
-    hr = RotatingFileHandler(os.path.join(directory, filename), maxBytes=size,
-                             backupCount=backups, encoding=encoding)
+        filename = ".".join((logger.name, encoding, "log"))
+    hr = RotatingFileHandler(
+        os.path.join(directory, filename),
+        maxBytes=size,
+        backupCount=backups,
+        encoding=encoding,
+    )
     if format:
         hr.setFormatter(logging.Formatter(format))
     logger.addHandler(hr)
@@ -79,22 +104,36 @@ def setup_rotating_logger(logger=None, backups=4, size=250000000,
     return logger
 
 
-def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
-                                when='D', interval=1, utc=True, delay=False,
-                                encoding='utf-8', format=FORMAT,
-                                directory='.'):
+def setup_timed_rotating_logger(
+    logger=None,
+    level=logging.DEBUG,
+    backups=14,
+    when="D",
+    interval=1,
+    utc=True,
+    delay=False,
+    encoding="utf-8",
+    format=FORMAT,
+    directory=".",
+):
     """You may pass either a name or an existing logger as the first argument.
     This attaches a TimedRotatingFileHandler to the specified logger.
     Returns the logger object.
     """
     if isinstance(logger, str):
-        filename = '.'.join((logger, encoding, 'log'))
+        filename = ".".join((logger, encoding, "log"))
         logger = logging.getLogger(logger)
     else:
-        filename = '.'.join((logger.name, encoding, 'log'))
+        filename = ".".join((logger.name, encoding, "log"))
     hr = TimedRotatingFileHandler(
-        os.path.join(directory, filename), utc=utc, encoding=encoding,
-        when=when, interval=interval, backupCount=backups, delay=delay)
+        os.path.join(directory, filename),
+        utc=utc,
+        encoding=encoding,
+        when=when,
+        interval=interval,
+        backupCount=backups,
+        delay=delay,
+    )
     if format:
         hr.setFormatter(logging.Formatter(format))
     logger.addHandler(hr)
@@ -102,8 +141,14 @@ def setup_timed_rotating_logger(logger=None, level=logging.DEBUG, backups=14,
     return logger
 
 
-def setup_watched_file_handler(logger=None, level=logging.DEBUG, format=FORMAT,
-                               encoding='utf-8', delay=False, directory='.'):
+def setup_watched_file_handler(
+    logger=None,
+    level=logging.DEBUG,
+    format=FORMAT,
+    encoding="utf-8",
+    delay=False,
+    directory=".",
+):
     """You may pass either a name or an existing logger as the first argument.
     This attaches a WatchedFileHandler to the specified logger.
     Returns the logger object.
@@ -112,12 +157,13 @@ def setup_watched_file_handler(logger=None, level=logging.DEBUG, format=FORMAT,
     compatible with the logrotate daemon.
     """
     if isinstance(logger, str):
-        filename = '.'.join((logger, encoding, 'log'))
+        filename = ".".join((logger, encoding, "log"))
         logger = logging.getLogger(logger)
     else:
-        filename = '.'.join((logger.name, encoding, 'log'))
-    hr = WatchedFileHandler(os.path.join(directory, filename), delay=delay,
-                            encoding=encoding)
+        filename = ".".join((logger.name, encoding, "log"))
+    hr = WatchedFileHandler(
+        os.path.join(directory, filename), delay=delay, encoding=encoding
+    )
     if format:
         hr.setFormatter(logging.Formatter(format))
     logger.addHandler(hr)

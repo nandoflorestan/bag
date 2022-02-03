@@ -7,6 +7,7 @@ from typing import Generator, Union  # noqa
 def is_valid_image(pth: Union[str, Path]) -> bool:
     """Read an image file and return whether it is valid."""
     from PIL import Image  # https://pypi.python.org/pypi/Pillow
+
     try:
         img = Image.open(str(pth))
     except IOError:
@@ -21,8 +22,10 @@ def is_valid_image(pth: Union[str, Path]) -> bool:
     return True
 
 
-def corrupt_images(directory: Union[str, Path]='.', files: str='*.jpg',
-                   ) -> Generator[Path, None, None]:
+def corrupt_images(
+    directory: Union[str, Path] = ".",
+    files: str = "*.jpg",
+) -> Generator[Path, None, None]:
     """Find corrupt images in ``directory``.
 
     Generator that, given a ``directory``, goes through all files that

@@ -16,53 +16,56 @@ except ImportError:
     _ = str  # and i18n is disabled.
 
 
-class MissingHeaders(Exception):
+class MissingHeaders(Exception):  # noqa
 
-    msg1 = _('The spreadsheet is missing the required header: ')
-    msg2 = _('The spreadsheet is missing the required headers: ')
+    msg1 = _("The spreadsheet is missing the required header: ")
+    msg2 = _("The spreadsheet is missing the required headers: ")
 
-    def __init__(self, missing_headers):
+    def __init__(self, missing_headers):  # noqa
         self.missing_headers = missing_headers
 
     def __repr__(self):
-        return '<{} {}>'.format(type(self).__name__, self.missing_headers)
+        return "<{} {}>".format(type(self).__name__, self.missing_headers)
 
     def __str__(self):
         if len(self.missing_headers) == 1:
             return self.msg1 + self.missing_headers[0]
         else:
-            return self.msg2 + ', '.join([
-                '"{}"'.format(h) for h in self.missing_headers])
+            return self.msg2 + ", ".join(
+                ['"{}"'.format(h) for h in self.missing_headers]
+            )
 
 
-class ForbiddenHeaders(Exception):
+class ForbiddenHeaders(Exception):  # noqa
 
-    msg1 = _('The spreadsheet contains the forbidden header: ')
-    msg2 = _('The spreadsheet contains the forbidden headers: ')
+    msg1 = _("The spreadsheet contains the forbidden header: ")
+    msg2 = _("The spreadsheet contains the forbidden headers: ")
 
-    def __init__(self, forbidden_headers):
+    def __init__(self, forbidden_headers):  # noqa
         self.forbidden_headers = forbidden_headers
 
     def __repr__(self):
-        return '<{} {}>'.format(type(self).__name__, self.forbidden_headers)
+        return "<{} {}>".format(type(self).__name__, self.forbidden_headers)
 
     def __str__(self):
         if len(self.forbidden_headers) == 1:
             return self.msg1 + self.forbidden_headers[0]
         else:
-            return self.msg2 + ', '.join(['"{}"'.format(h) for h in self.forbidden_headers])
+            return self.msg2 + ", ".join(
+                ['"{}"'.format(h) for h in self.forbidden_headers]
+            )
 
 
-def raise_if_missing_required_headers(headers, required_headers=[],
-                                      case_sensitive=False):
+def raise_if_missing_required_headers(
+    headers, required_headers=[], case_sensitive=False
+):
     """Ensure all ``required_headers`` are present in ``headers``.
 
     Else raise MissingHeaders.
     """
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
-        missing_headers = [h for h in required_headers
-                           if h.lower() not in headers]
+        missing_headers = [h for h in required_headers if h.lower() not in headers]
     else:
         missing_headers = [h for h in required_headers if h not in headers]
 
@@ -70,16 +73,14 @@ def raise_if_missing_required_headers(headers, required_headers=[],
         raise MissingHeaders(missing_headers)
 
 
-def raise_if_forbidden_headers(headers, forbidden_headers=[],
-                               case_sensitive=False):
+def raise_if_forbidden_headers(headers, forbidden_headers=[], case_sensitive=False):
     """Ensure all ``forbidden_headers`` are not present in ``headers``.
 
     Else raise ForbiddenHeaders.
     """
     if not case_sensitive:
         headers = [h.lower() if h else None for h in headers]
-        blocked_headers = [
-            h for h in forbidden_headers if h.lower() in headers]
+        blocked_headers = [h for h in forbidden_headers if h.lower() in headers]
     else:
         blocked_headers = [h for h in forbidden_headers if h in headers]
 
@@ -87,8 +88,7 @@ def raise_if_forbidden_headers(headers, forbidden_headers=[],
         raise ForbiddenHeaders(blocked_headers)
 
 
-def get_corresponding_variable_names(headers, required_headers,
-                                     case_sensitive=False):
+def get_corresponding_variable_names(headers, required_headers, case_sensitive=False):
     """Return variable names corresponding to the legible headers.
 
     The parameter ``required_headers`` may be a map or a sequence. If map,
@@ -106,9 +106,9 @@ def get_corresponding_variable_names(headers, required_headers,
             vars.append(None)
             continue
         var = None
-        if hasattr(required_headers, 'get'):
+        if hasattr(required_headers, "get"):
             var = required_headers.get(header.strip())
         if not var:
-            var = header.strip().replace(' ', '_').replace('-', '_').lower()
+            var = header.strip().replace(" ", "_").replace("-", "_").lower()
         vars.append(var)
     return vars

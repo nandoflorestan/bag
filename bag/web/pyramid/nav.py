@@ -100,12 +100,17 @@ class NavEntry:
     """Represents a navigation menu item, possibly with children."""
 
     # This constant can be overridden in subclasses:
-    ACTIVE_ITEM_CSS_CLASS = 'active'
+    ACTIVE_ITEM_CSS_CLASS = "active"
 
     def __init__(
-        self, label: str=None, img: hrefable=None, icon: str=None,
-        tooltip: str=None, url: hrefable='##',
-        children: List['NavEntry']=None, **kw
+        self,
+        label: str = None,
+        img: hrefable = None,
+        icon: str = None,
+        tooltip: str = None,
+        url: hrefable = "##",
+        children: List["NavEntry"] = None,
+        **kw
     ) -> None:
         """Instantiate, without depending on a request yet.
 
@@ -137,18 +142,17 @@ class NavEntry:
         """Return "active" if this NavEntry corresponds to the current URL."""
         url = self.href(self.url, request)
         if isinstance(url, str):
-            url = url.split('#')[0]
-        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == url else ''
+            url = url.split("#")[0]
+        return self.ACTIVE_ITEM_CSS_CLASS if request.path_info == url else ""
 
     def __repr__(self):
-        return '<NavEntry: {}>'.format(self.label or self.img)
+        return "<NavEntry: {}>".format(self.label or self.img)
 
     def to_dict(self, request) -> Dict[str, Any]:
         """Convert this instance into a dict, usually for JSON output."""
         adict = self.__dict__.copy()
-        adict['url'] = self.href(adict['url'], request)
-        adict['img'] = self.href(adict['img'], request)
+        adict["url"] = self.href(adict["url"], request)
+        adict["img"] = self.href(adict["img"], request)
         if self.children:
-            adict['children'] = [
-                child.to_dict(request) for child in self.children]
+            adict["children"] = [child.to_dict(request) for child in self.children]
         return adict

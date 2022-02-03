@@ -3,12 +3,12 @@
 from typing import Any, Callable, Optional, Sequence
 
 
-def ask(prompt: str='', default: str='') -> str:
+def ask(prompt: str = "", default: str = "") -> str:
     """Print the ``prompt``, get user's answer, return it -- or a default."""
     if prompt:
         if default:
-            prompt = prompt + ' [' + default + ']'
-        prompt = prompt + ' '
+            prompt = prompt + " [" + default + "]"
+        prompt = prompt + " "
     answer = None
     while not answer:
         answer = input(prompt)
@@ -17,16 +17,16 @@ def ask(prompt: str='', default: str='') -> str:
     return answer
 
 
-def bool_input(prompt: str, default: Optional[bool]=None) -> bool:
+def bool_input(prompt: str, default: Optional[bool] = None) -> bool:
     """Print ``prompt``; return True or False based on the user's choice."""
     if default is None:
-        choices = ' (y/n) '
+        choices = " (y/n) "
     elif default:
-        choices = ' (Y/n) '
+        choices = " (Y/n) "
     else:
-        choices = ' (y/N) '
+        choices = " (y/N) "
     opt = input(prompt + choices).lower()
-    if opt == 'y':
+    if opt == "y":
         return True
     elif opt == "n":
         return False
@@ -51,8 +51,8 @@ def int_input(prompt: str) -> Optional[int]:
 
 def pick_one_of(
     options: Sequence[Any],
-    prompt: str='Pick one: ',
-    to_str: Callable=None,
+    prompt: str = "Pick one: ",
+    to_str: Callable = None,
 ) -> Any:
     """Let the user choose an item (from a sequence of options) by number.
 
@@ -72,12 +72,12 @@ def pick_one_of(
         return alist[opt - 1]
 
 
-def screen_header(text: str, decor: str='=', max: int=79) -> str:
+def screen_header(text: str, decor: str = "=", max: int = 79) -> str:
     """Return a header to be displayed on screen, by decorating ``text``."""
     text = str(text)
     available = max - len(text)
     if available > 3:
-        text = '  ' + text + '  '
+        text = "  " + text + "  "
         available -= 4
     else:
         return text
@@ -86,11 +86,11 @@ def screen_header(text: str, decor: str='=', max: int=79) -> str:
         text = decor + text + decor
         available -= req_space
         if len(text) == available - len(decor):  # Add just one more =
-            text += decor          # in order to fill the whole screen
+            text += decor  # in order to fill the whole screen
             available -= len(decor)
     return text
 
 
 def announce(*a) -> None:
     """Make this message stand out from all the noise in the console."""
-    print('******** ', *a)
+    print("******** ", *a)

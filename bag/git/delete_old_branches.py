@@ -64,16 +64,14 @@ def merged_branches(remote=None, ignore=IGNORE):
         yield branch
 
 
-class Branch:
-    def __init__(self, name, remote=""):
+class Branch:  # noqa
+    def __init__(self, name, remote=""):  # noqa
         self.name = name
         self.remote = remote
 
     def __repr__(self):
         return (
-            "remotes/{}/{}".format(self.remote, self.name)
-            if self.remote
-            else self.name
+            "remotes/{}/{}".format(self.remote, self.name) if self.remote else self.name
         )
 
     @reify
@@ -92,7 +90,7 @@ class Branch:
         year, month, day = [int(x) for x in sdate.split("-")]
         return date(year, month, day)
 
-    def is_older_than_days(self, age):
+    def is_older_than_days(self, age) -> bool:
         return timedelta(int(age)) < date.today() - self.merge_date
 
     def delete(self):
@@ -113,9 +111,7 @@ class Branch:
     default=IGNORE,
     help="Branches to leave untouched",
 )
-@arg(
-    "-l", "--locally", action="store_true", help="Delete the branches locally"
-)
+@arg("-l", "--locally", action="store_true", help="Delete the branches locally")
 @arg(
     "-r",
     "--remote",
@@ -148,9 +144,7 @@ def delete_old_branches(
         if y:
             print("    " + str(branch))
         else:
-            if not bool_input(
-                'Delete the branch "{}"?'.format(branch), default=False
-            ):
+            if not bool_input('Delete the branch "{}"?'.format(branch), default=False):
                 continue
 
         if dry:

@@ -15,15 +15,16 @@ Usage::
 
 def subcommand(fn):
     """Decorate ``fn`` adding it to a list."""
-    if not hasattr(subcommand, 's'):  # Because functions are 1st class objects
-        subcommand.s = []          # we can store the list inside the function.
-    subcommand.s.append(fn)        # One global variable less.
+    if not hasattr(subcommand, "s"):  # Because functions are 1st class objects
+        subcommand.s = []  # we can store the list inside the function.
+    subcommand.s.append(fn)  # One global variable less.
     return fn
 
 
 def main():
     """Use argh to dispatch to your subcommands."""
     from argh import ArghParser  # sudo apt-get install python3-argh
+
     parser = ArghParser()
     # Sorting makes the output of --help better:
     parser.add_commands(sorted(subcommand.s, key=lambda f: f.__name__))

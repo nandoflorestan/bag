@@ -73,7 +73,7 @@ class Page:
         /cities/:city/streets/:street
     """
 
-    def __init__(
+    def __init__(  # noqa
         self,
         op_name,
         url_templ,
@@ -141,7 +141,7 @@ class Page:
 class Operation(Page):
     """Subclass of Page representing an HTTP operation."""
 
-    def to_dict(self):
+    def to_dict(self):  # noqa
         adict = super(Operation, self).to_dict()
         adict["request_method"] = self.view_args.get("request_method")
         return adict
@@ -156,22 +156,18 @@ class Burla:
     Generates URLs and provides JS code to generate URLs in the client.
     """
 
-    def __init__(self, root="", page_class=Page, op_class=Operation):
+    def __init__(self, root="", page_class=Page, op_class=Operation):  # noqa
         self.map = OrderedDict()
         self.root = root
         self._page_class = page_class
         self._op_class = op_class
 
     def _add_page(self, op_name, **kw):
-        assert op_name not in self.map, "Already registered: {}".format(
-            op_name
-        )
+        assert op_name not in self.map, "Already registered: {}".format(op_name)
         self.map[op_name] = self._page_class(op_name, **kw)
 
     def _add_op(self, op_name, **kw):
-        assert op_name not in self.map, "Already registered: {}".format(
-            op_name
-        )
+        assert op_name not in self.map, "Already registered: {}".format(op_name)
         self.map[op_name] = self._op_class(op_name, **kw)
 
     def url(self, name, **kw):
@@ -222,7 +218,11 @@ class Burla:
     PAGES_TITLE = _("Site map")
 
     def gen_documentation(
-        self, pages=False, title: str = "", prefix: str = "", suffix: str = "",
+        self,
+        pages=False,
+        title: str = "",
+        prefix: str = "",
+        suffix: str = "",
     ):
         """Generate documentation in reStructuredText.
 

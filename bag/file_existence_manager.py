@@ -8,8 +8,9 @@ from subprocess import check_call
 class GdbmStorageStrategy:
     """Stores file hashes and file paths in a GNU DBM file."""
 
-    def __init__(self, path='./file_hashes.gdbm', mode='c', sync='s'):
+    def __init__(self, path="./file_hashes.gdbm", mode="c", sync="s"):  # noqa
         from dbm.gnu import open
+
         self.d = open(path, mode + sync)
 
     def close(self):
@@ -123,7 +124,7 @@ class FileExistenceManager:
 
 def print_dup(original, duplicate, m):
     """A callback that just prints the duplicate pair."""
-    print('\n- ORIG:  {}\n  DUPL:  {}'.format(str(original), str(duplicate)))
+    print("\n- ORIG:  {}\n  DUPL:  {}".format(str(original), str(duplicate)))
 
 
 def trash_dup(original, duplicate, m):
@@ -149,25 +150,33 @@ def print_dup_unless_empty(original, duplicate, m):
         print_dup(original, duplicate, m)
 
 
-def populate_db(path='./file_hashes.gdbm', directory=".",
-                callbacks=[print_dup], filter=lambda path: True):
+def populate_db(
+    path="./file_hashes.gdbm",
+    directory=".",
+    callbacks=[print_dup],
+    filter=lambda path: True,
+):
     """Create/update database at ``path`` by hashing files in ``directory``."""
     store = GdbmStorageStrategy(path=path)
     m = FileExistenceManager(store)
     for p in Path(directory).walk():
         if not p.is_file():
             continue
-        with open(str(p), 'rb') as stream:
+        with open(str(p), "rb") as stream:
             original = m.try_add_file(stream, str(p))
         if original:
-            original = original.decode('utf-8')
+            original = original.decode("utf-8")
             for function in callbacks:
                 function(Path(original), p, m)
     m.close()
 
 
-def check_dups(path='./file_hashes.gdbm', directory=".",
-               callbacks=[print_dup], filter=lambda path: True):
+def check_dups(
+    path="./file_hashes.gdbm",
+    directory=".",
+    callbacks=[print_dup],
+    filter=lambda path: True,
+):
     """Check files in ``directory`` against the database ``path``.
 
     Example usage::
@@ -180,17 +189,21 @@ def check_dups(path='./file_hashes.gdbm', directory=".",
     for p in Path(directory).walk():
         if not p.is_file():
             continue
-        with open(str(p), 'rb') as stream:
+        with open(str(p), "rb") as stream:
             original = m.file_exists(stream)
         if original:
-            original = original.decode('utf-8')
+            original = original.decode("utf-8")
             for function in callbacks:
                 function(Path(original), p, m)
     m.close()
 
 
-def find_dups(path='./file_hashes.gdbm', directory='.',
-              callbacks=[print_dup], filter=lambda path: True):
+def find_dups(
+    path="./file_hashes.gdbm",
+    directory=".",
+    callbacks=[print_dup],
+    filter=lambda path: True,
+):
     """Like ``check_dups()``, but also updates the database as it goes.
 
     Given a ``directory``, goes through all files that pass through the
@@ -212,10 +225,10 @@ def find_dups(path='./file_hashes.gdbm', directory='.',
     for p in Path(directory).walk():
         if not p.is_file():
             continue
-        with open(str(p), 'rb') as stream:
+        with open(str(p), "rb") as stream:
             original = m.try_add_file(stream, str(p))
         if original:
-            original = original.decode('utf-8')
+            original = original.decode("utf-8")
             dups[str(p)] = original
             for function in callbacks:
                 function(Path(original), p, m)
@@ -235,11 +248,11 @@ class KeepLarger:
 
     def __call__(self, existing, dup, m):
         if self.dups_dir is None:
-            self.dups_dir = dup.parent / 'dups'
+            self.dups_dir = dup.parent / "dups"
         if dup.stat().st_size > existing.stat().st_size:
             # Keep *dup* since it is the larger file
             existing.rename(self.dups_dir / dup.name)  # Move the old file
-            with open(dup, 'rb') as stream:  # Update the database
+            with open(dup, "rb") as stream:  # Update the database
                 m.add_or_replace_file(stream, str(dup))
         else:
             # Move *dup* since it is the shorter file
