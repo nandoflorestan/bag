@@ -15,7 +15,7 @@ setup(
     url='https://github.com/nandoflorestan/bag',
     name="bag",
     author='Nando Florestan',
-    version='5.0.0',
+    version='5.0.1.dev1',
     license='MIT',
     # https://setuptools.readthedocs.io/en/latest/setuptools.html#using-find-packages
     packages=find_packages(exclude=["tests.*", 'tests']),
