@@ -6,16 +6,20 @@ Usage::
     replace_many -d DIRECTORY '.py,.jinja2' 'text being sought' 'replacement text'
 """
 
-from argh import ArghParser  # pip install argh
+from argh import ArghParser, arg  # pip install argh
 
 from bag.pathlib_complement import Path
 
 
+@arg("extensions", help="Comma-separated file extensions to search")
+@arg("text", help="The text being sought")
+@arg("replace", help="The replacement text")
+@arg("dir", help="Directory to be walked")
 def replace_many(
-    extensions: "Comma-separated file extensions to search",  # type: ignore
-    text: "The text being sought",  # type: ignore
-    replace: "The replacement text",  # type: ignore
-    dir: "Directory to be walked" = ".",  # type: ignore
+    extensions: str,
+    text: str,
+    replace: str,
+    dir: str = ".",
 ):
     """Replace text in multiple files."""
     directory = Path(dir).resolve()
