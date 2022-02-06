@@ -314,42 +314,6 @@ class MinimalBase:
         self.update(clean)
         return self
 
-    @classmethod
-    def get_or_create(cls, session, **filters):
-        """Retrieve or add object; return a tuple ``(object, is_new)``.
-
-        ``is_new`` is True if the object already exists in the database.
-        """
-        warn(
-            "get_or_create() is deprecated and will be removed, because "
-            "model methods should not use the SQLAlchemy session.",
-            DeprecationWarning,
-        )
-        instance = session.query(cls).filter_by(**filters).first()
-        is_new = not instance
-        if is_new:
-            instance = cls(**filters)
-            session.add(instance)
-        return instance, is_new
-
-    @classmethod
-    def create_or_update(cls, session, values={}, **filters):
-        """Load and update entity if it exists, else create one.
-
-        First obtains either an existing object or a new one, based on
-        ``filters``. Then applies ``values`` and returns a tuple
-        ``(object, is_new)``.
-        """
-        warn(
-            "create_or_update() is deprecated and will be removed, because "
-            "model methods should not use the SQLAlchemy session.",
-            DeprecationWarning,
-        )
-        instance, is_new = cls.get_or_create(session, **filters)
-        for k, v in values.items():
-            setattr(instance, k, v)
-        return instance, is_new
-
     def clone(self, values=None, pk="id", sas=None):
         """Return a clone of this model.
 
