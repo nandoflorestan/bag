@@ -12,3 +12,4 @@ data/
 .idea
 docs/source/api/
 docs/docs.zip
+poetry.lock

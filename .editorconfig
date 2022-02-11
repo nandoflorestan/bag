@@ -1,0 +1,40 @@
+# http://editorconfig.org
+
+# Topmost EditorConfig file -- stop searching up the directory tree
+root = true
+
+[*]
+# By default, every file:
+# has unix-style newlines
+end_of_line = lf
+# has a newline at the end of the file
+insert_final_newline = true
+# does not have whitespace at the right
+trim_trailing_whitespace = true
+# is encoded in utf-8
+charset = utf-8
+# uses tabs for indentation
+indent_style = tab
+# each tab is displayed as 4 spaces
+indent_size = 4
+
+[*.{py,rst}]
+# Python and reStructuredText files use spaces for indentation
+indent_style = space
+
+[*.{ng,jinja2}]
+# HTML files use tabs but the size is only 2
+indent_size = 2
+
+# Do not change other people's code
+[**/static/ng/lib/**]
+indent_style = ignore
+indent_size = ignore
+insert_final_newline = ignore
+trim_trailing_whitespace = ignore
+
+# Minified JavaScript files shouldn't be changed
+[**.min.js]
+indent_style = ignore
+insert_final_newline = ignore
+trim_trailing_whitespace = ignore
