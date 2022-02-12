@@ -7,6 +7,7 @@
 	repository = "https://github.com/nandoflorestan/bag"
 	documentation = "http://docs.nando.audio/bag/latest/"
 	classifiers = [
+		# https://pypi.org/pypi?:action=list_classifiers
 		"Development Status :: 5 - Production/Stable",
 		'Environment :: Console',
 		"Environment :: Other Environment",
@@ -33,7 +34,7 @@
 
 [tool.poetry.dependencies]
 	python = "^3.8"
-	# https://pypi.org/pypi?:action=list_classifiers
+	# https://python-poetry.org/docs/dependency-specification/
 	polib = "*"
 	argh = "*"
 
