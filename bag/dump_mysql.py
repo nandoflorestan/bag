@@ -36,7 +36,7 @@ If it is working, create a shell script, called `dump_db.sh`, for cron to call::
 
     cd /home/deployer/mysql-dumps
     # Run dump_db.py under the appropriate virtualenv:
-    /home/deployer/.virtualenvs/dumper/bin/python dump_db.py
+    /home/deployer/py/dumper/.venv/bin/python dump_db.py
 
 Give permission for the above shell script to be executed::
 
