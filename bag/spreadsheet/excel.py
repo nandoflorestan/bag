@@ -1,7 +1,7 @@
 """Easily import an Excel spreadsheet with headers on the top row."""
 
 from zipfile import BadZipFile
-from openpyxl import load_workbook  # pip install openpyxl
+from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from bag.web.exceptions import Problem
 

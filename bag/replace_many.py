@@ -6,7 +6,7 @@ Usage::
     replace_many -d DIRECTORY '.py,.jinja2' 'text being sought' 'replacement text'
 """
 
-from argh import ArghParser, arg  # pip install argh
+from argh import ArghParser, arg
 
 from bag.pathlib_complement import Path
 

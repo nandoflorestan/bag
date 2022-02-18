@@ -8,9 +8,9 @@ But if you always reorder the .po after pulling from transifex, then
 the diff will be readable and the version history will make sense.
 """
 
-from argh import ArghParser, arg  # pip install argh
+from argh import ArghParser, arg
 from pathlib import Path
-from polib import pofile  # pip install polib
+from polib import pofile
 
 
 @arg("path", help=".po file to be sorted, or a directory containing .po files")

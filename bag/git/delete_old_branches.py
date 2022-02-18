@@ -30,7 +30,7 @@ obsolete tracking branches (see them with "git branch -a").
 
 from datetime import date, timedelta
 from bag.reify import reify
-from argh import ArghParser, arg  # pip install argh
+from argh import ArghParser, arg
 from bag.command import checked_execute  # , CommandError
 from bag.console import bool_input
 

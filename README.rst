@@ -114,12 +114,3 @@ Less important library contents
 - `bag.time <http://docs.nando.audio/bag/latest/api/bag.time.html>`_
   -- Functions to make it easier to work with datetimes.
   Includes a JSON encoder that supports time, datetime and Decimal.
-
-
-Compiling the documentation
-===========================
-
-Install ``make``, activate your virtualenv, and then::
-
-    pip install sphinx sphinx-autodoc-typehints
-    ./build_sphinx_documentation.sh

@@ -1,13 +1,6 @@
 r"""Utility module for the poor souls who have to deal with MySQL.
 
-How to set this up on your server::
-
-    sudo apt-get install python-setuptools virtualenvwrapper
-    # Create a directory for this project
-    mkdir ~/mysql-dumps; cd ~/mysql-dumps
-    # Create a virtualenv and install the bag library in it
-    mkvirtualenv -p `which python3` dumper
-    pip install bag
+To set this up on your server, first install bag in a virtualenv.
 
 Then edit a file called dump_db.py with more or less the following content.
 The example assumes you are using WordPress; read it carefully::
@@ -138,9 +131,7 @@ class DumpMySQL:
     ):
         """Send the file ``path`` to an S3 bucket."""
         self.log.debug("Sending to S3 bucket...")
-        # http://botocore.readthedocs.org/en/latest/
-        # from botocore.exceptions import ClientError  # pip install boto3
-        from boto3.session import Session  # pip install boto3
+        from boto3.session import Session
 
         session = Session(
             aws_access_key_id=aws_id,

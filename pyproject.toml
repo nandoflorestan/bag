@@ -44,6 +44,8 @@
 	pytest = "*"
 	pytz = "*"
 	SQLAlchemy = "*"
+	sphinx = "*"
+	sphinx-autodoc-typehints = "*"
 
 [tool.poetry.scripts]
 	po2json = "bag.web.transecma:po2json_command"
