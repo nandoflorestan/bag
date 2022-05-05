@@ -114,6 +114,9 @@ def model_property(sas, model_cls, **ancestors):  # noqa
 
         class AddressResource(BaseResource):
             model = model_property(sas, Address, user=User)
+
+    One problem with this convenience decorator is, it demands the SQLAlchemy session
+    variable (sas) be global - bad software architecture.
     """
 
     def wrapped(self):
@@ -199,7 +202,7 @@ class BaseResource(BaseRootResource):
 class IntResource(BaseResource):
     """Base class for resources whose name must be an int, e.g. /books/1."""
 
-    def validate_name(self, name):  # noqa
+    def validate_name(self, name: str) -> int:  # noqa
         try:
             return int(name)
         except ValueError:
