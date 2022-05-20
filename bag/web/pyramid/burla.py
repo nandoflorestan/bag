@@ -155,7 +155,7 @@ def includeme(config):
     """Add 2 URLs to a Pyramid web application.
 
     - **/http_operations**: JSON list of endpoints.
-    - **/burla**: Javascript library to generate URLs using the above.
+    - **/burla.js**: Javascript library to generate URLs. Also contains the endpoints.
     """
     ops.config = config
 
