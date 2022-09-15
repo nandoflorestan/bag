@@ -28,7 +28,7 @@ except ImportError:
 class PyramidBurla(Burla):
     """Subclass of Burla for integration with Pyramid."""
 
-    def op(self, op_name, section="Miscellaneous", **kw):
+    def op(self, op_name: str, section="Miscellaneous", **kw):
         """Decorator to register an API operation.
 
         Decorate your view handlers with this to register an operation
@@ -41,7 +41,7 @@ class PyramidBurla(Burla):
 
         return wrapper
 
-    def page(self, op_name, section="Miscellaneous", **kw):
+    def page(self, op_name: str, section="Miscellaneous", **kw):
         """Decorator to register a page.
 
         Decorate your view handlers with this to register a page

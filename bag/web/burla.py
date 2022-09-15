@@ -1,8 +1,7 @@
 """Powerful URL generation independent of web frameworks.
 
 **Burla** stores a collection of page URL templates, separate from a
-collection of API method URL templates.  The only difference between
-them is that operations have a request method (GET, POST, PUT etc.).
+collection of API method URL templates.
 
 Burla also facilitates generating documentation about pages and
 API operations in the Python server.
@@ -19,6 +18,16 @@ Maintenance of your web app becomes easier because you register your
 URLs only once (in the Python server code) and then the URLs can be
 used in the entire stack.  When you change your URLs, you only do it
 in one place.
+
+Burla stores 2 kinds of URLs:
+
+- **pages** (which can be linked to and navigated to and always have
+  GET as the HTTP method), and
+- **operations**, which support different request methods
+  (GET, POST, PUT etc.). On an operation you can also indicate whether
+  it is idempotent, and this flag is output to JSON so client-side
+  code knows it, too. Knowing whether a method is idempotent can be
+  important for data synchronization.
 
 URL templates (for matching views) stop at the left of the question mark,
 but when generating URLs, burla supports both query params
@@ -52,13 +61,19 @@ other frameworks.
 from collections import OrderedDict
 from json import dumps
 from re import compile
-from typing import Dict, List
+from typing import cast, Dict, Generator, List, NewType, Union
 from urllib.parse import urlencode
 
 try:
     from bag.web.pyramid import _
 except ImportError:
     _ = str  # and i18n is disabled.
+
+# Add a semantic typing layer to certain strings
+TUrlTemplate = NewType("TUrlTemplate", str)
+TOpName = NewType("TOpName", str)
+# Types reused below
+TPageDict = Dict[str, Union[str, bool]]
 
 
 class Page:
@@ -75,11 +90,11 @@ class Page:
 
     def __init__(  # noqa
         self,
-        op_name,
-        url_templ,
+        op_name: TOpName,
+        url_templ: TUrlTemplate,
         fn=None,
-        permission=None,
-        section="Miscellaneous",
+        permission: str = "",
+        section: str = "Miscellaneous",
         **view_args,
     ):
         assert isinstance(op_name, str)
@@ -112,9 +127,9 @@ class Page:
 
     PARAM = compile(r":([a-z_]+)")
 
-    def url(self, fragment="", **kw):
+    def url(self, fragment: str = "", **kw) -> str:
         """Given a dictionary, generate an actual URL from the template."""
-        astr = self.url_templ
+        astr = cast(str, self.url_templ)
         for param in self.params:
             key = ":" + param
             if key in self.url_templ:
@@ -127,7 +142,7 @@ class Page:
             astr += "#" + fragment
         return astr
 
-    def to_dict(self):
+    def to_dict(self) -> TPageDict:
         """Convert this instance into a dictionary, maybe for JSON output."""
         return {
             "url_templ": self.url_templ,
@@ -141,9 +156,10 @@ class Page:
 class Operation(Page):
     """Subclass of Page representing an HTTP operation."""
 
-    def to_dict(self):  # noqa
+    def to_dict(self) -> TPageDict:  # noqa
         adict = super(Operation, self).to_dict()
-        adict["request_method"] = self.view_args.get("request_method")
+        adict["request_method"] = self.view_args.get("request_method", "GET")
+        adict["idempotent"] = self.view_args.get("idempotent", False)
         return adict
 
     is_page = False
@@ -162,15 +178,15 @@ class Burla:
         self._page_class = page_class
         self._op_class = op_class
 
-    def _add_page(self, op_name, **kw):
+    def _add_page(self, op_name: TOpName, **kw):
         assert op_name not in self.map, "Already registered: {}".format(op_name)
         self.map[op_name] = self._page_class(op_name, **kw)
 
-    def _add_op(self, op_name, **kw):
+    def _add_op(self, op_name: TOpName, **kw):
         assert op_name not in self.map, "Already registered: {}".format(op_name)
         self.map[op_name] = self._op_class(op_name, **kw)
 
-    def url(self, name, **kw):
+    def url(self, name: str, **kw) -> str:
         """Return only the generated URL."""
         return self.map[name].url(**kw)
 
@@ -179,7 +195,7 @@ class Burla:
     #     op = self.map[name]
     #     return {'url': op.url(**kw), 'request_method': op.request_method}
 
-    def add_op(self, op_name, **kw):
+    def add_op(self, op_name: TOpName, **kw):
         """Decorate view handlers to register an operation with Burla."""
 
         def wrapper(view_handler):
@@ -188,7 +204,7 @@ class Burla:
 
         return wrapper
 
-    def add_page(self, op_name, **kw):
+    def add_page(self, op_name: TOpName, **kw):
         """Decorator for view handlers that registers a page with Burla."""
 
         def wrapper(view_handler):
@@ -197,17 +213,17 @@ class Burla:
 
         return wrapper
 
-    def gen_pages(self):
+    def gen_pages(self) -> Generator[Page, None, None]:
         for o in self.map.values():
             if o.is_page:
                 yield o
 
-    def gen_ops(self):
+    def gen_ops(self) -> Generator[Operation, None, None]:
         for o in self.map.values():
             if o.is_operation:
                 yield o
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Dict[str, TPageDict]]:
         """Use this to generate JSON so the client knows the URLs too."""
         return {
             "pages": {o.name: o.to_dict() for o in self.gen_pages()},
@@ -223,7 +239,7 @@ class Burla:
         title: str = "",
         prefix: str = "",
         suffix: str = "",
-    ):
+    ) -> Generator[str, None, None]:
         """Generate documentation in reStructuredText.
 
         If ``pages`` is True, the documentation is a site map.  But by default
@@ -241,7 +257,7 @@ class Burla:
             methods_title = _("API methods")
             items = self.gen_ops()
         # Organize the operations inside their respective sections first
-        sections: Dict[str, List[Operation]] = {}
+        sections: Dict[str, List[Page]] = {}
         for op in items:
             if op.section not in sections:
                 sections[op.section] = []
@@ -294,7 +310,7 @@ class Burla:
             yield suffix
             yield ""
 
-    def get_javascript_code(self):
+    def get_javascript_code(self) -> str:
         """Return a JS library to generate the application URLs.
 
         Return JS code containing the registered operations and pages,
