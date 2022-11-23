@@ -1,11 +1,6 @@
 """bag library."""
 
 from typing import Callable, Dict, Iterable
-import pkg_resources
-
-# Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution("bag").version
-del pkg_resources
 
 
 def first(iterable: Iterable):
