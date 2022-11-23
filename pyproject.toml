@@ -16,9 +16,9 @@
 		"Operating System :: OS Independent",
 		"Programming Language :: Python",
 		"Programming Language :: Python :: 3",
-		"Programming Language :: Python :: 3.8",
 		"Programming Language :: Python :: 3.9",
 		"Programming Language :: Python :: 3.10",
+		"Programming Language :: Python :: 3.11",
 		'Programming Language :: Python :: Implementation :: CPython',
 		'Programming Language :: Python :: Implementation :: PyPy',
 		"Framework :: Pyramid",
@@ -33,7 +33,7 @@
 	keywords = ["python", 'pyramid', 'sqlalchemy',]
 
 [tool.poetry.dependencies]
-	python = "^3.8"
+	python = ">= 3.9"
 	# https://python-poetry.org/docs/dependency-specification/
 	polib = "*"
 	argh = "*"
