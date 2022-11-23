@@ -1,6 +1,6 @@
 [tool.poetry]
 	name = "bag"
-	version = "5.0.1"
+	version = "5.0.2.dev1"
 	description = "A library for several purposes"
 	authors = ["Nando Florestan <nandoflorestan@gmail.com>"]
 	license = "MIT"
