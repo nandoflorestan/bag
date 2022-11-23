@@ -76,10 +76,10 @@ class PluginsManager:  # noqa
             self.add_plugin(callable=cls, module_name=cls.__name__)
 
     def find_egg_plugins(self, entry_point_groups):
-        from pkg_resources import iter_entry_points
+        from importlib.metadata import entry_points
 
         for group in entry_point_groups:
-            for ep in iter_entry_points(group=group, name=None):
+            for ep in entry_points(group=group, name=None):
                 self.add_plugin(callable=ep.load(), module_name=ep.module_name)
 
     def add_plugin(self, callable, module_name):

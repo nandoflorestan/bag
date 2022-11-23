@@ -79,8 +79,8 @@ author = 'Nando Florestan'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# import pkg_resources
-# current = pkg_resources.get_distribution(project).version
+# from importlib.metadata import version
+# current = version("bag")
 current = get_version_number()
 
 # The short X.Y version:
