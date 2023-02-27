@@ -14,7 +14,7 @@ from bag.pathlib_complement import Path
 @arg("extensions", help="Comma-separated file extensions to search")
 @arg("text", help="The text being sought")
 @arg("replace", help="The replacement text")
-@arg("dir", help="Directory to be walked")
+@arg("--dir", help="Directory to be walked")
 def replace_many(
     extensions: str,
     text: str,
