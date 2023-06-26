@@ -160,7 +160,7 @@ def includeme(config):
     ops.config = config
 
     # The request object will be able to generate URLs
-    config.add_request_method(ops.url, "burl")
+    config.add_request_method(lambda self, name, **kw: ops.url(name, **kw), "burl")
 
     add_http_operations_list_url(config)
     add_view_for_javascript_file(config)
