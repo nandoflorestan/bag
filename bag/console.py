@@ -52,7 +52,7 @@ def int_input(prompt: str) -> Optional[int]:
 def pick_one_of(
     options: Sequence[Any],
     prompt: str = "Pick one: ",
-    to_str: Callable = None,
+    to_str: Optional[Callable] = None,
 ) -> Any:
     """Let the user choose an item (from a sequence of options) by number.
 

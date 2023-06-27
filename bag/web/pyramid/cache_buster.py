@@ -16,7 +16,7 @@ class GitCacheBuster(QueryStringCacheBuster):
     the current commit's SHA1 to use as the cache bust token.
     """
 
-    def __init__(self, repo_path, param="x"):  # noqa
+    def __init__(self, repo_path: str, param: str = "x"):  # noqa
         super(GitCacheBuster, self).__init__(param=param)
         self.token: str = (
             subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_path)

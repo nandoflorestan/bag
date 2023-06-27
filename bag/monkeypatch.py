@@ -1,7 +1,7 @@
 """A decorator to add a method to an existing class."""
 
 
-def monkeypatch(cls: type, name: str = None):
+def monkeypatch(cls: type, name: str = ""):
     """Decorator. Applied to a function, sets it as a method in a class.
 
     This can be used above a property, too. Example::

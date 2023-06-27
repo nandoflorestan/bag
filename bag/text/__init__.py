@@ -23,7 +23,7 @@ def shorten(txt: str, length: int = 10, ellipsis: str = "…") -> str:
 
 
 def shorten_proper(
-    name: str, length: int = 11, ellipsis: str = "…", min: int = None
+    name: str, length: int = 11, ellipsis: str = "…", min: Optional[int] = None
 ) -> str:
     """Shorten a proper name for displaying."""
     min = min or int(length / 2.0)

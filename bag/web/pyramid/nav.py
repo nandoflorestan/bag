@@ -104,12 +104,12 @@ class NavEntry:
 
     def __init__(
         self,
-        label: str = None,
-        img: hrefable = None,
-        icon: str = None,
-        tooltip: str = None,
+        label: Optional[str] = None,
+        img: Optional[hrefable] = None,
+        icon: Optional[str] = None,
+        tooltip: Optional[str] = None,
         url: hrefable = "##",
-        children: List["NavEntry"] = None,
+        children: Optional[List["NavEntry"]] = None,
         **kw
     ) -> None:
         """Instantiate, without depending on a request yet.

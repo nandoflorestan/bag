@@ -26,7 +26,7 @@ COOKIE_NAME = "XSRF-TOKEN"
 HEADER_NAME = "X-XSRF-Token"  # different from Pyramid's default 'X-CSRF-Token'
 
 
-def on_GET_request_setup_csrf_cookie(ev):
+def on_GET_request_setup_csrf_cookie(ev) -> None:
     """Set the XSRF-TOKEN cookie if necessary, on a GET request.
 
     If this is the first GET request, we set the CSRF token in a
