@@ -2,8 +2,7 @@
 
 import re
 from datetime import datetime
-from typing import List, Tuple, Union
-from warnings import warn
+from typing import Tuple, Union
 
 from sqlalchemy import Table, Column, ForeignKey, Sequence
 from sqlalchemy.orm import backref as _backref, class_mapper, ColumnProperty
@@ -204,7 +203,7 @@ def is_model_class(val) -> bool:
     return hasattr(val, "__base__") and hasattr(val, "__table__")
 
 
-def models_and_tables_in(arg) -> Tuple[List, List]:
+def models_and_tables_in(arg) -> Tuple[list, list]:
     """Return 2 lists containing the model classes and tables in ``arg``.
 
     ``arg`` may be a resource spec, a module or a dictionary::
