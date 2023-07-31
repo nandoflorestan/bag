@@ -1,6 +1,7 @@
 """Functions for user interaction at the terminal/console."""
 
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Optional, Sequence, TypeVar
+TItem = TypeVar("TItem")
 
 
 def ask(prompt: str = "", default: str = "") -> str:
@@ -50,25 +51,24 @@ def int_input(prompt: str) -> Optional[int]:
 
 
 def pick_one_of(
-    options: Sequence[Any],
+    options: Sequence[TItem],
     prompt: str = "Pick one: ",
     to_str: Optional[Callable] = None,
-) -> Any:
+) -> TItem:
     """Let the user choose an item (from a sequence of options) by number.
 
     ``to_str()`` is a callback that must take an item as argument and must
     return a corresponding string to be displayed.
     """
     alist = options if isinstance(options, list) else list(options)
-    c = 0
-    for o in alist:
-        c += 1
-        print(str(c).rjust(2) + ". " + to_str(o) if to_str else str(o))
+    for ndx, item in enumerate(alist, 1):
+        print(str(ndx).rjust(2) + ". " + (to_str(item) if to_str else str(item)))
     while True:
         try:
             opt = int(input(prompt))
         except ValueError:
             continue
+        assert opt > 0 and opt <= len(alist), "Number outside list bounds."
         return alist[opt - 1]
 
 
@@ -91,6 +91,6 @@ def screen_header(text: str, decor: str = "=", max: int = 79) -> str:
     return text
 
 
-def announce(*a) -> None:
+def announce(*a: str) -> None:
     """Make this message stand out from all the noise in the console."""
     print("******** ", *a)
