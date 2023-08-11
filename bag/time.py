@@ -138,8 +138,8 @@ def now_or_future(
 ) -> datetime:
     """If given datetime is in the past, default to now.
 
-    Given a datetime, returns it as long as it is not in the past;
-    otherwise, returns now.  You may pass the ``timezone`` instance
+    Given a datetime, return it as long as it is not in the past;
+    otherwise, return now.  You may pass the ``timezone`` instance
     for the comparison (defaults to UTC); this is useful if your
     datetime is naive.
 
