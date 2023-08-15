@@ -22,17 +22,11 @@ And it returns 0 if the document is OK.
 """
 
 import codecs
-from docutils.parsers.rst import Parser  # type: ignore
-from docutils import utils  # type: ignore
+from docutils.parsers.rst import Parser
+from docutils import utils
 
 # from docutils.readers.standalone import Reader
-from docutils.transforms import (
-    frontmatter,
-    misc,
-    references,
-    universal,
-    writer_aux,
-)
+from docutils.transforms import frontmatter, misc, references, universal, writer_aux
 
 # TODO: I don't know if the order of these transforms makes any sense.
 check_transforms = [

@@ -13,7 +13,7 @@ from typing import Union
 
 # pathlib's class hierarchy is poorly designed, but here's how to subclass it.
 # http://stackoverflow.com/questions/29850801/subclass-pathlib-path-fails
-class Path(type(pathlib.Path())):  # type: ignore
+class Path(type(pathlib.Path())):  # type: ignore[misc]
     """pathlib.Path subclass -- has more methods."""
 
     def ensure_directory(self, parents=True):

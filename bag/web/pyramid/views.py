@@ -126,9 +126,9 @@ def maybe_raise_unprocessable(exc: Exception, **adict) -> None:
 
     Raise 422 Unprocessable Entity, optionally with additional information.
     """
-    if hasattr(exc, "asdict") and callable(exc.asdict):  # type: ignore
+    if hasattr(exc, "asdict") and callable(exc.asdict):
         error_msg = getattr(exc, "error_msg", _("Please correct error(s) in the form."))
-        adict["invalid"] = exc.asdict()  # type: ignore
+        adict["invalid"] = exc.asdict()
         adict.setdefault("error_title", "Invalid")
         adict.setdefault("error_msg", error_msg)
         raise HTTPError(
@@ -232,7 +232,7 @@ def serve_preloaded(
     if encoding:
         stream = open(path, "r", encoding=encoding)
     else:
-        stream = open(path, "rb")  # type: ignore
+        stream = open(path, "rb")  # type: ignore[assignment]
 
     kwargs = dict(
         content_type=content_type,
