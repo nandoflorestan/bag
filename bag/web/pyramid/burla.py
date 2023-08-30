@@ -67,7 +67,7 @@ class PyramidBurla(Burla):
 
 
 ops = PyramidBurla()
-js_content = None  # populated lazily
+js_content = ""  # populated lazily
 
 
 def add_http_operations_list_url(config, url="/http_operations"):

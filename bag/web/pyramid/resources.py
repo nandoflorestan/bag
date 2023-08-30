@@ -60,6 +60,8 @@ Example usage::
     UserResource.factories["addresses"] = AddressesResource
 """
 
+from __future__ import annotations
+from typing import ClassVar, Optional
 from bag import first
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
@@ -124,7 +126,7 @@ def model_property(sas, model_cls, **ancestors):  # noqa
         if o is None:
             raise HTTPNotFound()
         for key, cls in ancestors.items():
-            if not getattr(o, key) is ancestor_model(self, cls):
+            if getattr(o, key) is not ancestor_model(self, cls):
                 raise HTTPNotFound()
         return o
 
@@ -135,7 +137,7 @@ class BaseRootResource:
     """Base class for your Root resource."""
 
     __name__ = ""
-    __parent__ = None
+    __parent__: ClassVar[Optional[BaseRootResource]] = None
 
     def __init__(self, request):  # noqa
         self._request = request
