@@ -15,6 +15,8 @@ to the bottom of your Pyramid initialization, this call::
 TODO: Use the registry instead of a global variable "ops".
 """
 
+from pathlib import Path
+
 from pyramid.response import Response
 
 from bag.web.burla import Burla
@@ -23,6 +25,9 @@ try:
     from bag.web.pyramid import _
 except ImportError:
     _ = str  # and i18n is disabled.
+
+
+css_file = str(Path(__file__).parent.resolve() / "documentation_styles.css")
 
 
 class PyramidBurla(Burla):
@@ -127,7 +132,7 @@ def _add_doc_view(
     prefix: str = "",
     suffix: str = "",
 ) -> None:
-    from docutils.core import publish_string
+    from docutils.core import publish_string, publish_parts
 
     config.add_route(name, url)
 
@@ -135,13 +140,17 @@ def _add_doc_view(
     def documentation_view(context, request):
         """Page that documents all available URLs."""
         content = publish_string(
-            "\n".join(
+            source="\n".join(
                 ops.gen_documentation(
                     pages=pages, title=title, prefix=prefix, suffix=suffix
                 )
             ),
-            settings_overrides={"output_encoding": "unicode"},
-            writer_name="html",
+            settings_overrides={
+                "output_encoding": "unicode",
+                "stylesheet": css_file,
+                "stylesheet_path": None,
+            },
+            writer_name="html5",
         )
         return Response(body=content)
 
