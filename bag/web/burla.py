@@ -273,7 +273,7 @@ class Burla:
             yield prefix
             yield ""
         yield methods_title
-        yield "=" * len(methods_title)
+        yield "~" * len(methods_title)
 
         for section_name in sorted(sections):
             if section_name:
