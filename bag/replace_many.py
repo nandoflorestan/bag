@@ -33,7 +33,11 @@ def replace_many(
             continue
         # print(f"  - {strpath[len(str(directory)):]}")
         with open(path, "r", encoding="utf-8") as src:
-            content = src.read()
+            try:
+                content = src.read()
+            except UnicodeDecodeError:
+                print(f"Error reading {path}")
+                raise
         replaced = content.replace(text, replace)
         if content != replaced:
             print(f"  - {strpath[len(str(directory)):]}")
