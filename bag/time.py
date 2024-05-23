@@ -13,6 +13,7 @@ from decimal import Decimal
 from time import sleep
 from typing import Optional
 from pytz import timezone
+from warnings import warn
 
 utc = timezone("utc")
 
@@ -31,7 +32,11 @@ def naive(dt: datetime) -> datetime:
 
 
 def parse_iso_datetime(text: str) -> datetime:
-    """Convert the given string to a naive (no tzinfo) datetime."""
+    """Convert the given string to a naive (no tzinfo) datetime. DEPRECATED."""
+    warn(
+        "parse_iso_datetime() is deprecated. Prefer datetime.fromisoformat().",
+        DeprecationWarning
+    )
     text = text.strip()
     if "T" in text:
         sep = "T"
