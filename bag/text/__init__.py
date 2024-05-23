@@ -7,10 +7,15 @@ import re
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Generator, List, Optional, Tuple  # noqa
+from warnings import warn
 
 
 def parse_iso_date(txt: str) -> datetime:
-    """Parse a datetime in ISO format."""
+    """Parse a datetime in ISO format. DEPRECATED. Use datetime.fromisoformat()."""
+    warn(
+        "parse_iso_date() is deprecated. Use datetime.fromisoformat() instead.",
+        DeprecationWarning
+    )
     return datetime.strptime(txt[:19], "%Y-%m-%d %H:%M:%S")
 
 
