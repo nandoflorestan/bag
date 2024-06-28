@@ -26,7 +26,7 @@ class Path(type(pathlib.Path())):  # type: ignore[misc]
         uid = self.stat().st_uid
         os.chown(str(self), uid, gid)
 
-    def walk(self, filter=None, this=False):
+    def traverse(self, filter=None, this=False):
         """Recursively traverse this directory."""
         for path in self.iterdir():
             if path.is_dir():
