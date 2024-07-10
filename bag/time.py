@@ -8,7 +8,7 @@ By the way, some ways of constructing a datetime instance::
 """
 
 import json
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, tzinfo, UTC
 from decimal import Decimal
 from time import sleep
 from typing import Optional
@@ -18,10 +18,20 @@ from warnings import warn
 utc = timezone("utc")
 
 
+def utcnow() -> datetime:
+    """Like the deprecated datetime.utcnow().
+
+    Returns a naive datetime, but this may change soon.
+    """
+    return naive(datetime.now(UTC))
+    """Like the deprecated datetime.utcnow(), but including the UTC timezone."""
+    # return datetime.now(UTC)
+
+
 def now_with_tz() -> datetime:
     """Like datetime.utcnow(), but including tzinfo."""
     return datetime.now(utc)
-    return utc.localize(datetime.utcnow())
+    # return utc.localize(datetime.utcnow())
 
 
 def naive(dt: datetime) -> datetime:
@@ -35,7 +45,7 @@ def parse_iso_datetime(text: str) -> datetime:
     """Convert the given string to a naive (no tzinfo) datetime. DEPRECATED."""
     warn(
         "parse_iso_datetime() is deprecated. Prefer datetime.fromisoformat().",
-        DeprecationWarning
+        DeprecationWarning,
     )
     text = text.strip()
     if "T" in text:
