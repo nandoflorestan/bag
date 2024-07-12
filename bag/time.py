@@ -8,12 +8,18 @@ By the way, some ways of constructing a datetime instance::
 """
 
 import json
-from datetime import datetime, timedelta, tzinfo, UTC
+from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from time import sleep
 from typing import Optional
-from pytz import timezone
 from warnings import warn
+
+from pytz import timezone
+
+try:
+    from datetime import UTC  # type: ignore [attr-defined]
+except ImportError:
+    UTC = None
 
 utc = timezone("utc")
 
@@ -23,7 +29,9 @@ def utcnow() -> datetime:
 
     Returns a naive datetime, but this may change soon.
     """
-    return naive(datetime.now(UTC))
+    if UTC:  # Python 3.12
+        return naive(datetime.now(UTC))
+    return datetime.utcnow()  # Python 3.10
     """Like the deprecated datetime.utcnow(), but including the UTC timezone."""
     # return datetime.now(UTC)
 
