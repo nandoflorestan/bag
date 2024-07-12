@@ -19,7 +19,7 @@ from pytz import timezone
 try:
     from datetime import UTC  # type: ignore [attr-defined]
 except ImportError:
-    UTC = None
+    UTC = None  # type: ignore [assignment]
 
 utc = timezone("utc")
 

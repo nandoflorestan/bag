@@ -146,7 +146,7 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
         # TODO: Allow plural messages, too
         return re.compile(
             keyword
-            + "\("
+            + r"\("
             + quote  # open parentheses to call function
             +  # string start
             # TODO: Allow an escaped quote:
@@ -154,7 +154,7 @@ def extract_jquery_templates(fileobj, keywords, comment_tags, options):
             + quote
             + "]+)"
             + quote  # capture: anything but a quote
-            + "\)"  # string end  # close parentheses (function call)
+            + r"\)"  # string end  # close parentheses (function call)
         )
 
     rx = []
@@ -192,7 +192,7 @@ def make_json(structure, variable_name=None, indent=1, **k):
     """
     import json
 
-    s = json.dumps(structure, indent=indent, **k).replace("/", "\/")
+    s = json.dumps(structure, indent=indent, **k).replace("/", r"\/")
     return "{0} = {1};\n".format(variable_name, s) if variable_name else s
 
 
