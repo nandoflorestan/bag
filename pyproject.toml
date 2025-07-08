@@ -29,6 +29,7 @@
 		'Topic :: Multimedia :: Graphics :: Graphics Conversion',
 		"Topic :: Software Development :: Libraries :: Python Modules",
 		'Topic :: Text Processing :: General',
+		"Typing :: Typed",
 	]
 	# A list of keywords (max: 5) that the package is related to
 	keywords = ["python", 'pyramid', 'sqlalchemy',]
