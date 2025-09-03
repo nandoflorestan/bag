@@ -51,7 +51,7 @@ class Path(type(pathlib.Path())):  # type: ignore[misc]
     def remove(self):
         """Delete self, irrespective of whether it's symlink, file or dir."""
         try:
-            self.unlink()
+            self.unlink(missing_ok=True)
         except Exception:
             if self.is_dir():  # symbolic link pointing to a directory.
                 shutil.rmtree(str(self))
