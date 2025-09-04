@@ -106,6 +106,29 @@ class Path(type(pathlib.Path())):  # type: ignore[misc]
         os.utime(path, times=(atime, mtime.timestamp()))
 
 
+def symlink(source: Path, target: Path) -> None:
+    """
+    Create a symbolic link from a source path to a target path.
+
+    Args:
+        source: The path to the original file or directory.
+        target: The path where the symbolic link will be created.
+
+    Raises:
+        FileExistsError: If the target path already exists and is not a symbolic link.
+    """
+    assert source != target, "Cannot symlink {source} onto itself!"
+    if target.exists():
+        if target.is_symlink():
+            return
+        else:
+            raise FileExistsError(
+                f"Target '{target}' already exists and is not a symbolic link."
+            )
+    else:
+        os.symlink(str(source), str(target))
+
+
 del pathlib
 
 
