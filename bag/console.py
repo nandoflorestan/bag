@@ -1,6 +1,7 @@
 """Functions for user interaction at the terminal/console."""
 
 from typing import Any, Callable, Optional, Sequence, TypeVar
+
 TItem = TypeVar("TItem")
 
 
@@ -70,6 +71,26 @@ def pick_one_of(
             continue
         assert opt > 0 and opt <= len(alist), "Number outside list bounds."
         return alist[opt - 1]
+
+
+def user_choice(prompt: str, choices: Sequence[str] | str, default: str = "") -> str:
+    """Show `prompt` and get user input, insisting it be one of the `choices`.
+
+    The choices are treated as case-insensitive.
+
+    If you provide a `default`, the user can simply press Enter to choose it.
+    Example:
+
+        txt = user_choice("Accept? [Y]es, [n]o, [e]xit", choices="yne", default="y")
+    """
+    alternatives = [c.lower() for c in choices]
+    standard = default.lower()
+    while True:
+        text = input(prompt + " ").strip().lower()
+        if text == "" and standard:
+            return standard
+        if text in alternatives:
+            return text
 
 
 def screen_header(text: str, decor: str = "=", max: int = 79) -> str:
