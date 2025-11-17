@@ -2,6 +2,7 @@
 
 from importlib import import_module
 from types import ModuleType
+from typing import Callable
 
 
 def read_ini_files(*config_files, encoding="utf-8"):
@@ -13,11 +14,14 @@ def read_ini_files(*config_files, encoding="utf-8"):
     return settings
 
 
-def resolve(resource_spec):
+def resolve(resource_spec: str | Callable | ModuleType) -> Callable | ModuleType:
     """Return the variable referred to in the ``resource_spec`` string.
 
     Example resource_spec: ``"my.python.module:some_callable"``.
     """
+    # TODO It would be more useful to have 2 functions:
+    # one that returns a ModuleType and one that returns a callable,
+    # because user code should be treating these differently.
     if isinstance(resource_spec, ModuleType) or callable(  # arg is a python module
         resource_spec
     ):  # arg is a callable
