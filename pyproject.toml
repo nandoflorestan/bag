@@ -1,64 +1,73 @@
-[tool.poetry]
-	name = "bag"
-	version = "5.0.2.dev1"
-	description = "A library for several purposes"
-	readme = "README.rst"
-	authors = ["Nando Florestan <nandoflorestan@gmail.com>"]
-	license = "MIT"
-	repository = "https://github.com/nandoflorestan/bag"
-	documentation = "http://docs.nando.audio/bag/latest/"
-	classifiers = [
-		# https://pypi.org/pypi?:action=list_classifiers
-		"Development Status :: 5 - Production/Stable",
-		'Environment :: Console',
-		"Environment :: Other Environment",
-		"Intended Audience :: Developers",
-		'License :: OSI Approved :: MIT License',
-		"Operating System :: OS Independent",
-		"Programming Language :: Python",
-		"Programming Language :: Python :: 3",
-		"Programming Language :: Python :: 3.11",
-		"Programming Language :: Python :: 3.12",
-		"Programming Language :: Python :: 3.13",
-		'Programming Language :: Python :: Implementation :: CPython',
-		'Programming Language :: Python :: Implementation :: PyPy',
-		"Framework :: Pyramid",
-		'Topic :: Database',
-		"Topic :: Internet :: WWW/HTTP",
-		'Topic :: Internet :: WWW/HTTP :: WSGI',
-		'Topic :: Multimedia :: Graphics :: Graphics Conversion',
-		"Topic :: Software Development :: Libraries :: Python Modules",
-		'Topic :: Text Processing :: General',
-		"Typing :: Typed",
-	]
-	# A list of keywords (max: 5) that the package is related to
-	keywords = ["python", 'pyramid', 'sqlalchemy',]
+[project]
+name = "bag"
+version = "5.0.2.dev1"
+description = "A library for several purposes"
+authors = [{ name = "Nando Florestan", email = "nandoflorestan@gmail.com" }]
+requires-python = ">= 3.11"
+readme = "README.rst"
+license = "MIT"
+keywords = [
+    "python",
+    "pyramid",
+    "sqlalchemy",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: Other Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Framework :: Pyramid",
+    "Topic :: Database",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: WSGI",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: General",
+    "Typing :: Typed",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "polib",
+    "argh",
+]
 
-[tool.poetry.dependencies]
-	python = ">= 3.11"
-	# https://python-poetry.org/docs/dependency-specification/
-	polib = "*"
-	argh = "*"
+[project.urls]
+Repository = "https://github.com/nandoflorestan/bag"
+Documentation = "http://docs.nando.audio/bag/latest/"
 
-[tool.poetry.group.dev.dependencies]
-	babel = "*"
-	pyramid = "*"
-	pytest = "*"
-	pytz = "*"
-	SQLAlchemy = "*"
-	sphinx = "*"
-	sphinx-autodoc-typehints = "*"
+[project.scripts]
+po2json = "bag.web.transecma:po2json_command"
+reorder_po = "bag.reorder_po:_command"
+check_rst = "bag.check_rst:command"
+delete_old_branches = "bag.git.delete_old_branches:_command"
+replace_many = "bag.replace_many:_command"
 
-[tool.poetry.scripts]
-	po2json = "bag.web.transecma:po2json_command"
-	reorder_po = "bag.reorder_po:_command"
-	check_rst = "bag.check_rst:command"
-	delete_old_branches = "bag.git.delete_old_branches:_command"
-	replace_many = "bag.replace_many:_command"
+[project.entry-points."babel.extractors"]
+jquery_templates = "bag.web.transecma:extract_jquery_templates"
 
-[tool.poetry.plugins."babel.extractors"]
-	jquery_templates = "bag.web.transecma:extract_jquery_templates"
+[dependency-groups]
+dev = [
+    "babel",
+    "pyramid",
+    "pytest",
+    "pytz",
+    "SQLAlchemy",
+    "sphinx",
+    "sphinx-autodoc-typehints",
+]
+
+[tool.uv.build-backend]
+module-root = ""
 
 [build-system]
-	requires = ["poetry-core>=1.0.0"]
-	build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.30,<0.10.0"]
+build-backend = "uv_build"
