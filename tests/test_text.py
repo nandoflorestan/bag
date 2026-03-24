@@ -7,15 +7,20 @@ from bag.text import break_lines_near, to_filename, url_join
 class TestUrlJoin(unittest.TestCase):
     def test_url_join(self):
         expected = "http://test.audio/api/call"
+        # 4 combinations of slashes
         self.assertEqual(expected, url_join("http://test.audio", "api/call"))
         self.assertEqual(expected, url_join("http://test.audio", "/api/call"))
         self.assertEqual(expected, url_join("http://test.audio/", "api/call"))
         self.assertEqual(expected, url_join("http://test.audio/", "/api/call"))
-        self.assertEqual(expected, url_join("http://test.audio", "/api/call"))
+        # rm_final_sep argument
         self.assertEqual(
             expected, url_join("http://test.audio", "/api/call/", rm_final_sep=True)
         )
         self.assertEqual(expected + "/", url_join("http://test.audio", "/api/call/"))
+        # Relative URL
+        self.assertEqual("/my/blog", url_join("/my", "blog"))
+        # Other separator
+        self.assertEqual("1, 2", url_join("1", "2", sep=", "))
 
 
 class TestText(unittest.TestCase):
