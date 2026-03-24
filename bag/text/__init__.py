@@ -10,11 +10,42 @@ from typing import Callable, Generator, List, Optional, Tuple  # noqa
 from warnings import warn
 
 
+def url_join(*parts: str, sep: str = "/", rm_final_sep: bool = False) -> str:
+    """Join URL parts, ensuring exactly one slash between them.
+
+    The first part must NOT be just a protocol such as "https://".
+
+    The functions in the stdlib have different behavior:
+
+    - os.path.join() is for filesystem paths, not URLs. If any argument starts with
+        a slash, it is treated as an absolute path,
+        and all preceding arguments are discarded.
+    - urllib.parse.urljoin() requires the base URL (the first part) to end in a slash,
+        otherwise it strips the last segment of the base.
+    """
+    # return "/".join(p.strip("/") for p in parts if p.strip("/"))
+    count_parts = len(parts)
+    if count_parts == 1:
+        return parts[0].rstrip(sep) if rm_final_sep else parts[0]
+    # When there is more than one part:
+    last = count_parts - 1
+    alist = []
+    for ndx, part in enumerate(parts):
+        if ndx == 0:
+            assert not part.endswith("://"), f"Unsupported by url_join(): {part}"
+            alist.append(part.rstrip(sep))
+        elif ndx == last and not rm_final_sep:
+            alist.append(part.lstrip(sep))
+        else:
+            alist.append(part.strip(sep))
+    return sep.join(alist)
+
+
 def parse_iso_date(txt: str) -> datetime:
     """Parse a datetime in ISO format. DEPRECATED. Use datetime.fromisoformat()."""
     warn(
         "parse_iso_date() is deprecated. Use datetime.fromisoformat() instead.",
-        DeprecationWarning
+        DeprecationWarning,
     )
     return datetime.strptime(txt[:19], "%Y-%m-%d %H:%M:%S")
 

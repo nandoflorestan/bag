@@ -1,15 +1,29 @@
 """Tests the *text* module."""
 
 import unittest
-from bag.text import break_lines_near, to_filename
+from bag.text import break_lines_near, to_filename, url_join
+
+
+class TestUrlJoin(unittest.TestCase):
+    def test_url_join(self):
+        expected = "http://test.audio/api/call"
+        self.assertEqual(expected, url_join("http://test.audio", "api/call"))
+        self.assertEqual(expected, url_join("http://test.audio", "/api/call"))
+        self.assertEqual(expected, url_join("http://test.audio/", "api/call"))
+        self.assertEqual(expected, url_join("http://test.audio/", "/api/call"))
+        self.assertEqual(expected, url_join("http://test.audio", "/api/call"))
+        self.assertEqual(
+            expected, url_join("http://test.audio", "/api/call/", rm_final_sep=True)
+        )
+        self.assertEqual(expected + "/", url_join("http://test.audio", "/api/call/"))
 
 
 class TestText(unittest.TestCase):
 
     def test_to_filename(self):
         self.assertEqual(
-            to_filename("Carl Sagan", for_web=True, maxlength=16),
-            'Carl-Sagan')
+            to_filename("Carl Sagan", for_web=True, maxlength=16), "Carl-Sagan"
+        )
 
 
 class TestBreakLinesNear(unittest.TestCase):
@@ -19,9 +33,11 @@ class TestBreakLinesNear(unittest.TestCase):
             "tres palavras difer…",
             "…entes",
         ]
-        assert break_lines_near(
-            "trespalavras detamanho mediopragrande", 15
-        ) == ["trespalavras", "detamanho medi…", "…opragrande"]
+        assert break_lines_near("trespalavras detamanho mediopragrande", 15) == [
+            "trespalavras",
+            "detamanho medi…",
+            "…opragrande",
+        ]
         assert break_lines_near("umapalavraso", 7) == ["umapal…", "…avraso"]
         assert break_lines_near("umapalavragigantesca mas com outras", 15) == [
             "umapalavragiga…",
@@ -33,8 +49,7 @@ class TestBreakLinesNear(unittest.TestCase):
             "teste somadaaoutrapalavratambemcompletamentedesnecessaria",
             70,
         ) == [
-            "umapalavradetamanhocompletamentedesnecessarioporemvalidoparaeste"
-            "teste",
+            "umapalavradetamanhocompletamentedesnecessarioporemvalidoparaeste" "teste",
             "somadaaoutrapalavratambemcompletamentedesnecessaria",
         ]
         assert break_lines_near(
