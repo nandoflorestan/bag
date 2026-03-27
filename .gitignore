@@ -13,3 +13,4 @@ data/
 docs/source/api/
 docs/docs.zip
 poetry.lock
+uv.lock
