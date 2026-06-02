@@ -1,6 +1,6 @@
 """Functions for user interaction at the terminal/console."""
 
-from typing import Any, Callable, Optional, Sequence, TypeVar
+from typing import Callable, Sequence, TypeVar
 
 TItem = TypeVar("TItem")
 
@@ -19,7 +19,7 @@ def ask(prompt: str = "", default: str = "") -> str:
     return answer
 
 
-def bool_input(prompt: str, default: Optional[bool] = None) -> bool:
+def bool_input(prompt: str, default: bool | None = None) -> bool:
     """Print ``prompt``; return True or False based on the user's choice."""
     if default is None:
         choices = " (y/n) "
@@ -38,7 +38,7 @@ def bool_input(prompt: str, default: Optional[bool] = None) -> bool:
         return bool_input(prompt)
 
 
-def int_input(prompt: str) -> Optional[int]:
+def int_input(prompt: str) -> int | None:
     """Print ``prompt``; ensure the user enters an integer and return it."""
     text = input(prompt + " ")
     if not text:
@@ -52,9 +52,7 @@ def int_input(prompt: str) -> Optional[int]:
 
 
 def pick_one_of(
-    options: Sequence[TItem],
-    prompt: str = "Pick one: ",
-    to_str: Optional[Callable] = None,
+    options: Sequence[TItem], prompt: str = "Pick one: ", to_str: Callable | None = None
 ) -> TItem:
     """Let the user choose an item (from a sequence of options) by number.
 
