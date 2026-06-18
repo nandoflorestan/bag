@@ -140,6 +140,7 @@ def fk_rel(
                 passive_deletes=passive_deletes,
                 order_by=order_by,
                 lazy=lazy,
+                cascade_backrefs=False,
             ),
         )
         if backref
