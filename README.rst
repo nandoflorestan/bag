@@ -19,68 +19,68 @@ This version of **bag** was published with
 Most important library contents
 ===============================
 
-- `bag.spreadsheet <http://docs.nando.audio/bag/latest/api/bag.spreadsheet.html>`_
+- `bag.spreadsheet <https://docs.revulo.dev/bag/latest/api/bag.spreadsheet.html>`_
   -- Import CSV and Excel spreadsheets based on headers on the first row.
   There is also a buffered CSV writer for outputting CSV in a web app.
-- `bag.email_validator <http://docs.nando.audio/bag/latest/api/bag.email_validator.html>`_
+- `bag.email_validator <https://docs.revulo.dev/bag/latest/api/bag.email_validator.html>`_
   -- The ultimate functions for email validation and
   domain validation, as well as an email address harvester.
-- `bag.pathlib_complement <http://docs.nando.audio/bag/latest/api/bag.pathlib_complement.html>`_
+- `bag.pathlib_complement <https://docs.revulo.dev/bag/latest/api/bag.pathlib_complement.html>`_
   -- A Path subclass that does what pathlib doesn't do.
-- `bag.subcommand <http://docs.nando.audio/bag/latest/api/bag.subcommand.html>`_
+- `bag.subcommand <https://docs.revulo.dev/bag/latest/api/bag.subcommand.html>`_
   -- Use argh to dispatch to subcommands with their command-line arguments.
-- `bag.web.burla <http://docs.nando.audio/bag/latest/api/bag.web.burla.html>`_
+- `bag.web.burla <https://docs.revulo.dev/bag/latest/api/bag.web.burla.html>`_
   -- Powerful URL generation independent of web frameworks, working in Python and in the client (Javascript) too. Also provided is `Pyramid integration for it <https://github.com/nandoflorestan/bag/blob/master/bag/web/pyramid/burla.py>`_.
-- `bag.web.transecma <http://docs.nando.audio/bag/latest/api/bag.web.transecma.html>`_
+- `bag.web.transecma <https://docs.revulo.dev/bag/latest/api/bag.web.transecma.html>`_
   -- Complete solution for javascript internationalization. Compatible with
   jquery templates. Includes
   `transecma.js <https://github.com/nandoflorestan/bag/blob/master/bag/web/transecma.js>`_.
 - `bag.web.flash_msg` has been removed in favor of a better module in the
-  `kerno <http://docs.nando.audio/kerno/latest/>`_ library.  It defines
+  `kerno <https://docs.revulo.dev/kerno/latest/>`_ library.  It defines
   a rich class for UI messages to be stored in the HTTP session.
 
 
 If you use the Pyramid web framework
 ====================================
 
-- `bag.web.pyramid.angular_csrf <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.angular_csrf.html>`_
+- `bag.web.pyramid.angular_csrf <https://docs.revulo.dev/bag/latest/api/bag.web.pyramid.angular_csrf.html>`_
   -- Make Pyramid play ball with AngularJS to achieve CSRF protection.
-- `bag.web.pyramid.locale <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.locale.html>`_
+- `bag.web.pyramid.locale <https://docs.revulo.dev/bag/latest/api/bag.web.pyramid.locale.html>`_
   -- Easily enable and disable locales, let users switch languages,
   and use the browser's languages by default.
-- `bag.web.pyramid.nav <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.nav.html>`_
+- `bag.web.pyramid.nav <https://docs.revulo.dev/bag/latest/api/bag.web.pyramid.nav.html>`_
   -- Simple web menu system (navigation).
-- `bag.web.pyramid.plugins_manager <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.plugins_manager.html>`_
+- `bag.web.pyramid.plugins_manager <https://docs.revulo.dev/bag/latest/api/bag.web.pyramid.plugins_manager.html>`_
   -- Make your Pyramid app extensible through plugins.
-- `bag.web.pyramid.resources <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.resources.html>`_
-- `bag.web.exceptions <http://docs.nando.audio/bag/latest/api/bag.web.exceptions.html>`_
+- `bag.web.pyramid.resources <https://docs.revulo.dev/bag/latest/api/bag.web.pyramid.resources.html>`_
+- `bag.web.exceptions <https://docs.revulo.dev/bag/latest/api/bag.web.exceptions.html>`_
   -- The Problem exception is good for throwing from a service layer, then
   caught in the view layer to be shown to the user.
   -- Functions and base resources for context objects (Pyramid traversal).
-- `bag.web.pyramid.routes <http://docs.nando.audio/bag/latest/api/bag.web.pyramid.routes.html>`_
+- `bag.web.pyramid.routes <https://docs.revulo.dev/bag/latest/api/bag.web.pyramid.routes.html>`_
   -- Make Pyramid routes and the route_path() function available to JS in the client.
 
 
 If you use SQLAlchemy
 =====================
 
-- `bag.sqlalchemy.context <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.context.html>`_
+- `bag.sqlalchemy.context <https://docs.revulo.dev/bag/latest/api/bag.sqlalchemy.context.html>`_
   -- Convenient SQLAlchemy initialization, at last.
-- `bag.sqlalchemy.mediovaigel <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.mediovaigel.html>`_ -- Complete solution for database fixtures using SQLAlchemy.
-- `bag.sqlalchemy.tricks <http://docs.nando.audio/bag/latest/api/bag.sqlalchemy.tricks.html>`_
+- `bag.sqlalchemy.mediovaigel <https://docs.revulo.dev/bag/latest/api/bag.sqlalchemy.mediovaigel.html>`_ -- Complete solution for database fixtures using SQLAlchemy.
+- `bag.sqlalchemy.tricks <https://docs.revulo.dev/bag/latest/api/bag.sqlalchemy.tricks.html>`_
   -- Various SQLAlchemy gimmicks, including a great base model class.
 
 
 Commands
 ========
 
-- `delete_old_branches <http://docs.nando.audio/bag/latest/api/bag.git.delete_old_branches.html>`_
+- `delete_old_branches <https://docs.revulo.dev/bag/latest/api/bag.git.delete_old_branches.html>`_
   -- Deletes git branches that have already been merged onto the current branch.
   Optionally, filter the branches by age (in days).
-- `reorder_po <http://docs.nando.audio/bag/latest/api/bag.reorder_po.html>`_
+- `reorder_po <https://docs.revulo.dev/bag/latest/api/bag.reorder_po.html>`_
   -- Reorders .po files (usually after transifex messes up the order of the
   translations in them) so the diff is always readable.
-- `replace_text <http://docs.nando.audio/bag/latest/api/bag.replace_many.html>`_
+- `replace_text <https://docs.revulo.dev/bag/latest/api/bag.replace_many.html>`_
   -- A simple command to replace text in many files, without worrying
   about regular expressions.
 
@@ -88,29 +88,29 @@ Commands
 Less important library contents
 ===============================
 
-- `bag.check_rst <http://docs.nando.audio/bag/latest/api/bag.check_rst.html>`_
+- `bag.check_rst <https://docs.revulo.dev/bag/latest/api/bag.check_rst.html>`_
   -- Verifies reStructuredText content for correctness.
-- `bag.console <http://docs.nando.audio/bag/latest/api/bag.console.html>`_
+- `bag.console <https://docs.revulo.dev/bag/latest/api/bag.console.html>`_
   -- Functions for user interaction at the console.
-- `bag.corrupt_image <http://docs.nando.audio/bag/latest/api/bag.corrupt_image.html>`_
+- `bag.corrupt_image <https://docs.revulo.dev/bag/latest/api/bag.corrupt_image.html>`_
   -- Read image files and do something if they are corrupt.
-- `bag.file_existence_manager <http://docs.nando.audio/bag/latest/api/bag.file_existence_manager.html>`_
+- `bag.file_existence_manager <https://docs.revulo.dev/bag/latest/api/bag.file_existence_manager.html>`_
   -- Tools for finding duplicate files using hashes.
-- `bag.log <http://docs.nando.audio/bag/latest/api/bag.log.html>`_
+- `bag.log <https://docs.revulo.dev/bag/latest/api/bag.log.html>`_
   -- Convenient logging initialization.
 - **bag.html** -- Encode and decode HTML and XML entities.
 - **bag.more_codecs** -- Got text in some weird encoding that
   Python doesn't know? OK, use iconv to decode it.
-- `bag.show_progress <http://docs.nando.audio/bag/latest/api/bag.show_progress.html>`_
+- `bag.show_progress <https://docs.revulo.dev/bag/latest/api/bag.show_progress.html>`_
   -- Don't leave your user wondering if your program is hanging;
   print the progress every few seconds.
-- `bag.streams <http://docs.nando.audio/bag/latest/api/bag.streams.html>`_
+- `bag.streams <https://docs.revulo.dev/bag/latest/api/bag.streams.html>`_
   -- Functions that use streams (open files).
-- `bag.text <http://docs.nando.audio/bag/latest/api/bag.text.html>`_
+- `bag.text <https://docs.revulo.dev/bag/latest/api/bag.text.html>`_
   -- Functions for working with unicode strings.
-- `bag.text.words <http://docs.nando.audio/bag/latest/api/bag.text.words.html>`_
+- `bag.text.words <https://docs.revulo.dev/bag/latest/api/bag.text.words.html>`_
   -- Contains lists of nouns and adjectives and can generate a random combination words
   -- good for generating funny test data.
-- `bag.time <http://docs.nando.audio/bag/latest/api/bag.time.html>`_
+- `bag.time <https://docs.revulo.dev/bag/latest/api/bag.time.html>`_
   -- Functions to make it easier to work with datetimes.
   Includes a JSON encoder that supports time, datetime and Decimal.
