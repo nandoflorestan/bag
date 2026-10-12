@@ -6,7 +6,7 @@ bag library
 multiple programs -- so this code must be version-controlled.
 I use SQLAlchemy and Pyramid a lot.
 
-**Documentation** is at http://docs.nando.audio/bag/latest/
+**Documentation** is at https://docs.revulo.dev/bag/latest/
 
 The code is at
 https://github.com/nandoflorestan/bag
