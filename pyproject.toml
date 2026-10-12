@@ -42,7 +42,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/nandoflorestan/bag"
-Documentation = "http://docs.nando.audio/bag/latest/"
+Documentation = "https://docs.revulo.dev/bag/latest/"
 
 [project.scripts]
 po2json = "bag.web.transecma:po2json_command"
